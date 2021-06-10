@@ -33,7 +33,7 @@ def get_skolem_function(cln):
     # print(spec)
 
 if __name__ == "__main__":
-    cln = CLN(input_size, K, device, name, classify=False, p=0).to(device)
+    cln = CLN(input_size, K, device, name, classify=True, p=0).to(device)
     cln.load_state_dict(torch.load("classifier"))
     # cln.load_state_dict(torch.load("regressor"))
     cln.eval()

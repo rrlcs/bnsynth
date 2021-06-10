@@ -20,9 +20,9 @@ class utils():
         if name == "luka":
             return max(0, t + u - 1)
         elif name == "godel":
-            return np.minimum(t, u)
+            return torch.minimum(t, u)
         elif name == "product":
-            return np.multiply(t, u)
+            return torch.multiply(t, u)
         else:
             print("Wrong Name!")
 
@@ -48,35 +48,43 @@ class utils():
     
     def continuous_xor_vectorized(self, inp_vars, name):
         op1 = inp_vars[0, :]
-        print(inp_vars.shape[0])
+        # print(inp_vars.shape[0])
         for i in range(inp_vars.shape[0]-1):
             op2 = inp_vars[i+1, :]
             t = self.tnorm_vectorized(1-op1, op2, name)
             u = self.tnorm_vectorized(op1, 1-op2, name)
             res = 1-self.tnorm_vectorized(1-t, 1-u, name)
             op1 = res
+        
+        # print("res dtype: ", res)
         return res
-
-    # Calculate combinations
-    def ncr(self, n, r):
-        r = min(r, n-r)
-        numer = reduce(op.mul, range(n, n-r, -1), 1)
-        denom = reduce(op.mul, range(1, r+1), 1)
-        return numer // denom
 
     # Fractional Sampling
     def fractional_sampling(self, no_of_samples, name, threshold, no_of_input_var):
-        inp_vars = np.random.uniform(0, 1, (no_of_input_var+1, no_of_samples))
+        inp_vars = torch.from_numpy(np.random.uniform(0, 1, (no_of_input_var+1, no_of_samples)))
         # res = 1-self.tnorm_vectorized(1-inp_vars[0, :], 1-inp_vars[1, :], name)
         # res = self.continuous_xor(res, inp_vars[2, :], name)
         # res = self.continuous_xor(res, inp_vars[3, :], name)
         res = self.continuous_xor_vectorized(inp_vars, name)
         # res = self.tnorm_vectorized(inp_vars[0, :], inp_vars[1, :], name)
         
-        samples =[inp_vars[i, res >= threshold] for i in range(no_of_input_var+1)]
+        samples = inp_vars[:, res >= threshold]
         outs = res[[res[i] >= threshold for i in range(len(res))]]
         
-        return np.array(samples), np.array(outs)
+        return samples, outs
+    
+    # Fractional Sampling
+    def fractional_sampling_pos_and_neg(self, no_of_samples, name, threshold, no_of_input_var):
+        inp_vars = torch.from_numpy(np.random.uniform(0, 1, (no_of_input_var+1, no_of_samples)))
+        res = self.continuous_xor_vectorized(inp_vars, name)
+        samples = inp_vars[:no_of_input_var, :]
+        outs = (res > threshold).double()
+        print(samples.shape)
+        print(outs.shape)
+        train_samples = torch.cat((samples.T, outs.reshape(-1, 1)), dim=1)
+        print(train_samples.shape)
+        
+        return train_samples
 
 # Initialize utilities
 util = utils()
