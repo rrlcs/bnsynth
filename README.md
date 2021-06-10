@@ -26,3 +26,10 @@ Select Problem:
 - 0: Regression
 - 1: Classification with y as labels
 - 2: Classification with output of F as labels
+
+## Collaborators:
+- Aditya Kanade
+- Chiranjib Bhattacharyya
+- Deepak D'Souza
+- Ravi Raja
+- Stanly Samuel
