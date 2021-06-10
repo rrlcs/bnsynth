@@ -10,7 +10,7 @@ input_size = 2*no_of_input_var
 epochs =50
 learning_rate=0.01
 batch_size = 32
-training_size = no_of_samples
+training_size = min(no_of_samples, 50000)
 types_of_oper = ['luka', 'godel', 'product']
 if no_of_input_var > 3:
     name = types_of_oper[2]

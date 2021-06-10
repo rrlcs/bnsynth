@@ -1,8 +1,8 @@
-from gcln import CLN
-from hyperParam import no_of_input_var, threshold, K, input_size, device, name
-from imports import np, torch
+# from gcln import CLN
+# from hyperParam import no_of_input_var, threshold, K, input_size, device, name
+from imports import np
 
-def get_skolem_function(cln):
+def get_skolem_function(cln, no_of_input_var, threshold, K):
     G1 = cln.G1.cpu().detach().numpy()
     G2 = cln.G2.cpu().detach().numpy()
     b1 = cln.b1.cpu().detach().numpy()
@@ -31,10 +31,3 @@ def get_skolem_function(cln):
     print("-----------------------------------------------------------------------------")
     # spec = spec.replace("i_2", anded_clauses)
     # print(spec)
-
-if __name__ == "__main__":
-    cln = CLN(input_size, K, device, name, classify=True, p=0).to(device)
-    cln.load_state_dict(torch.load("classifier"))
-    # cln.load_state_dict(torch.load("regressor"))
-    cln.eval()
-    get_skolem_function(cln)

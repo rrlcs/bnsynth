@@ -1,12 +1,9 @@
-from hyperParam import learning_rate, epochs, name, training_size, input_size, K, device
-from gcln import CLN
-from imports import torch, nn, np
-from dataLoader import train_loader
+# from gcln import CLN
 
-def train_regressor(train_loader, loss_fn, learning_rate=learning_rate, max_epochs=epochs):
+def train_regressor(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, name, torch, CLN):
     lossess = []
     lambda1 = 1e-4
-    lambda2 = 1e-3
+    lambda2 = 5e-3
     cln = CLN(input_size, K, device, name, classify=False, p=0).to(device)
     optimizer = torch.optim.Adam(list(cln.parameters()), lr=learning_rate)
     criterion = loss_fn
@@ -31,10 +28,10 @@ def train_regressor(train_loader, loss_fn, learning_rate=learning_rate, max_epoc
             # print('cln or weights grad:', cln.G1.grad.data.cpu().numpy().flatten().round(2))
     return cln, lossess
 
-loss_fn = nn.MSELoss()
-cln, lossess = train_regressor(train_loader, loss_fn)
-torch.save(cln.state_dict(), "regressor")
+# loss_fn = nn.MSELoss()
+# cln, lossess = train_regressor(train_loader, loss_fn)
+# torch.save(cln.state_dict(), "regressor")
 
-f = open("lossess", "w")
-lossess = np.array(lossess)
-lossess.tofile(f, sep=",", format="%s")
+# f = open("lossess", "w")
+# lossess = np.array(lossess)
+# lossess.tofile(f, sep=",", format="%s")

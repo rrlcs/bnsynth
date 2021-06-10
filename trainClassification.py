@@ -1,9 +1,5 @@
-from matplotlib.pyplot import cla
-from numpy.lib.function_base import average
-from hyperParam import learning_rate, epochs, name, training_size, input_size, K, device
-from gcln import CLN
-from imports import torch, nn, np
-from dataLoader import train_loader
+import torch
+import torch.nn as nn
 
 # weight init
 def init_weights(m):
@@ -11,7 +7,7 @@ def init_weights(m):
         torch.nn.init.xavier_uniform_(m.weight)
         m.bias.data.fill_(0.01)
 
-def train_classifier(train_loader, loss_fn, learning_rate=learning_rate, max_epochs=epochs):
+def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, name, torch, CLN):
     lossess = []
     lambda1 = 1e-9
     lambda2 = 1e-9
@@ -33,7 +29,7 @@ def train_classifier(train_loader, loss_fn, learning_rate=learning_rate, max_epo
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-        average_loss = (total_epoch_loss/training_size) * 1000
+        # average_loss = (total_epoch_loss/training_size) * 1000
         # lossess.append(average_loss.item())
         lossess.append(total_epoch_loss.item())
         print("total epoch loss: ", total_epoch_loss)
@@ -41,11 +37,3 @@ def train_classifier(train_loader, loss_fn, learning_rate=learning_rate, max_epo
             print('epoch {}, loss {}'.format(epoch, loss.item()))
             # print('cln or weights grad:', cln.G1.grad.data.cpu().numpy().flatten().round(2))
     return cln, lossess
-
-loss_fn = nn.CrossEntropyLoss()
-cln, lossess = train_classifier(train_loader, loss_fn)
-torch.save(cln.state_dict(), "classifier")
-
-f = open("lossess", "w")
-lossess = np.array(lossess)
-lossess.tofile(f, sep=",", format="%s")

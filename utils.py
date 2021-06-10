@@ -71,7 +71,7 @@ class utils():
         samples = inp_vars[:, res >= threshold]
         outs = res[[res[i] >= threshold for i in range(len(res))]]
         
-        return samples, outs
+        return samples
     
     # Fractional Sampling
     def fractional_sampling_pos_and_neg(self, no_of_samples, name, threshold, no_of_input_var):
@@ -79,12 +79,12 @@ class utils():
         res = self.continuous_xor_vectorized(inp_vars, name)
         samples = inp_vars[:no_of_input_var, :]
         outs = (res > threshold).double()
-        print(samples.shape)
-        print(outs.shape)
+        # print(samples.shape)
+        # print(outs.shape)
         train_samples = torch.cat((samples.T, outs.reshape(-1, 1)), dim=1)
-        print(train_samples.shape)
+        # print(train_samples.shape)
         
         return train_samples
 
 # Initialize utilities
-util = utils()
+# util = utils()

@@ -1,5 +1,5 @@
 from imports import nn, torch
-from utils import util
+from run import util
 
 # Gated CLN
 class CLN(torch.nn.Module):

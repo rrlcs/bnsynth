@@ -1,10 +1,5 @@
-from matplotlib.pyplot import cla
-from numpy.lib.function_base import average
-from hyperParam import learning_rate, epochs, name, training_size, input_size, K, device, threshold
-from gcln import CLN
-from imports import torch, nn, np
-from dataLoader import train_loader
-from utils import util
+import torch
+import torch.nn as nn
 
 # weight init
 def init_weights(m):
@@ -12,10 +7,10 @@ def init_weights(m):
         torch.nn.init.xavier_uniform_(m.weight)
         m.bias.data.fill_(0.01)
 
-def train_classifier(train_loader, loss_fn, learning_rate=learning_rate, max_epochs=epochs):
+def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, name, torch, CLN, util):
     lossess = []
     lambda1 = 1e-4
-    lambda2 = 5e-4
+    lambda2 = 1e-3
     cln = CLN(input_size, K, device, name, classify=False, p=0).to(device)
     cln.apply(init_weights)
     optimizer = torch.optim.Adam(list(cln.parameters()), lr=learning_rate)
@@ -44,11 +39,10 @@ def train_classifier(train_loader, loss_fn, learning_rate=learning_rate, max_epo
             # print('cln or weights grad:', cln.G1.grad.data.cpu().numpy().flatten().round(2))
     return cln, lossess
 
-loss_fn = nn.BCEWithLogitsLoss()
-# loss_fn = nn.MSELoss()
-cln, lossess = train_classifier(train_loader, loss_fn)
-torch.save(cln.state_dict(), "classifier")
+# loss_fn = nn.BCEWithLogitsLoss()
+# cln, lossess = train_classifier(train_loader, loss_fn)
+# torch.save(cln.state_dict(), "classifier")
 
-f = open("lossess", "w")
-lossess = np.array(lossess)
-lossess.tofile(f, sep=",", format="%s")
+# f = open("lossess", "w")
+# lossess = np.array(lossess)
+# lossess.tofile(f, sep=",", format="%s")
