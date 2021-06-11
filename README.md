@@ -1,5 +1,15 @@
 # Boolean Function Synthesis using GCLN
 
+## Boolean Function Synthesis:
+Given an existentially quantified Boolean formula ∃Y F(X, Y ) over the set of variables X and Y , the problem of Boolean functional synthesis is to compute a vector of Boolean functions, denoted by Ψ(X) = <ψ1(X), ψ2(X), . . . , ψ|Y |(X)>,
+and referred to as Skolem function vector, such that
+∃Y F(X, Y) ≡ F(X, Ψ(X)).
+In the context of applications, the sets
+X and Y are viewed as inputs and outputs, and the formula
+F(X, Y ) is viewed as a functional specification capturing the
+relationship between X and Y , while the Skolem function vector Ψ(X) allows
+one to determine the value of Y for the given X by evaluating Ψ
+
 ## Requirements
 - PyTorch 
 ```
