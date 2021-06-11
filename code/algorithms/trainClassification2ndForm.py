@@ -10,7 +10,7 @@ def init_weights(m):
 def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, name, P, torch, CLN, util):
     lossess = []
     lambda1 = 1e-9
-    lambda2 = 1e-9
+    lambda2 = 1e-8
     cln = CLN(input_size, K, device, name, P, p=0).to(device)
     cln.apply(init_weights)
     optimizer = torch.optim.Adam(list(cln.parameters()), lr=learning_rate)
