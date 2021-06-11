@@ -20,13 +20,13 @@ pip3 install argparse
 python run.py --th=0.7 --P=0 --train=1 --no_of_samples=100000
 ```
 - th is threshold for boolean output (0.5 < th < 1)
-- P value states which Problem Formulation to run:
+- P value states which Problem Formulation to run (0, 1, 2):
 	- Select Problem:
 		- 0: Regression
 		- 1: Classification with y as labels
 		- 2: Classification with output of F as labels
 - train=1 train model (train=0 load saved model)
-- no_of_samples states the number of random samples to generate
+- no_of_samples states the number of random samples to generate (keep it >= 50000)
 
 ## Check other options and change them using argparse:
 ```
