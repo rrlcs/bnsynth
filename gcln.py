@@ -5,10 +5,10 @@ from run import util
 # Gated CLN
 class CLN(torch.nn.Module):
     literal_pairs = []
-    def __init__(self, input_size, K, device, name, classify=False, p=0):
+    def __init__(self, input_size, K, device, name, P, p=0):
         super(CLN, self).__init__()
         self.device = device
-        self.classify = classify
+        self.P = P
         self.input_size = input_size
         self.dropout = nn.Dropout(p)
         self.sigmoid = nn.Sigmoid()
@@ -73,7 +73,7 @@ class CLN(torch.nn.Module):
         # out.shape: batch_size x 1
         out = util.tnorm_n_inputs(gated_or_res, self.name).to(self.device)
         # out = F.relu(out)
-        if self.classify:
+        if self.P:
             out = self.linear(out.to(torch.float))
 
         return out

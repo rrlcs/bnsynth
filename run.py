@@ -63,20 +63,20 @@ if __name__ == "__main__":
 	elif args.P == 1:
 		if args.train:
 			loss_fn = nn.CrossEntropyLoss()
-			cln, lossess = tc1.train_classifier(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, args.K, device, args.tnorm_name, torch, gcln.CLN)
+			cln, lossess = tc1.train_classifier(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, args.K, device, args.tnorm_name, args.P, torch, gcln.CLN)
 			torch.save(cln.state_dict(), "classifier1")
 		else:
-			cln = gcln.CLN(input_size, args.K, device, args.tnorm_name, classify=True, p=0).to(device)
+			cln = gcln.CLN(input_size, args.K, device, args.tnorm_name, args.P, p=0).to(device)
 			cln.load_state_dict(torch.load("classifier1"))
 			cln.eval()
 		skf.get_skolem_function(cln, args.no_of_input_var, args.threshold, args.K)
 	elif args.P == 2:
 		if args.train:
 			loss_fn = nn.BCEWithLogitsLoss()
-			cln, lossess = tc2.train_classifier(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, args.K, device, args.tnorm_name, torch, gcln.CLN, util)
+			cln, lossess = tc2.train_classifier(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, args.K, device, args.tnorm_name, args.P, torch, gcln.CLN, util)
 			torch.save(cln.state_dict(), "classifier2")
 		else:
-			cln = gcln.CLN(input_size, args.K, device, args.tnorm_name, classify=True, p=0).to(device)
+			cln = gcln.CLN(input_size, args.K, device, args.tnorm_name, args.P, p=0).to(device)
 			cln.load_state_dict(torch.load("classifier2"))
 			cln.eval()
 		skf.get_skolem_function(cln, args.no_of_input_var, args.threshold, args.K)

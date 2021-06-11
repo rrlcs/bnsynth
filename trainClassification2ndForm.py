@@ -7,11 +7,11 @@ def init_weights(m):
         torch.nn.init.xavier_uniform_(m.weight)
         m.bias.data.fill_(0.01)
 
-def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, name, torch, CLN, util):
+def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, name, P, torch, CLN, util):
     lossess = []
-    lambda1 = 1e-4
-    lambda2 = 1e-3
-    cln = CLN(input_size, K, device, name, classify=False, p=0).to(device)
+    lambda1 = 1e-9
+    lambda2 = 1e-9
+    cln = CLN(input_size, K, device, name, P, p=0).to(device)
     cln.apply(init_weights)
     optimizer = torch.optim.Adam(list(cln.parameters()), lr=learning_rate)
     criterion = loss_fn
