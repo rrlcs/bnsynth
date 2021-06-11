@@ -81,9 +81,13 @@ class utils():
         samples = inp_vars[:no_of_input_var, :]
         outs = (res > threshold).double()
         # print(samples.shape)
-        # print(outs.shape)
+        # print("outs 1: ", (outs == 1).sum())
+        # print("outs 0: ", (outs == 0).sum())
         train_samples = torch.cat((samples.T, outs.reshape(-1, 1)), dim=1)
+        sorted_data = torch.stack(sorted(train_samples, key=lambda train_samples: train_samples[-1], reverse=True))
+        # print(sorted_data[:2*(outs == 1).sum(), :])
         # print(train_samples.shape)
+        train_samples = sorted_data[:2*(outs == 1).sum(), :]
         
         return train_samples
 

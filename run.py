@@ -1,17 +1,17 @@
 import argparse
-from dataLoader import dataLoader
+from data.dataLoader import dataLoader
 import torch
 import torch.nn as nn
 import numpy as np
 from torch.utils.data import TensorDataset, DataLoader
-from generateTrainData import generateTrainData
-import trainRegression as tr
-import trainClassification as tc1
-import trainClassification2ndForm as tc2
-from utils import utils
-import gcln as gcln
-import plot as pt
-import getSkolemFunc as skf
+from data.generateTrainData import generateTrainData
+from code.algorithms import trainRegression as tr
+from code.algorithms import trainClassification as tc1
+from code.algorithms import trainClassification2ndForm as tc2
+from code.utils.utils import utils
+from code.model import gcln as gcln
+from code.utils import plot as pt
+from code.utils import getSkolemFunc as skf
 
 # Init utilities
 util = utils()
@@ -52,11 +52,11 @@ if __name__ == "__main__":
 		if args.train:
 			print("train", args.train)
 			loss_fn = nn.MSELoss()
-			cln, lossess = tr.train_regressor(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, args.K, device, args.tnorm_name, torch, gcln.CLN)
+			cln, lossess = tr.train_regressor(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, args.K, device, args.tnorm_name, args.P, torch, gcln.CLN)
 			torch.save(cln.state_dict(), "regressor")
 		else:
 			print("no train")
-			cln = gcln.CLN(input_size, args.K, device, args.tnorm_name, classify=True, p=0).to(device)
+			cln = gcln.CLN(input_size, args.K, device, args.tnorm_name, args.P, p=0).to(device)
 			cln.load_state_dict(torch.load("regressor"))
 			cln.eval()
 		skf.get_skolem_function(cln, args.no_of_input_var, args.threshold, args.K)
