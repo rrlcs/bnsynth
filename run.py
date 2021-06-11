@@ -3,7 +3,7 @@ from dataLoader import dataLoader
 import torch
 import torch.nn as nn
 import numpy as np
-from imports import TensorDataset, DataLoader
+from torch.utils.data import TensorDataset, DataLoader
 from generateTrainData import generateTrainData
 import trainRegression as tr
 import trainClassification as tc1

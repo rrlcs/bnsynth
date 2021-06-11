@@ -1,7 +1,3 @@
-# from imports import TensorDataset, DataLoader
-# from generateTrainData import training_samples
-# from hyperParam import training_size, no_of_input_var, output_var_pos, threshold, batch_size, P
-
 def dataLoader(training_samples, training_size, P, no_of_input_var, output_var_pos, threshold, batch_size, TensorDataset, DataLoader):
 	# Define training data loader
 	inps = training_samples[:training_size, :no_of_input_var]

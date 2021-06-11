@@ -1,5 +1,3 @@
-# from gcln import CLN
-
 def train_regressor(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, name, torch, CLN):
     lossess = []
     lambda1 = 1e-4

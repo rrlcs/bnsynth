@@ -1,4 +1,5 @@
-from imports import nn, torch
+import torch
+import torch.nn as nn
 from run import util
 
 # Gated CLN

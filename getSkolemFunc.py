@@ -1,4 +1,4 @@
-from imports import np
+import numpy as np
 
 def get_skolem_function(cln, no_of_input_var, threshold, K):
 	G1 = cln.G1.cpu().detach().numpy()

@@ -1,6 +1,3 @@
-# from utils import util
-# from hyperParam import no_of_samples, name, threshold, no_of_input_var, P
-
 # Generating training samples
 def generateTrainData(P, util, no_of_samples, name, threshold, no_of_input_var):
     if P == 0 or P == 1:
