@@ -39,7 +39,7 @@ python run.py --th=0.7 --P=0 --train=1 --no_of_samples=100000
 - train=1 train model (train=0 load saved model)
 - no_of_samples states the number of random samples to generate (keep it >= 50000)
 
-## Check other options and change them using argparse:
+## More information on options:
 ```
 python run.py --help
 ```
