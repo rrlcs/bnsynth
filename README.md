@@ -45,8 +45,8 @@ python run.py --help
 ```
 
 ## References:
-@Manthan: https://arxiv.org/pdf/2005.06922.pdf
-@GCLN: https://arxiv.org/pdf/2003.07959.pdf
+- Manthan: https://arxiv.org/pdf/2005.06922.pdf
+- GCLN: https://arxiv.org/pdf/2003.07959.pdf
 
 ## Collaborators:
 - Aditya Kanade
