@@ -1,4 +1,4 @@
-from imports import plt
+import matplotlib.pyplot as plt
 def plot():
 	f = open("lossess", "r")
 	lossess = f.read().split(",")
