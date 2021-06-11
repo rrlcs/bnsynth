@@ -44,11 +44,9 @@ python run.py --th=0.7 --P=0 --train=1 --no_of_samples=100000
 python run.py --help
 ```
 
-<!-- ## P value states which Problem Formulation to run:
-Select Problem:
-- 0: Regression
-- 1: Classification with y as labels
-- 2: Classification with output of F as labels -->
+## References:
+@Manthan: https://arxiv.org/pdf/2005.06922.pdf
+@GCLN: https://arxiv.org/pdf/2003.07959.pdf
 
 ## Collaborators:
 - Aditya Kanade
