@@ -1,0 +1,15 @@
+{
+	"python.linting.enabled": false,
+	"python.linting.flake8Enabled": false,
+	"python.linting.pylintEnabled": true,
+	"python.autoComplete.extraPaths": [
+	{
+    "python.pythonPath": "/path/to/your/venv/bin/python",
+}
+	],
+	"python.analysis.extraPaths": [
+		{
+			"python.pythonPath": "/path/to/your/venv/bin/python"
+		}
+	]
+}
