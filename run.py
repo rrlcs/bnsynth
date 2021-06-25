@@ -27,16 +27,18 @@ if __name__ == "__main__":
 	parser.add_argument("--batch_size", type=int, default=32, help="Enter batch size")
 	parser.add_argument("--tnorm_name", type=str, default="product", help="godel/product")
 	parser.add_argument("--P", type=int, default=0, help="0: Regression, 1: Classification with y as labels, 2: Classification with F out as labels")
-	parser.add_argument("--train", type=int, default=0, help="True/False; False loads the saved model")
+	parser.add_argument("--train", type=int, default=0, help="1/0; 0 loads the saved model")
+	parser.add_argument("--correlated_sampling", type=int, default=0, help="1/0")
 	args = parser.parse_args()
 
-	training_size = min(args.no_of_samples, 50000)
+	# training_size = min(args.no_of_samples, 50000)
+	training_size = args.no_of_samples
 	output_var_pos = args.no_of_input_var
 	input_size = 2*args.no_of_input_var
 	device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 	# generate training data
-	training_samples = generateTrainData(args.P, util, args.no_of_samples, args.tnorm_name, args.threshold, args.no_of_input_var)
+	training_samples = generateTrainData(args.P, util, args.no_of_samples, args.tnorm_name, args.threshold, args.no_of_input_var, args.correlated_sampling)
 
 	# load data
 	train_loader = dataLoader(training_samples, training_size, args.P, args.no_of_input_var, output_var_pos, args.threshold, args.batch_size, TensorDataset, DataLoader)
@@ -62,7 +64,7 @@ if __name__ == "__main__":
 		skf.get_skolem_function(cln, args.no_of_input_var, args.threshold, args.K)
 	elif args.P == 1:
 		if args.train:
-			loss_fn = nn.CrossEntropyLoss()
+			loss_fn = nn.BCEWithLogitsLoss()
 			cln, lossess = tc1.train_classifier(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, args.K, device, args.tnorm_name, args.P, torch, gcln.CLN)
 			torch.save(cln.state_dict(), "classifier1")
 		else:

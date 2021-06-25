@@ -11,7 +11,6 @@ def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_siz
     lossess = []
     lambda1 = 1e-9
     lambda2 = 1e-9
-    lambda3 = 1e-6
     cln = CLN(input_size, K, device, name, P, p=0).to(device)
     cln.apply(init_weights)
     optimizer = torch.optim.Adam(list(cln.parameters()), lr=learning_rate)
@@ -21,10 +20,10 @@ def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_siz
     for epoch in range(max_epochs):
         total_epoch_loss = 0
         for batch_idx, (inps, tgts) in enumerate(train_loader):
-            tgts = tgts.reshape((-1)).to(torch.long).to(device)
-            out = cln(inps)
+            tgts = tgts.reshape((-1)).to(device)
+            out = cln(inps).squeeze(-1)
             loss = criterion(out, tgts)
-            loss = loss + lambda1*torch.linalg.norm(cln.G1, 1) + lambda2*torch.linalg.norm(cln.G2, 1) + lambda3*torch.linalg.norm(cln.linear.weight, 2)
+            loss = loss + lambda1*torch.linalg.norm(cln.G1, 1) + lambda2*torch.linalg.norm(cln.G2, 1)
             total_epoch_loss += loss
             optimizer.zero_grad()
             loss.backward()

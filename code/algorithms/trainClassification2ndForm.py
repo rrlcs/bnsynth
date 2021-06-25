@@ -23,7 +23,7 @@ def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_siz
             tgts = tgts.reshape((-1)).to(device)
             out = cln(inps)
             inpOut = torch.cat((inps, out), dim=1)
-            fOut = util.continuous_xor_vectorized(inpOut.T, name)
+            fOut = util.continuous_xor_vectorized(inpOut.T, name).to(device)
             loss = criterion(fOut, tgts)
             loss = loss + lambda1*torch.linalg.norm(cln.G1, 1) + lambda2*torch.linalg.norm(cln.G2, 1)
             total_epoch_loss += loss

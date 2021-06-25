@@ -55,7 +55,7 @@ class utils():
             t = self.tnorm_vectorized(1-op1, op2, name)
             u = self.tnorm_vectorized(op1, 1-op2, name)
             res = 1-self.tnorm_vectorized(1-t, 1-u, name)
-            op1 = res
+            op1 = res    
         
         # print("res dtype: ", res)
         return res
@@ -69,8 +69,9 @@ class utils():
         res = self.continuous_xor_vectorized(inp_vars, name)
         # res = self.tnorm_vectorized(inp_vars[0, :], inp_vars[1, :], name)
         
-        samples = inp_vars[:, res >= threshold]
-        outs = res[[res[i] >= threshold for i in range(len(res))]]
+        samples = inp_vars[:, res >= threshold].T
+        print("Train Data Generated: ", samples.shape)
+        # outs = res[[res[i] >= threshold for i in range(len(res))]]
         
         return samples
     
@@ -88,8 +89,41 @@ class utils():
         # print(sorted_data[:2*(outs == 1).sum(), :])
         # print(train_samples.shape)
         train_samples = sorted_data[:2*(outs == 1).sum(), :]
-        
+        print("Train Data Generated: ", train_samples.shape)
+
         return train_samples
 
-# Initialize utilities
-# util = utils()
+        # Fractional Sampling
+    def correlated_fractional_sampling(self, no_of_samples, name, threshold, no_of_input_var):
+        inp_vars = torch.from_numpy(np.random.uniform(0, 1, (no_of_input_var, no_of_samples)))
+        if no_of_input_var == 1:
+            data = []
+            for i in range(inp_vars.shape[1]):
+                if inp_vars[0, i] > threshold:
+                    t1 = torch.cat([inp_vars[0, i].unsqueeze(-1), 1-inp_vars[0, i].unsqueeze(-1)], dim=0)
+                    data.append(t1)
+                    t2 = torch.cat([inp_vars[0, i].unsqueeze(-1), inp_vars[0, i].unsqueeze(-1)], dim=0)
+                    data.append(t2)
+            train_samples = torch.stack(data)
+            res = self.continuous_xor_vectorized(train_samples.T, name)
+            outs = (res > threshold).double()
+            # print(outs)
+            train_samples = torch.cat((train_samples[:, :no_of_input_var], outs.reshape(-1, 1)), dim=1)
+            print("Corr Train Data Generated: ", train_samples.shape)
+            return train_samples
+        res = self.continuous_xor_vectorized(inp_vars, name)
+        # print("res", res.shape)
+        data = []
+        for i in range(res.shape[0]):
+            if res[i] > threshold:
+                t1 = torch.cat([inp_vars[:,i], 1-res[i].unsqueeze(-1)], dim=0)
+                data.append(t1)
+                t2 = torch.cat([inp_vars[:,i], res[i].unsqueeze(-1)], dim=0)
+                data.append(t2)
+        train_samples = torch.stack(data)
+        print(train_samples.shape)
+        res = self.continuous_xor_vectorized(train_samples.T, name)
+        outs = (res > threshold).double()
+        train_samples = torch.cat((train_samples[:, :no_of_input_var], outs.reshape(-1, 1)), dim=1)
+        print("Corr Train Data Generated: ", train_samples.shape)
+        return train_samples

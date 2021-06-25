@@ -72,8 +72,5 @@ class CLN(torch.nn.Module):
 
         # out.shape: batch_size x 1
         out = util.tnorm_n_inputs(gated_or_res, self.name).to(self.device)
-        # out = F.relu(out)
-        if self.P:
-            out = self.linear(out.to(torch.float))
 
         return out
