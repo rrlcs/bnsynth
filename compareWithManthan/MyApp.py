@@ -8,7 +8,7 @@ from Verilog2001Parser import Verilog2001Parser
 from Verilog2001Visitor import Verilog2001Visitor
 
 if __name__ == "__main__":
-	f = open("./manthan/sample_skf/sample1_skolem.v", "r")
+	f = open("sample_skf/sample1_skolem.v", "r")
 	data = f.read()
 	inputStream = antlr4.InputStream(data)
 	lexer = Verilog2001Lexer(inputStream)
@@ -19,13 +19,13 @@ if __name__ == "__main__":
 	z3filecontent, out_var1, out = visitor.visit(tree)
 	# print(z3filecontent)
 
-	with open('./compareWithManthan/templateZ3Checker.py', 'r') as file :
+	with open('templateZ3Checker.py', 'r') as file :
 		filedata = file.read()
 	filedata = filedata.replace('#*#', z3filecontent)
-	with open('./compareWithManthan/z3ValidityChecker.py', 'w') as file:
+	with open('z3ValidityChecker.py', 'w') as file:
 		file.write(filedata)
 
-	f = open("nn_output", "r")
+	f = open("../nn_output", "r")
 	data = f.read()
 	inputStream = antlr4.InputStream(data)
 	lexer = Verilog2001Lexer(inputStream)
@@ -36,11 +36,11 @@ if __name__ == "__main__":
 	nnOut = visitor.visit(tree)
 	nnOut = nnOut.replace(out, out_var1)
 
-	with open('./compareWithManthan/z3ValidityChecker.py', 'r') as file :
+	with open('z3ValidityChecker.py', 'r') as file :
 		filedata = file.read()
 	filedata = filedata.replace('$$', nnOut)
-	with open('./compareWithManthan/z3ValidityChecker.py', 'w') as file:
+	with open('z3ValidityChecker.py', 'w') as file:
 		file.write(filedata)
 	
-	os.system("python ./compareWithManthan/z3ValidityChecker.py")
+	os.system("python z3ValidityChecker.py")
 	# # print("==== nn out ====", nnOut)
