@@ -1,14 +1,14 @@
 import os
 import antlr4
 
-from verilogVisitor import verilogVisitor
+from newVerilogVisitor import verilogVisitor
 from expressionVisitor import expressionVisitor
 from Verilog2001Lexer import Verilog2001Lexer
 from Verilog2001Parser import Verilog2001Parser
 from Verilog2001Visitor import Verilog2001Visitor
 
 if __name__ == "__main__":
-	f = open("./compareWithManthan/3xor_skolem.v", "r")
+	f = open("./manthan/sample_skf/sample1_skolem.v", "r")
 	data = f.read()
 	inputStream = antlr4.InputStream(data)
 	lexer = Verilog2001Lexer(inputStream)
@@ -16,7 +16,7 @@ if __name__ == "__main__":
 	parser = Verilog2001Parser(tokenStream)
 	tree = parser.module_declaration()
 	visitor = verilogVisitor()
-	z3filecontent = visitor.visit(tree)
+	z3filecontent, out_var1, out = visitor.visit(tree)
 	# print(z3filecontent)
 
 	with open('./compareWithManthan/templateZ3Checker.py', 'r') as file :
@@ -25,7 +25,7 @@ if __name__ == "__main__":
 	with open('./compareWithManthan/z3ValidityChecker.py', 'w') as file:
 		file.write(filedata)
 
-	f = open("./compareWithManthan/test", "r")
+	f = open("nn_output", "r")
 	data = f.read()
 	inputStream = antlr4.InputStream(data)
 	lexer = Verilog2001Lexer(inputStream)
@@ -34,6 +34,7 @@ if __name__ == "__main__":
 	tree = parser.expression()
 	visitor = expressionVisitor()
 	nnOut = visitor.visit(tree)
+	nnOut = nnOut.replace(out, out_var1)
 
 	with open('./compareWithManthan/z3ValidityChecker.py', 'r') as file :
 		filedata = file.read()

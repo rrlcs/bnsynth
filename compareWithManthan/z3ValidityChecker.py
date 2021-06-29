@@ -22,11 +22,16 @@ def valid(formula):
 
         return False
 
-i0 ,i1 ,i2 = Bools('i0 i1 i2')
-i3_2 = Bool('i3_2')
-n5,n6,n7,n8,n9,n10,n11,n12,n13,n14 = Bools('n5 n6 n7 n8 n9 n10 n11 n12 n13 n14')
-i3_1 = Bool('i3_1')
-A = i3_1 == And((Or((i0), (i1), Not(i2))), (Or((i0), (i2), Not(i1))), (Or((i1), (i2), Not(i0))), (Or(Not(i0), Not(i1), Not(i2))))
-B = (And((n5 == And((i0),Not(i1),)), (n6 == And(Not(i2),(n5),)), (n7 == And(Not(i0),(i1),)), (n8 == And(Not(i2),(n7),)), (n9 == And(Not(i0),Not(i1),)), (n10 == And((i2),(n9),)), (n11 == And((i0),(i1),)), (n12 == And((i2),(n11),)), (n13 == And(Not(n6),Not(n8),)), (n14 == And(Not(n10),(n13),)), (i3_2  == And(Not(n12),(n14),))))
-formula = Implies(And(A,B), i3_1 == i3_2 )
+i0, i1, i2_2 = Bools('i0 i1 i2_2')
+i2_2 = Bool('i2_2')
+zero = Bool('zero')
+one = Bool('one')
+wi1 = Bool('wi1')
+wt2 = Bool('wt2')
+
+out = Bool('out')
+i2_1 = Bool('i2_1')
+A = i2_1 == And((Or((i0), Not(i1))), (Or((i1), Not(i0))))
+B = (And((zero == (Int(0))), (one == (Int(1))), (wi1 == (((one)))), (wt2 == (Not(Xor((wi1),(i1),)))), (out == (wt2))))
+formula = Implies(And(A,B), i2_1 == i2_2)
 valid(formula)

@@ -4,12 +4,12 @@
 	"python.linting.pylintEnabled": true,
 	"python.autoComplete.extraPaths": [
 	{
-    "python.pythonPath": "/path/to/your/venv/bin/python",
+    "python.pythonPath": "/usr/local/lib/python3.6/"
 }
 	],
 	"python.analysis.extraPaths": [
 		{
-			"python.pythonPath": "/path/to/your/venv/bin/python"
+			"python.pythonPath": "/usr/local/lib/python3.6/"
 		}
 	]
 }

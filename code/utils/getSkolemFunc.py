@@ -24,6 +24,8 @@ def get_skolem_function(cln, no_of_input_var, threshold, K):
 	mask = G2 > threshold
 	gated_ored_clauses = np.unique(ored_clauses[mask.flatten()])
 	anded_clauses = "i"+str(no_of_input_var)+" = "+"("+" & ".join(gated_ored_clauses)+")"
+	f = open("nn_output", "w")
+	f.write(" & ".join(gated_ored_clauses))
 	print("-----------------------------------------------------------------------------")
 	print("skolem function: ",anded_clauses)
 	print("-----------------------------------------------------------------------------")
