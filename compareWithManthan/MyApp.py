@@ -8,7 +8,7 @@ from Verilog2001Parser import Verilog2001Parser
 from Verilog2001Visitor import Verilog2001Visitor
 
 if __name__ == "__main__":
-	f = open("sample_skf/sample1_skolem.v", "r")
+	f = open("3xor_skolem.v", "r")
 	data = f.read()
 	inputStream = antlr4.InputStream(data)
 	lexer = Verilog2001Lexer(inputStream)

@@ -17,7 +17,7 @@ class verilogVisitor(Verilog2001Visitor):
 			if ctx.module_item()[i].port_declaration():
 				if ctx.module_item()[i].port_declaration().output_declaration():
 					var_out += self.visit(ctx.module_item()[i])
-					# print("ouuuuuuuuuuuuut: ",out2)
+					# print("ouuuuuuuuuuuuut: ",var_out)
 			if ctx.module_item()[i].module_or_generate_item():
 				if ctx.module_item()[i].module_or_generate_item().module_or_generate_item_declaration():
 					aux += self.visit(ctx.module_item()[i]) +"\n"
@@ -25,7 +25,7 @@ class verilogVisitor(Verilog2001Visitor):
 				# print("var out **************: ", var_out)
 				rinp = inp.split(",")
 				out = rinp[-2].replace(" ", "")
-				out2 = out+"_2"
+				out2 = var_out.split(" = ")[0]
 				out1 = out+"_1"
 				# print("out: ", out2)
 				rinp = " ".join(rinp)
@@ -34,7 +34,7 @@ class verilogVisitor(Verilog2001Visitor):
 				# print("rinp joined: ", " ".join(rinp))
 				# print("inp: ", inp)
 				input_dec = inp[:-2] + " = Bools('" + (rinp[:-1]) + "')"
-				input_dec = input_dec.replace(out, out2)
+				# input_dec = input_dec.replace(out, out2)
 				output_dec = out2+" = Bool('" + out2 + "')"
 				var_dec = input_dec+"\n"+output_dec+"\n"+aux+"\n"+var_out
 				# print(var_dec)
