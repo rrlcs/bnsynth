@@ -1,3 +1,4 @@
+import os
 import argparse
 from data.dataLoader import dataLoader
 import torch
@@ -29,6 +30,7 @@ if __name__ == "__main__":
 	parser.add_argument("--P", type=int, default=0, help="0: Regression, 1: Classification with y as labels, 2: Classification with F out as labels")
 	parser.add_argument("--train", type=int, default=0, help="1/0; 0 loads the saved model")
 	parser.add_argument("--correlated_sampling", type=int, default=0, help="1/0")
+	parser.add_argument("--spec", type=int, default=1, help="Enter values from 1 to 5")
 	args = parser.parse_args()
 
 	# training_size = min(args.no_of_samples, 50000)
@@ -38,7 +40,7 @@ if __name__ == "__main__":
 	device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 	# generate training data
-	training_samples = generateTrainData(args.P, util, args.no_of_samples, args.tnorm_name, args.threshold, args.no_of_input_var, args.correlated_sampling)
+	training_samples = generateTrainData(args.P, util, args.no_of_samples, args.tnorm_name, args.spec, args.threshold, args.no_of_input_var, args.correlated_sampling)
 
 	# load data
 	train_loader = dataLoader(training_samples, training_size, args.P, args.no_of_input_var, output_var_pos, args.threshold, args.batch_size, TensorDataset, DataLoader)
@@ -89,3 +91,6 @@ if __name__ == "__main__":
 		lossess.tofile(f, sep=",", format="%s")
 
 	pt.plot()
+
+	# Check Validity
+	os.system("python compareWithManthan/MyApp.py --spec="+str(args.spec))

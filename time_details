@@ -131,3 +131,8 @@ preprocesing time : 0.2597954273223877
 sampling time : 0.2405257225036621
 Candidate time : 0.0045125484466552734
 total time : 0.7883062362670898
+file : ./manthan/sample_examples/sample4.v
+preprocesing time : 0.37386369705200195
+sampling time : 0.291353702545166
+Candidate time : 0.008584260940551758
+total time : 0.9609167575836182

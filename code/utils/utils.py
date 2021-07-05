@@ -43,51 +43,78 @@ class utils():
 
     # Continuous xor definition
     def continuous_xor(self, x, y, name):
-        t = self.tnorm(1-x, y, name)
-        u = self.tnorm(x, 1-y, name)
-        return 1 - self.tnorm(1-t, 1-u, name)
+        t = self.tnorm_vectorized(1-x, y, name)
+        u = self.tnorm_vectorized(x, 1-y, name)
+        return 1 - self.tnorm_vectorized(1-t, 1-u, name)
     
     def continuous_xor_vectorized(self, inp_vars, name):
         op1 = inp_vars[0, :]
-        # print(inp_vars.shape[0])
         for i in range(inp_vars.shape[0]-1):
             op2 = inp_vars[i+1, :]
             t = self.tnorm_vectorized(1-op1, op2, name)
             u = self.tnorm_vectorized(op1, 1-op2, name)
             res = 1-self.tnorm_vectorized(1-t, 1-u, name)
-            op1 = res    
-        
-        # print("res dtype: ", res)
+            op1 = res
         return res
+    
+    def spec1(self, inp_vars, name):
+        return self.continuous_xor_vectorized(inp_vars, name)
+    
+    def spec2(self, inp_vars, name):
+        res1 = self.continuous_xor(inp_vars[0, :], inp_vars[1, :], name)
+        res2 = self.tnorm_vectorized(inp_vars[1, :], inp_vars[2, :], name)
+        return self.continuous_xor(res1, res2, name)
+
+    def spec3(self, inp_vars, name):
+        res1 = self.tnorm_vectorized(inp_vars[0, :], inp_vars[1, :], name)
+        res2 = self.continuous_xor(inp_vars[2, :], inp_vars[3, :], name)
+        return 1-self.tnorm_vectorized(1-res1, 1-res2, name)
+    
+    def spec4(self, inp_vars, name):
+        return self.continuous_xor_vectorized(inp_vars, name)
+
+    def spec5(self, inp_vars, name):
+        res1 = 1 - self.tnorm_vectorized(1-inp_vars[0, :], 1-inp_vars[1, :], name)
+        res2 = self.tnorm_vectorized(inp_vars[2, :], inp_vars[3, :], name)
+        res3 = self.continuous_xor(res1, res2, name)
+        return self.continuous_xor(res3, inp_vars[4, :], name)
 
     # Fractional Sampling
-    def fractional_sampling(self, no_of_samples, name, threshold, no_of_input_var):
+    def fractional_sampling(self, no_of_samples, name, threshold, no_of_input_var, spec):
         inp_vars = torch.from_numpy(np.random.uniform(0, 1, (no_of_input_var+1, no_of_samples)))
-        # res = 1-self.tnorm_vectorized(1-inp_vars[0, :], 1-inp_vars[1, :], name)
-        # res = self.continuous_xor(res, inp_vars[2, :], name)
-        # res = self.continuous_xor(res, inp_vars[3, :], name)
-        res = self.continuous_xor_vectorized(inp_vars, name)
-        # res = self.tnorm_vectorized(inp_vars[0, :], inp_vars[1, :], name)
+        if spec == 1:
+            res = self.spec1(inp_vars, name)
+        elif spec == 2:
+            res = self.spec2(inp_vars, name)
+        elif spec == 3:
+            res = self.spec3(inp_vars, name)
+        elif spec == 4:
+            res = self.spec4(inp_vars, name)
+        elif spec == 5:
+            res = self.spec5(inp_vars, name)
         
         samples = inp_vars[:, res >= threshold].T
         print("Train Data Generated: ", samples.shape)
-        # outs = res[[res[i] >= threshold for i in range(len(res))]]
-        
+
         return samples
     
     # Fractional Sampling
-    def fractional_sampling_pos_and_neg(self, no_of_samples, name, threshold, no_of_input_var):
+    def fractional_sampling_pos_and_neg(self, no_of_samples, name, threshold, no_of_input_var, spec):
         inp_vars = torch.from_numpy(np.random.uniform(0, 1, (no_of_input_var+1, no_of_samples)))
-        res = self.continuous_xor_vectorized(inp_vars, name)
+        if spec == 1:
+            res = self.spec1(inp_vars, name)
+        elif spec == 2:
+            res = self.spec2(inp_vars, name)
+        elif spec == 3:
+            res = self.spec3(inp_vars, name)
+        elif spec == 4:
+            res = self.spec4(inp_vars, name)
+        elif spec == 5:
+            res = self.spec5(inp_vars, name)
         samples = inp_vars[:no_of_input_var, :]
         outs = (res > threshold).double()
-        # print(samples.shape)
-        # print("outs 1: ", (outs == 1).sum())
-        # print("outs 0: ", (outs == 0).sum())
         train_samples = torch.cat((samples.T, outs.reshape(-1, 1)), dim=1)
         sorted_data = torch.stack(sorted(train_samples, key=lambda train_samples: train_samples[-1], reverse=True))
-        # print(sorted_data[:2*(outs == 1).sum(), :])
-        # print(train_samples.shape)
         train_samples = sorted_data[:2*(outs == 1).sum(), :]
         print("Train Data Generated: ", train_samples.shape)
 

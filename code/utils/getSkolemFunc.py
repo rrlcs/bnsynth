@@ -19,7 +19,7 @@ def get_skolem_function(cln, no_of_input_var, threshold, K):
 		clauses.append(clause[mask])
 	ored_clauses = []
 	for i in range(len(clauses)):
-		ored_clauses.append("("+" | ".join(clauses[i])+")")
+		ored_clauses.append("("+" | ".join(clauses[i])+")".replace("() &", ""))
 	ored_clauses = np.array(ored_clauses)
 	mask = G2 > threshold
 	gated_ored_clauses = np.unique(ored_clauses[mask.flatten()])

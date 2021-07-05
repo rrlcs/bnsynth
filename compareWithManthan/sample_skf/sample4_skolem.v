@@ -1,16 +1,22 @@
-module SKOLEMFORMULA (i0, i1, i2, i3,  out );
-input i0;
-input i1;
-input i2;
-input i3;
-output out ;
-wire zero;
-wire one;
-assign zero = 0;
-assign one = 1;
-wire wi3;
-wire wt2;
-assign wi3 = (( one ));
-assign wt2 = (~(wi3 ^ i3));
-assign out = wt2;
+// Benchmark "SKOLEMFORMULA" written by ABC on Thu Jul  1 11:33:25 2021
+
+module SKOLEMFORMULA ( 
+    i0, i1, i2,
+    i3  );
+  input  i0, i1, i2;
+  output i3;
+  wire n5, n6, n7, n8, n9, n10, n11, n12, n13, n14;
+  assign n5 = i0 & ~i1;
+  assign n6 = ~i2 & n5;
+  assign n7 = ~i0 & i1;
+  assign n8 = ~i2 & n7;
+  assign n9 = ~i0 & ~i1;
+  assign n10 = i2 & n9;
+  assign n11 = i0 & i1;
+  assign n12 = i2 & n11;
+  assign n13 = ~n6 & ~n8;
+  assign n14 = ~n10 & n13;
+  assign i3 = ~n12 & n14;
 endmodule
+
+
