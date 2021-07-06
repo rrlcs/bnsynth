@@ -1,0 +1,44 @@
+\section{Risk-aware Abstraction for\\ Risk-sensitive Control Problem}\label{sec:compute_abs}
+
+%---------- Preliminaries on ABCS -----
+\input{prelims_abcs}
+
+\subsection{Risk-aware Abstraction}
+
+To take into account the effect of occasional occurrences of disturbance spikes in the control system $\SysT$, we introduce a special finite state abstract transition system, called the \emph{bimodal transition system}, with two distinct transition relations.
+A bimodal transition system is a tuple $(\Xa,\Ua,\fanor,\fadist)$, where $\Xa$ is a finite set of \emph{abstract states}, $\Ua$ is the finite set of control actions, $\fanor:\Xa\times \Ua\setmap \Xa$ is a set-valued map representing the \emph{normal transitions}, and $\fadist:\Xa\times \Ua\setmap \Xa$ is another set-valued map representing a set of \emph{disturbance transitions}.
+
+\begin{definition}\label{def:risk-aware abstraction}
+	Let $(\SysT,\Whi,\Spec)$ be a risk-sensitive controller synthesis problem.
+	A bimodal transition system $\Gamma=(\Xa,\Ua,\fanor,\fadist)$ is called a \emph{risk-aware abstraction} of $\SysT$ if there exists a relation $R\subset \Xc\times \Xa$ s.t.\ the following conditions are satisfied:
+	\begin{itemize}
+		\item $\SysT \preccurlyeq_R (\Xa,\Ua,\fanor)$, and
+		\item for all $(\xc,\xa)\in R$, $u\in \Ua(\xa)\Rightarrow \cup_{w\in \Whi}R(\ft(\xc,u,w))\subseteq \fanor(\xa,u)\cup \fadist(\xa,u)$,
+	\end{itemize}
+	where $\Ua(\xa)$ is the set of control inputs allowed in the state $\xa$, i.e.\ $\Ua(\xa):=\set{u\in\Ua\mid \fanor(\xa,u)\neq \emptyset}$.
+\end{definition}
+
+\REFalg{alg:compute risk-aware abstraction} computes risk-aware abstraction for a given risk-sensitive controller synthesis problem and a given parameter set $P$.
+Note that, \REFalg{alg:compute risk-aware abstraction} can be implemented symbolically.
+
+\begin{algorithm}
+	\caption{$\procRisk$}
+	\label{alg:compute risk-aware abstraction}
+	\begin{algorithmic}[1]
+		\INPUT $(\SysT,\Whi,\Spec)$, some parameter set $P$ for $\proc$
+		\OUTPUT $\Gamma=(\Xa,\Ua,\fanor,\fadist)$ 
+		\State Compute $\Abs^{\mathrm{nor}}=(\Xa,\Ua,\fanor)\gets\proc(\SysT,P)$
+		\State Compute $\Abs^{\mathrm{high}}=(\Xa,\Ua,\fa^{\mathrm{high}})\gets\proc\left((\Xc,\Uc,\Whi,\fc),P\right)$
+		\State For all $\xa\in \Xa$ and $\ua\in \Ua$, define $\fadist:(\xa,\ua)\mapsto \fa^{\mathrm{high}}(\xa,\ua)\setminus \fanor(\xa,\ua)$
+		\State \Return $\Gamma=(\Xa,\Ua,\fanor,\fadist)$
+	\end{algorithmic}
+\end{algorithm}
+
+% \begin{proposition}
+% 	\REFalg{alg:compute risk-aware abstraction} is sound.
+% \end{proposition}
+% 
+% \begin{proof}
+% 	The first bullet point in \REFdef{def:risk-aware abstraction} holds naturally due to the property of $\proc$.
+% 	Now, because $R$ is also an FRR between $(\Xc,\Uc,\Whi,\fc)$ and $\Abs^{\mathrm{high}}$, hence by definition of FRR \cite{ReissigWeberRungger_2017_FRR}, for all $(\xc,\xa)\in R$, $u\in \Ua(\xa)$ implies that $\cup_{w\in \Whi}R(\ft(\xc,u,w))\subseteq \fanor(\xa,u)\cup \fadist(\xa,u) = \fadist(\xa,\ua)$.
+% \end{proof}

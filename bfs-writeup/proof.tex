@@ -1,0 +1,29 @@
+%---------- Proof ----------
+\clearpage
+
+\section{Proof}
+
+\subsection{Infinite Games with Disturbances}
+
+An Arena in our setting is $\Gamma=(\Xa,\Ua,\fanor,\fadist)$ as explained in Section 5. \\
+ A play in $\Gamma$ is an infinite sequence $\rho = (v_{0}, b_{0}), (v_{1}, b_{1}), (v_{2}, b_{2}), ... \in (\Xa \times \{0,1\})^{\omega}$ such that $ b_{0} = 0$ and $\forall j>0  \ \exists \ua \in \Ua: b_{j} = 0$ implies $v_{j} \in \fanor(v_{j-1}, \ua)$ and $b_{j} = 1$ implies $v_{j} \in \fadist(v_{j-1}, \ua)$. Hence, the additional bits $b_{j}$ for $j>0$ denote whether a normal or disturbance edge has been taken to move from $v_{j-1}$ to $v_{j}$ on input $\ua$. We say $\rho$ starts in $v_{0}$. A play prefix $(v_{0}, b_{0}), (v_{1}, b_{1}), ... (v_{j}, b_{j})$  is defined similarly and ends in $v_{j}$. The number of disturbances in play $\rho = (v_{0}, b_{0}), (v_{1}, b_{1}), (v_{2}, b_{2}), ... $ is defined as $\NSpikes(\rho) = | \{j \in \omega \ |\ b_{j} = 1 \}|$.\\
+A game with disturbances is $\ProbA=(\Gamma,\mathit{Win})$. \\
+A strategy for player 0 or the system is defined as $\sigma: \Xa \mapsto \Ua$ \\
+A play $\rho = (v_{0}, b_{0}), (v_{1}, b_{1}), (v_{2}, b_{2}), ...$ is consistent with strategy $\sigma$, if $v_{j+1} \in \fanor(v_{j}, \sigma(v_{j}))$ for every $j$ with $v_{j} \in \Xa$ and $b_{j+1}= 0$\\
+
+$\alpha$-resilience is defined the same way. The notion of min is taken care of by the definition of alpha resilience. \\
+$rg(v)$ also remains exactly the same which encodes our notion of min.
+Here a play is a strict alternation. See how to add this later. \\
+
+Without Strategy Pruning, the algorithm is sound and refines the ranking function at every step by may not be optimal. \\
+
+Lemma 1,2,3 from \cite{DBLP:conf/csl/NeiderW018} remain the same. Still think about lemma 3
+
+Add an intermediate lemma to explain strategy pruning and then everything falls into place.
+
+Lemma 4 breaks for our algorithm without Strategy Pruning. But with Strategy Pruning it holds. When it breaks, it breaks at the disturbance update. Note that the disturbance update argument in the CSL paper does not depend on the strategy. In our case, it will depend on the strategy because we don't always update a vertex with outgoing disturbance edge into an r state. 
+
+So our form for disturbance proof would look like this:
+if jv >= is odd, then it was updated during a disturbance update. Hence there is some v'' and some u such that $v'' \in \fadist(v',u)$ and there exists NO u' that is of input type 3 by defintiion of disturbance update. 
+But here it exists. Hence, done.
+

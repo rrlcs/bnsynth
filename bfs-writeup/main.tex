@@ -1,0 +1,188 @@
+\RequirePackage[l2tabu, orthodox]{nag} % Do not remove!
+
+\documentclass[letterpaper, 10 pt, conference]{ieeeconf} % Comment this line out
+                                                          % if you need a4paper
+%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4
+                                                          % paper
+
+\IEEEoverridecommandlockouts                              % This command is only
+                                                          % needed if you want to
+                                                          % use the \thanks command
+\overrideIEEEmargins
+% See the \addtolength command later in the file to balance the column lengths
+% on the last page of the document
+
+
+%---------- Additional packages ----------
+\usepackage{microtype}
+\usepackage[all, nodollardollar]{onlyamsmath} % Do not remove!
+\usepackage{mathtools}
+\usepackage{fullpage}
+
+\usepackage{comment}
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage{amsthm}
+\usepackage{etoolbox}
+\usepackage{color,colortbl}
+\usepackage{mathtools}
+\usepackage{enumerate}
+\usepackage{algorithm, algpseudocode}
+\usepackage{booktabs}
+\usepackage[normalem]{ulem}
+\usepackage{pgf}
+\usepackage{tikz,pgfplots}
+\usetikzlibrary{trees,decorations,arrows,arrows.meta,automata,shadows,positioning,plotmarks,backgrounds,shapes,shapes.misc}
+\usetikzlibrary{calc,matrix,fit,petri,decorations.pathmorphing,patterns}
+\usetikzlibrary{decorations.pathreplacing,decorations.markings,shapes.geometric,calc}
+\usepackage{paralist}
+\usepackage{stmaryrd}
+\usepackage{xspace}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[hang, tight]{subfigure}
+\usepackage[utf8]{inputenc} 
+ \usepackage[english]{babel} 
+  \usepackage{csquotes} 
+  \usepackage{epstopdf}
+  \usepackage{multicol}
+% \usepackage{csquotes}
+
+% \usepackage{amscd}
+% \usepackage{amsmath}
+% \usepackage{amssymb}
+% \usepackage{amsthm}
+
+
+% \usepackage[usenames,dvipsnames]{xcolor}
+% % tables
+ \usepackage{array}
+
+% \usepackage{xspace}
+% \usepackage{paralist}
+\usepackage{xifthen}
+\usepackage{url}
+\usepackage{relsize}
+
+%---------- Figures tikz ------------------
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=2cm, minimum height=2cm,text centered, text width=2cm, draw=black, fill=red!30]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, text width=3cm,draw=black, fill=blue!30]
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=white]
+\tikzstyle{solution} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=white]
+\tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=yellow!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+%---------- Environments ----------
+\newtheorem{lemma}{Lemma}
+
+
+\newcommand{\Sp}{\mathcal{S}}
+\newcommand{\Ap}{\mathcal{A}}
+
+%----------- Macros ------------
+%\newcommand{\KM}[1]{{\color{red} \textbf{KM:} #1}}
+%\newcommand{\DN}[1]{{\color{blue} \textbf{KM:} #1}}
+%\newcommand{\Stanly}[1]{{\color{orange} \textbf{KM:} #1}}
+%\newcommand{\AKS}[1]{{\color{green} \textbf{KM:} #1}}
+%\newcommand{\todo}[1]{{\color{cyan} \textbf{TODO:} #1}}
+%\newcommand{\new}[1]{{\color{magenta} #1}}
+%
+%\newcommand{\set}[1]{\lbrace #1\rbrace}
+\input{macros}
+
+%---------- Title ----------
+\title{%\LARGE \bf
+PSML Report: Sketches for Logical Specifications using Deep Learning
+}
+
+%---------- Authors ----------
+\author{
+Chiranjib Bhattacharyya,
+Deepak D'Souza,
+Ravi Raja,
+Sriram Rajamani, and
+Stanly Samuel
+%
+%\authorrunning{K.\ Mallik et al.}
+%
+%\institute{
+%	Max Planck Institute for Software Systems, Kaiserslautern, Germany \\ \email{\{kmallik, neider, akschmuck\}@mpi-sws.org} \and
+%	Indian Institute of Science, Bengaluru, India \\ \email{stanly@iisc.ac.in}
+%}
+\thanks{
+Brainstormed under the helpful guidance of 
+	C. Bhattacharyya,
+D. D'Souza, and S. Rajamani
+}
+\thanks{
+	C. Bhattacharyya,
+D. D'Souza,
+R. Raja and
+S. Samuel are with IISc, Bengaluru, India.
+%	Email: {\tt\small stanly@iisc.ac.in}.
+}
+\thanks{
+	S. Rajamani is with Microsoft Research, Bengaluru, India.
+%	Email: {\tt\small \{kmallik, neider, akschmuck\}@mpi-sws.org}.
+}
+}
+
+
+
+%========== Document begins here ==========
+\begin{document}
+
+
+%---------- Title ----------
+\maketitle
+\thispagestyle{empty}
+\pagestyle{empty}
+
+
+%---------- Abstract ----------
+\begin{abstract}
+We consider the synthesis of sketches for constraints specified using logical formulae using deep learning techniques. For this problem in program synthesis, we discuss relevant literature, gaps in existing techniques and our approach to attack the problem. This report broadly consists of a research proposal and preliminary progress in this direction. For the preliminary direction,  we discuss a prototype tool as a work in progress. 
+
+%The results on existing benchmarks show promise for the extension of this work. 
+\end{abstract}	
+
+%---------- Intro ----------
+\input{intro}
+
+%---------- Motivation-------
+\input{motivation}
+
+%---------- Problem Statement -------
+\input{problem}
+
+%---------- Preliminaries --------
+\input{prelims}
+
+%---------- Research proposal-------
+\input{proposal}
+
+%---------- Proposed NN architecture-------
+\input{nn}
+\input{gendata}
+
+%---------- SyGuS Sketcher: A preliminary prototype-------
+\input{tool}
+ 
+%---------- Future work -------
+\input{future}
+
+%---------- Conclusion ----------
+\input{conclusion}
+
+%---------- Bibliography ----------
+% \bibliographystyle{splncs04}
+\bibliographystyle{abbrv}
+\bibliography{bib}
+
+%---------- Appendix: Synthesizing sketches using RL ----------
+%\input{appendix}
+
+\end{document}

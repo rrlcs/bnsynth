@@ -1,0 +1,420 @@
+% !Tex root=main.tex
+
+\section{Synthesis of Optimally Resilient Controller}\label{sec:synth}
+
+%\KM{We can present this section as in the following:
+%\begin{itemize}
+%	\item Review synthesis of strategy in a normal parity game (when there are no disturbance edges).
+%	\item Gently introduce risk update and disturbance update, preferably using motivating examples. Here we should present the $Spre$-based version that we developed for the particular type of abstraction that we construct.
+%	\item Put the risk and disturbance update together in the form of a complete algorithm.
+%	\item Discuss the differences with Daniel's resilient synthesis algorithm for turn-based game.
+%\end{itemize}}
+
+% ******* Stanly's version **********
+%In the algorithm, we have three global data structures that are shared by all the functions: $\widehat{C}$ which is the final resilient controller synthesized by the algorithm, $\widehat{C}_{int}$ which is needed for intermediate bookkeeping and the finite resilience map $R_{i}$ which stores the set of states associated with finite resilience $i$. 
+%The game in computeGame function can be any game that satisfies the conditions specified in Daniel et. al's paper [cite]. 
+%This game returns the strategy $C_{i}: \Xa\rightarrow \Ua$ for $i \in \{0,1\}$
+%
+%\begin{algorithm}
+%	\caption{Driver code: Compute Resilient Strategy}
+%	\label{alg:driver code}
+%	\begin{algorithmic}[1]
+%		\INPUT $\Gamma=(\Xa,\Ua,\fanor,\fadist)$ 
+%		\OUTPUT $\widehat{C}:\Xa\rightarrow \Ua$
+%		\State $(C_{0}, C_{1}) = computeGame(\Xa,\Ua,\fadist)$
+%		\State $ R_{0} = dom(C_{1}) $
+%		\State $\widehat{C} = \phi$
+%		\State $\widehat{C}_{int} = C_{0}$
+%		\While{$disturbanceUpdate(\Xa,\Ua,\fanor,\fadist)$}
+%            \State $riskUpdate(\Xa,\Ua,\fanor)$
+%		\EndWhile
+%		\State $(C_{0}, C_{1}) = computeGame(\Xa,\Ua,\fadist \cup \fanor)$
+%		\State $\widehat{C} = \widehat{C} \cup (\widehat{C}_{int} \cap dom(C_{1})) \cup C_{0}$
+%		\State \Return $\widehat{C}$
+%	\end{algorithmic}
+%\end{algorithm}
+%We define the Spoiling Predecessor operation as follows:
+%
+%$SPre : 2^{\Xa} \rightarrow  2^{\Xa} $
+%$SPre(X \subseteq Q) = \{q \in Q | \forall \sigma \in \Ua : \fanor(q,\sigma) \subseteq \Xa \setminus \ X   \implies \fadist(q,\sigma) \cap X \neq \phi\}$
+%\\ \\
+%Invariant: Before every disturbance update, there will be vertices of exactly one resilience.
+%Proof: By construction of disturbance update.
+%Hence while doing disturbance update using SPre, no need of to check for mimimum resilience of a state explicitly.
+%
+%Lemma : SPre(X) $\cap$ X $= \phi$
+%Assume not $\implies$ there exists a state which has already computed resilience and has a new higher resilience. This is not possible by construction. By construction, we compute the optimal resilience during a disturbance update and the vertex is never updated again. 
+%
+%Our major contribution is the refined disturbance update procedure that first computes the new resiliences using SPre, then does a Strategy Pruning operation failing which the algorithm will be unsound. Finally, we remove already computed resiliences from the graph which is again needed for soundness.
+%
+%\begin{algorithm}
+%	\caption{Disturbance update}
+%	\label{alg:driver code}
+%	\begin{algorithmic}[1]
+%		\INPUT $\Gamma=(\Xa,\Ua,\fanor,\fadist)$ 
+%		\OUTPUT true/false
+%		\State $ R_{size(R)} = Spre (R_{size(R)-1}))$
+%		\If{$\exists q \in \Xa, u \in \Ua: q \notin R_{size(R)-1} \wedge \fadist(q,u) \in R_{size(R)-2}$}
+%		\State$\fanor = \fanor [q \times u \rightarrow \phi]$
+%		\EndIf
+%		\Comment Strategy pruning
+%		\State $ \Xa = \Xa \setminus R_{size(R)-2} $
+%		\State $\fanor = \fanor [R_{size(R)-2} \times \Ua \rightarrow \phi]$
+%		\Comment Remove previous resilience states from transition system
+%		\If{$R_{size(R)-1} = \phi$}
+%		\State \Return false
+%		\Else
+%		\State \Return true
+%		\EndIf
+%	\end{algorithmic}
+%\end{algorithm}
+%
+%
+%\begin{algorithm}
+%	\caption{Risk update}
+%	\label{alg:driver code}
+%	\begin{algorithmic}[1]
+%		\INPUT $\Gamma=(\Xa,\Ua,\fanor)$ 
+%		\State $\fanor = \fanor [R_{size(R)-1} \times \Ua \rightarrow \phi]$
+%		\Comment Cutoff outgoing transitions from prev resilience states to get states not to be reached in the next game
+%		\State $(C_{0}, C_{1}) = computeGame(\Xa,\Ua,\fanor)$
+%		\State $R_{size(R)-1} = R_{size(R)-1} \cup dom(C_{1})$
+%		\State $\widehat{C} = \widehat{C} \cup (\widehat{C}_{int} \cap R_{size(R)-1})$
+%		\State $\widehat{C}_{int} = C_{0}$
+%		\State \Return
+%	\end{algorithmic}
+%\end{algorithm}
+%
+%\begin{algorithm}
+%	\caption{Compute Optimal Strategies}
+%	\label{alg:driver code}
+%	\begin{algorithmic}[1]
+%		\INPUT 
+%		\OUTPUT 
+%
+%		\State \Return 
+%	\end{algorithmic}
+%\end{algorithm}
+% *************************************
+
+% ********** Kaushik's version **********
+%\subsection{Parity Game Solver}
+%We assume that we have access to a parity game solver which serves as a black-box method in our synthesis routine.
+%For the actual implementation, one can use any of the available methods/tools from the literature \cite{???}.
+%Let us denote our black-box (even) parity solver by $\Parity$ that takes two arguments: 
+%\begin{inparaenum}
+%	\item the transitions $\delta:Q\times A\setmap Q$, with the understanding that $\Parity$ has access to the state space $Q$ and the action space $A$ of the risk-aware abstraction, and
+%	\item the specification $\SpecP\wedge \SpecS$, where $\SpecP$ is the given parity condition and $\SpecS$ is an optional additional safety specification.
+%\end{inparaenum}
+%The output of $\Parity$ is a control strategy $\pi:Q\rightarrow A$ for the system player.
+%The domain of $\pi$, denoted as $\dom{\pi}$ is the winning domain of the system player, and---since the game is determined in this case \cite{automata, logics, infinite games springer}---the complement $(\dom{\pi})^c$ is the winning domain of the environment player.
+%
+%The additional safety specification $\SpecS$, if not natively supported by the underlying parity solver, can be tackled by redirecting all the outgoing edges from the unsafe states to a sink state $\mathit{sink}$, and assigning any odd color to the $\mathit{sink}$ state.
+
+%\subsection{Computation of Finite Resilience}
+%The finite resilience is computed iteratively, where each iteration assigns some finite resilience to some of the states.
+%For this purpose, we define a partial function $\risk^*_i:Q\rightarrow \mathbb{N}_0$ which represents the resilience values in iteration $i$.
+%We formalize a procedure called $\update_{\Gamma,\SpecP}$ in \REFalg{alg:finite resilience update} which updates the resilience values at every iteration: $\langle\risk^*_{i+1},\cdot,\cdot\rangle:= \update_{\Gamma,\SpecP}(\risk^*_i,i)$.
+%Initially, the domain of $\risk^*_0$ is empty, i.e.\ no state has yet received a resilience value.
+%The procedure $\update$ assigns resilience value to some states while making sure that no state, which has already been assigned a resilience value, gets a new assignment.
+%This property ensures termination, as we apply $\update$ on the finite abstract state space.
+%
+%In the end, we will establish that $\risk^*_\infty\equiv \risk^*$, i.e.\ $\risk^*$ is the fixed-point of the sequence $\set{\risk^*_0,\risk^*_1,\ldots}$.
+%The resilient controller is obtained as a by-product of this iterative procedure, which is given in Line~\ref{line:controller extraction 1 begin}-\ref{line:controller extraction 1 end} in \REFalg{alg:compute resilience}.
+%
+%The procedure $\update$ has two steps:
+%\smallskip\noindent\textbf{Disturbance update:} 
+%Let us assume that $M=\dom{\risk^*}$ be the set of states for which some finite resilience value has already been assigned.
+%The objective of disturbance update is to identify the states, called the $\mathit{frontier}$, from which the controller cannot surely avoid $M$ in one-step, if a high disturbance from $\Whi$ appears.
+%In order to compute this, we formalize the operator $\spre:2^Q\rightarrow 2^Q$, defined as:
+%\begin{multline}
+%	\spre:X\mapsto \set{q\in Q\mid \left(\forall \sigma\in A\;.\;\fanor(q,\sigma)\subseteq X^c\right) \\
+%	 \Rightarrow \left(\fadist(q,\sigma)\cap X\neq \emptyset\right)}.
+%\end{multline}
+%The $\mathit{frontier}$ is computed as $\mathit{frontier}=\spre(M)$ in Line~\ref{line:spre}, and all the states in the set $\mathit{frontier}$ gets a resilience value assigned in Line~\ref{line:assign resilience dist update}.
+%
+%Now suppose that there is a state $q$ which is not in the set $\mathit{frontier}$.
+%This means that there is some control input from $q$---\emph{but not necessarily all}---which can make sure that $M$ is avoided even if a high disturbance $w\in\Whi$ appears in the next step.
+%We need to make sure that in the subsequent steps of the algorithm, the ``risky'' inputs that could force the system to $M$, if any, are disabled from $q$.
+%This is implemented in Line~\ref{line:disable bad inputs begin}-\ref{line:disable bad inputs end}.
+%
+%\smallskip\noindent\textbf{Risk update:}
+%Each disturbance update is followed by a risk update.
+%In risk update, we only consider the normal disturbances from $\Wnor$, and identify those states from where the controller cannot satisfy the parity condition $\SpecP$ while avoiding ``slipping'' to the lower resilient states (already computed).
+%This is implemented in Line~\ref{line:risk update begin}-\ref{line:risk update end} in \REFalg{alg:finite resilience update}.
+%
+%\begin{algorithm}
+%	\caption{$\update$}
+%	\label{alg:finite resilience update}
+%	\begin{algorithmic}[1]
+%		\PARAMETERS $\Gamma=(Q,A,\fanor,\fadist)$, $\SpecP$
+%		\INPUT $\risk^*$, $i$
+%		\OUTPUT $\risk^*$, $\pi$, $\fanor_{\mathrm{new}}$
+%			\State $M\gets \dom{\risk^*}$ \Comment{States with resilience assigned}
+%			\State $\fanor_{\mathrm{new}}\equiv \fanor$
+%			\State \textcolor{green!60!black}{\textbf{\texttt{/* Disturbance update */}}}
+%			\State $\mathit{frontier}\gets \spre(M)$\label{line:spre}
+%			\State $\forall q\in \mathit{frontier}\;.\;\risk^*(q):=i+1$\label{line:assign resilience dist update}
+%			\State $M\gets M\cup \mathit{frontier}$
+%			\ForAll{$(q,u)\in (\mathit{frontier})^c\times A$}\label{line:disable bad inputs begin}
+%				\If{$\fadist(q,u)\cap M\neq \emptyset$}
+%					\State $\fanor_{\mathrm{new}}(q,u)\gets \emptyset$
+%				\EndIf
+%			\EndFor\label{line:disable bad inputs end}
+%			\State \textcolor{green!60!black}{\textbf{\texttt{/* Risk update */}}}
+%			\State $\pi\gets \Parity(\fanor_{\mathrm{new}},\SpecP\wedge \square\neg M)$\label{line:risk update begin}
+%			\State $\mathit{losing}\gets (\dom{\pi})^c$
+%			\State $\forall q\in \mathit{losing}\;.\;\risk^*(q):=i+1$\label{line:risk update end}
+%			\State \Return $\langle\risk^*, \pi, \fanor_{\mathrm{new}} \rangle$
+%	\end{algorithmic}
+%\end{algorithm}
+%
+%\begin{algorithm}
+%	\caption{$\compRes$}
+%	\label{alg:compute resilience}
+%	\begin{algorithmic}[1]
+%		\INPUT $\Gamma=(Q,A,\fanor,\fadist)$, $\SpecP$
+%		\OUTPUT $\widehat{C}$, $\risk^*$
+%		\State \textcolor{green!60!black}{\textbf{\texttt{/* Initialization steps */}}}
+%		\State $\risk^*\gets $ undefined everywhere
+%		\State Define $\pi:Q\rightarrow A$, and initialize $\pi$ with some arbitrary control input everywhere
+%		\State $\widehat{C}\equiv \emptyset$
+%		\State $i\gets (-1)$
+%		\State \textcolor{green!60!black}{\textbf{\texttt{/* Compute finite resilience */}}}
+%		\Do 
+%			\State $\langle\risk^*_{\mathrm{new}},\pi,\fanor_{\mathrm{new}}\rangle\gets \update(\risk^*,i)$\label{line:invoke update}
+%			\ForAll{$q\in \dom{\risk^*_{\mathrm{new}}}\setminus \dom{\risk^*}$}\label{line:controller extraction 1 begin}
+%				\State $\widehat{C}(q)\gets \pi(q)$
+%			\EndFor\label{line:controller extraction 1 end}
+%			\State $\fanor\gets\fanor_{\mathrm{new}}$
+%			\State $\risk^*\gets \risk^*_{\mathrm{new}}$
+%			\State $i\gets i+1$
+%		\doWhile{$\risk^*_{\mathrm{new}}\neq \risk^*$}
+%		\State \textcolor{green!60!black}{\textbf{\texttt{/* Compute $\omega$-resilience */}}}
+%		\State $M\gets \dom{\risk^*}$\label{line:omega res start}
+%		\State $\pi_{\mathrm{new}}\gets\Parity(\fanor\cup\fadist,\SpecP\wedge \square\neg M)$
+%		\ForAll{$q\in \dom{\pi_{\mathrm{new}}}$}
+%			\State $\risk^*(q):=\omega+1$
+%			\State $\widehat{C}(q):=\pi_{\mathrm{new}}(q)$
+%		\EndFor
+%		\ForAll{$q\in (M\cup \dom{\pi_{\mathrm{new}}})^c$}
+%			\State $\risk^*(q):=\omega$
+%			\State $\widehat{C}(q):=\pi(q)$
+%		\EndFor\label{line:omega res end}
+%		\State \Return $\langle \widehat{C},\risk^* \rangle$
+%	\end{algorithmic}
+%\end{algorithm}
+%
+%As mentioned earlier, the procedure $\update$ is iterated until the finite resilience values of the states stabilize.
+%Notice that, the first time $\update$ is invoked in Line~\ref{line:invoke update} of \REFalg{alg:compute resilience}, the disturbance update has no effect as the domain of $\risk^*$ is empty initially.
+%On the other hand, the risk update assigns resilience $0$ to the states from where the parity specification $\SpecP$ cannot be satisfied by the controller under normal disturbances $\Wnor$.
+%
+%For any state $q$ with (finite) resilience $i$, the control input $\widehat{C}(q)$ is chosen as the input that enables the system to satisfy the parity specification $\SpecP$ while avoiding all the resilience $i-1$ states.
+%
+%\subsection{Computation of Infinite Resilience}
+%Once all the finite resilient states are obtained, the rest of the states constitute of either the $\omega$ or $\omega+1$ resilient states.
+%The $\omega$ resilient states are those from where only infinite number of high disturbance spikes in $\Whi$ can make the system violate $\SpecP$.
+%On the other hand, the $\omega+1$ resilient states are those from where even infinite number of disturbances in $\Whi$ cannot make the system violate $\SpecP$.
+%It is no surprise that $\omega+1$ resilient states are exactly those, from where the closed loop can satisfy $\SpecP$ no matter whether the disturbances are from $\Wnor$ or $\Whi$.
+%The rest of the states, which are neither with finite resilience nor with $\omega+1$ resilience, are exactly the states with $\omega$-resilience.
+%Computation of $\omega$ and $\omega+1$ resilient states are performed in Line~\ref{line:omega res start}-\ref{line:omega res end} of \REFalg{alg:compute resilience}.
+%
+%\KM{We need to discuss precisely what theorem we're going to prove in this section.}
+%\KM{As Daniel suggested (offline), we should see if we could add some illustrative example for the algorithm.}
+%\KM{If we do not find a good example that showcases the importance of $\omega$-resilience in the end, then we probably should think if we need to keep the omega resilience part at all or not. I am not sure how to tackle this.}
+
+
+%---------- Daniel ----------
+In the following, we present our algorithm to synthesize the optimally resilient controller for risk-aware abstractions of sampled-time control systems.
+Our algorithm follows the general ideas of \cite{DBLP:conf/csl/NeiderW018}, and assigns resilience to every abstract state of the risk-aware abstraction.
+Intuitively, the resilience of an abstract state corresponds to the maximum number of disturbance spikes that the \emph{abstract closed-loop}---formed by connecting the synthesized controller with the abstract system in feedback---can tolerate while still satisfying its specification.
+We are interested to synthesize a controllers which \emph{maximizes} the resilience of each abstract state.
+Before we describe our algorithm, however, let us introduce the required definitions and notation.
+
+%---------- Basic Definitions ----------
+\input{prelims_synthesis}
+
+%---------- Computing Optimally Resilient Strategies ----------
+\subsection{Computing Optimally Resilient Strategies}
+Following Neider, Weinert, and Zimmermann~\cite{DBLP:conf/csl/NeiderW018}, we first characterize the abstract states of finite resilience.
+The remaining abstract states then have either resilience $\omega$ or $\omega +1$, and we show how to distinguish between them.
+Finally, we describe how to derive an optimally resilient abstract controller based on the computed resilient values.
+
+\subsubsection{Finite Resilience}
+Starting from the abstract states in $\overline{\mathcal W}(\ProbA)$, which have resilience $0$ by definition, we use two operations to determine the abstract states of finite resilience: the disturbance update and the risk update.
+Intuitively, the disturbance update computes the resilience of abstract states for which a disturbance spike (i.e., a transition in $\fadist$) leads to an abstract state whose resilience is already known.
+The risk update, on the other hand, determines the resilience of abstract states from which the controller can either not prevent to visit an abstract state with known resilience or it needs to move to such an abstract state in order to avoid losing.
+
+For the remainder, let us fix a parity game $\ProbA = (\Gamma, \widehat{\Phi})$ with risk-aware abstraction $\Gamma=(\Xa,\Ua,\fanor,\fadist)$.
+Following Neider, Weinert, and Zimmermann~\cite{DBLP:conf/csl/NeiderW018}, we define the disturbance and risk updates as updates on partial mappings $r \colon \Xa \to \omega$, which are called \emph{rankings}.
+Intuitively, a ranking assigns resilience to some of the abstract states.
+We denote the domain of $r$ by $\mathrm{dom}(r)$ and the image of $r$ by $\mathrm{im}(r)$.
+
+Due to the different problem setup, we now deviate from Neider, Weinert, and Zimmermann's original algorithm in that we perform disturbance and risk updates not on the same risk-aware abstraction but on a sequence $(\Gamma_i)_{i=1, 2, \ldots}$ of abstractions.
+We obtain $\Gamma_{i+1}$ from $\Gamma_i$ using an operation we call \emph{strategy pruning}, which removes certain transitions from $\Gamma_i$ that are no longer relevant for computing resilience.
+
+Strategy pruning is inter-weaved with the disturbance and risk updates as shown in Algorithm~\ref{alg:computing-finite-resilience}.
+Our algorithm starts with the \emph{initial ranking} that assign the value $0$ to all $\xa \in \overline{\mathcal W}(\Gamma)$ and is otherwise undefined.
+Then, it computes the disturbance update on $\Gamma_i$, applies strategy pruning to obtain $\Gamma_{i+1}$, and finally computes the risk update on $\Gamma_{i+1}$.
+This process repeats until a fixed point is reached (i.e., $r_i = r_{i-1}$), at which point the algorithm returns the final ranking $r^\ast = r_i$.
+The ranking $r^\ast$ then maps an abstract state to its resilience.
+
+\begin{algorithm}
+	\begin{algorithmic}[1]
+		\INPUT Risk-aware abstraction $\Gamma$
+		
+		\State Compute $\overline{\mathcal W}(G)$
+		\State Initialize an initial ranking $r_0$ with $r_0(\xa) = 0$ for all $\xa \in \overline{\mathcal W}(G)$ and \emph{undefined} otherwise
+		\State $i \gets 0$ and $\Gamma_0 \gets \Gamma$
+		
+		\Repeat
+			\State $r' \gets \mathit{disturbance\textunderscore{}upd}(r_i, \Gamma_i)$
+			\State $\Gamma_{i+1} \gets \mathit{strategy\textunderscore{}pruning}(r_i,\Gamma_i)$
+			\State $r_{i+1} \gets \mathit{risk\textunderscore{}upd}(r', \Gamma_{i+1})$
+			\State $i \gets i + 1$
+		\Until{$r_i = r_{i-1}$}
+
+		\State \Return $r^\ast = r_i$
+
+	\end{algorithmic}
+	\caption{Determining finite resilience} \label{alg:computing-finite-resilience}
+\end{algorithm}
+
+In the remainder of this section, we describe all three operations in detail. % and show that Algorithm~\ref{alg:computing-finite-resilience} correctly computes vertices of finite reslience.
+
+%----------- Disturbance update ----------
+\paragraph{Disturbance Update}
+As mentioned before, the intuition behind the disturbance update, which we denote by $\mathit{disturbance\textunderscore{}upd}$, is to compute the resilience of abstract states for which a disturbance spike leads to an abstract state whose resilience is already known.
+It takes two inputs: a ranking $r$ and a risk-aware abstraction $\Gamma = (\Xa, \Ua, \fanor, \fadist)$.
+
+In the first step, the disturbance update computes for each $\xa \in \Xa$ a set $S_\xa\subseteq \Xa$ which satisfies the condition given below: 
+% --- stanly's version ---
+%\REFfig{fig:def S_q}.
+%\begin{figure*}
+%\begin{multline*}
+%	\xa'\in S_\xa \Leftrightarrow  \left(\forall\ua \in \Ua\;.\; 
+%												\left(\left(\fanor(\xa, \ua) \neq \emptyset \wedge \fanor(\xa, \ua) \cap \mathrm{dom}(r) = \emptyset\right)
+%												\Rightarrow \left( \fadist(\xa, \ua) \cap \mathrm{dom}(r) \neq \emptyset \right)\right)\right.\\
+%												\wedge
+%												\left.\exists \ua \in \Ua\;.\;
+%												\left( \fanor(\xa, \ua) \neq \emptyset \wedge \fanor(\xa, \ua) \cap \mathrm{dom}(r) = \emptyset
+%												 \wedge \xa' \in \fadist(\xa, \ua) \cap \mathrm{dom}(r) \right)\right).
+%\end{multline*}
+%\vspace{-0.8cm}
+%\caption{Definition of $S_\xa$.}
+%\vspace{-0.5cm}
+%\label{fig:def S_q}
+%\end{figure*} 
+% 
+\begin{align*}
+	\xa'\in S_\xa \Leftrightarrow {} & [\text{for all $\ua \in \Ua$,} \\
+	& \fanor(\xa, \ua) \neq \emptyset \text{ and } \fanor(\xa, \ua) \cap \mathrm{dom}(r) = \emptyset \\
+	& \text{imply } \fadist(\xa, \ua) \cap \mathrm{dom}(r) \neq \emptyset] \\
+	& \text{and } \\
+	& [\text{there exists $\ua \in \Ua$,} \\
+	& \fanor(\xa, \ua) \neq \emptyset \text{ and } \fanor(\xa, \ua) \cap \mathrm{dom}(r) = \emptyset \\
+	& \text{and } \xa' \in \fadist(\xa, \ua) \text{ and } \xa' \in \mathrm{dom}(r)].
+\end{align*} 
+% -----------------------------
+%The set $S_\xa$ is empty if the universally quantified formula is false. This is because the condition is a conjunction which becomes false if one of the conjuncts is false. This universally quantified formula is a property on $\xa$ but not $\xa'$. However, if this formula is true, then $\xa'\in S_\xa $ if and only if the existentially quantified formula, which is a property on $\xa'$ as well, is true.
+Then, it returns a new ranking $r'$ with
+\[ r'(\xa) = \min \bigl\{ \{ r(\xa) \} \cup \{ r(\xa') + 1 \mid \xa' \in S_\xa \} \bigr \} \]
+for each $\xa \in \Xa$, where $\{ r(\xa) \} = \emptyset$ if $\xa \notin \mathrm{dom}(r)$, and $\min{\emptyset}$ is undefined. 
+%Finally, the disturbance update returns the new ranking $r'$.
+
+
+%----------- Strategy Pruning ----------
+\paragraph{Strategy Pruning}
+The strategy pruning step, which we denote by $\mathit{strategy\textunderscore{}pruning}$, removes transitions from a risk-aware abstraction that are no longer relevant for computing resilience.
+It takes two inputs: a ranking $r$ and a  risk-aware abstraction $\Gamma = (\Xa, \Ua, \fanor, \fadist)$.
+
+Based on the transition function $\fanor$ and $\fadist$, strategy pruning first computes two new transition functions ${\fanor}'$ and ${\fadist}'$ where
+\begin{align*}
+	{\fanor}'(\xa, \ua)  & = \begin{cases} \emptyset & \text{if $F$ is true; and} \\ \fanor(\xa, \ua)  & \text{otherwise} \end{cases}
+	%
+	\intertext{for all $\xa \in \Xa$ and $\ua \in \Ua$ as well as}
+	%
+	{\fadist}'(\xa, \ua)  & = \begin{cases} \emptyset & \text{if $F$ is true; and} \\ \fadist(\xa, \ua)  & \text{otherwise} \end{cases}
+\end{align*}
+for all $\xa \in \Xa$ and $\ua \in \Ua$, and where $F$ is true if and only if $\fanor(\xa, \ua) \cap \mathrm{dom}(r) \neq \emptyset$ or $\fadist(\xa, \ua) \cap \mathrm{dom}(r) \neq \emptyset$.
+Then, it returns the new risk-aware abstraction $\Gamma' = (\Xa, \Ua, {\fanor}', {\fadist}')$.
+
+
+%----------- Risk Update ----------
+\paragraph{Risk Update}
+The risk update, which we denote by $\mathit{risk\textunderscore{}upd}$, determines the resilience of abstract states from which the controller can either not prevent to visit an abstract state with known resilience or it needs to move to such an abstract state in order to avoid losing.
+Like the disturbance update, it takes two inputs: a ranking $r$ and a risk-aware abstraction $\Gamma = (\Xa, \Ua, \fanor, \fadist)$.
+
+For each $k \in \mathrm{im}(r)$, the risk update computes the set
+\begin{multline*}
+	B_k = \overline{\mathcal W} \bigl(\Gamma, \mathit{Parity}(\Phi) \cap {} \\
+	\mathit{Safety}( \{x \in \mathrm{dom}(r) \mid r(x) \leq k \}) \bigr).
+\end{multline*}
+As described above, this can be done by first solving the safety game and then the parity game on the resulting game.
+As a byproduct, we obtain in iteration $i$ a controller that (i) never visits a state with resilience less than $i$ and (ii) is winning if no disturbance spike occurs.
+Once the fixed point is reached, the final controller can even tolerate an arbitrary number of resilience spikes.
+
+Then, the risk update returns the new ranking $r'$ with
+\[ r'(\xa) = \min{\{ k \mid \xa \in B_k \}}, \]
+for every $\xa \in \Xa$, where again $\min{\emptyset}$ is undefined.
+This concludes the computation of finite resiliences.
+
+
+%---------- Distinguishing Between Resilience $\omega$ and $\omega+1$ ----------
+\subsubsection{Distinguishing Between Resilience $\omega$ and $\omega+1$}
+It is left to distinguish between abstract states of resilience $\omega$ and $\omega + 1$.
+Recall that abstract states of resilience $\omega + 1$ are those from which the controller can satisfy the specification even if infinitely many disturbance spikes occur.
+
+Fortunately, characterizing the abstract states of resilience $\omega + 1$ is straightforward.
+We simply solve the classical controller synthesis problem for the abstraction $(\Xa, \Ua, \fanor\cup \fadist)$ (i.e., the abstraction that always allows for large disturbances), where $\fanor\cup\fadist$ denotes the argument-wise union operation of the set-valued transition functions $\fanor$ and $\fadist$.
+In fact, it is  then not hard to verify that the abstract states in $\mathrm{dom}(\widehat{C})$ of the resulting abstract controller $\widehat{C}$ are exactly those of resilience $\omega + 1$, and the controller is $(\omega + 1)$-resilient from these abstract states.
+This is due to the fact that $\widehat{C}$ can enforce the specification even under arbitrary many occurrences of high disturbances.
+
+In total, we have identified the abstract states of finite resilience and resilience $\omega + 1$ of a risk-aware abstraction $\Gamma = (\Xa, \Ua, \fanor, \fadist)$.
+The remaining abstract states in $\Xa$ must then have resilience $\omega$.
+This concludes the computation of the function $r^\ast$, which maps an abstract state to its resilience, and we can  now describe how to extract an optimally resilient controller. 
+
+
+%---------- Extracting Omptimally Resilient Strategies ----------
+\subsubsection{Extracting Optimally Resilient Strategies}
+The extraction of an optimally resilient abstract controller follows very closely the one by Neider, Weinert, and Zimmermann~\cite{DBLP:conf/csl/NeiderW018}. %, and we do not address this formally in this paper.
+Intuitively, the controller extraction is the process of stitching together the controllers that were obtained in different iterations of the risk update and the $(\omega+1)$-resilience computation.
+The underlying idea is to switch the controller whenever a disturbance spike occurs.
+If finitely many disturbance spikes occur, then the optimally resilient controller will settle with an appropriate \mbox{(sub-)}controller that was obtained in the risk update.
+If infinitely many disturbance spikes occur, then the optimally resilient controller will settle with the \mbox{(sub-)}controller obtained in the $(\omega+1)$-resilience computation.
+In both cases, these (sub-)controllers are winning by construction and, hence, so is the optimally resilient one.
+%Due to the space restriction, we can here only convey an intuition and refer to the original construction for more details.
+
+%------- original strategy extraction ---------------
+%The underlying idea is to switch between the various abstract controllers that were computed in the previous subsections.
+%More precisely, we use the following abstract controllers:
+%\begin{itemize}
+%	\item For every $\xa \in \Xa$ with $r^\ast(\xa) \in \omega \setminus \{ 0 \}$, the risk update has computed an abstract controller $\widehat{C}_\xa$ that is winning from $\xa$ for the game $(\Gamma, \mathit{Parity}(\Phi) \cap \mathrm{Safety}(\{ \xa' \in \Xa \mid r^\ast(\xa') < r^\ast(\xa) \}))$.
+%	%
+%	\item For every $\xa \in \Xa$ with $r^\ast(\xa) = \omega$, the last step of the risk update has computed an abstract controller $\widehat{C}_\xa$ that is winning from $\xa$ for the game $(\Gamma, \mathit{Parity}(\Phi) \cap \mathrm{Safety}(\{ \xa' \in \Xa \mid r^\ast(\xa') \in \omega \}))$.
+%	%
+%	\item For every $\xa \in \Xa$ with $r^\ast(\xa) = \omega + 1$, we have computed an abstract controller $\widehat{C}_\xa$ that is $(\omega + 1)$-resilient (see the section on computing abstract states of resilience $\omega + 1$).
+%\end{itemize}
+%
+%For the remainder of this section, let us fix a strict linear order $\prec$ on $\Xa$ such that $\xa \prec \xa'$ implies $r^\ast(\xa) \leq r^\ast(\xa')$; in other words, we order the abstract states by ascending resilience.
+%Moreover, for $\xa \in \Xa$ with $r^\ast(\xa) \neq \omega + 1$, let $R_\xa \subseteq \Xa$ be the set of abstract states reachable via spike-free trajectories of the abstract closed-loop $\Gamma\parallel \widehat{C}_\xa$ that start from $\xa$.
+%For $\xa  \in \Xa$ with $r^\ast(\xa) = \omega + 1$, let $R_\xa \subset \Xa$ be the set of abstract states reachable via trajectories of the abstract closed-loop $\Gamma\parallel \widehat{C}_\xa$ with arbitrarily many disturbance spikes that start in $\xa$.
+%
+%Let now $m \colon \Xa \to \Xa$ be a function defined by $m(\xa) = \min_{\prec} \{ \xa' \in \Xa \mid v \in R_{\xa'} \}$.
+%Based on this function, we obtain an optimally resilient abstract controller $\widehat{C}^\star$ by setting
+%\[ \widehat{C}^\star(\xa, \ua) = \widehat{C}_{m(\xa)}(\xa, \ua). \]
+%%The proof that $\widehat{C}^\star$ is optimally resilient is quite technical but follows the one given by Neider, Weinert, and Zimmermann~\cite{?} exactly in lockstep.
+%Intuitively, each trajectory starting in an abstract state $\xa \in \Xa$ with $r^\ast(\xa) = k$ that has less than $k$ disturbance spikes will eventually settle with one specific controller $\widehat{C}_{\xa'}$, which---by construction---is winning if no further disturbance spike occurs.
+%This is guaranteed by the function $m$, which defines a total order on the abstract states $\xa \in \Xa$ and, hence, on control strategies $\widehat{C}_\xa$.
+%Similarly, each trajectory starting in an abstract state $\xa \in \Xa$ with $r^\ast(\xa) = \omega$ that has only finitely many disturbance spikes will eventually settle with one specific controller $\widehat{C}_{\xa'}$, which is winning if no further disturbance spike occurs.
+%Finally, each trajectory starting in an abstract state $\xa \in \Xa$ with $r^\ast(\xa) = \omega + 1$ will stay inside abstract states with resilience $\omega + 1$ and, hence, eventually settle with one specific controller $\widehat{C}_{\xa'}$, is winning regardless of how many disturbance spikes occur.
+%Thus, the abstract controller $\widehat{C}^\ast$ is indeed optimally resilient.
+% --------------------------------
+
+% ------- Informal treatment of controller refinement ------------
+\subsubsection{Controller refinement}
+Let $\Prob=(\SysT,\Whi,\Spec)$ be a risk-aware controller synthesis problem.
+Let  $\widehat{C}^*$ be  an optimally resilient controller synthesized for the abstract synthesis problem $\widehat{\Prob}=(\Gamma,\widehat{\Spec})$, where $\Gamma$ is a risk-aware abstraction of $\SysT$ with the corresponding FRR $R$.
+Following the usual methodology of ABCD, one can define a controller for $\SysT$ as $C^*:\xc\mapsto \widehat{C}^*(\xa)$ where $\xa\in \Xa$ s.t.\ $(\xc,\xa)\in R$. Here, $C^*$ is well-defined due to the properties of $R$.
+It can be shown that for every $\xc\in \Xc$, $C^*$ is an $\alpha$-resilient controller for some $\alpha \leq \risk(\xc)$, i.e.\ $C^*$ is a sub-optimal controller in terms of resilience.
+% We plan to formally show in a future paper that the finer the abstraction $\Gamma$ gets (in terms of the discretization parameters), the closer $C^*$ becomes to the true optimally resilient controller for the sampled-time system $\SysT$.

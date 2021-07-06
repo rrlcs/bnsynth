@@ -1,0 +1,7 @@
+\section{Motivation}
+
+One of the motivating examples that we had looked into involved the Conditional Linear Integer Arithmetic track of SyGuS benchmarks. A state of the art solver CVC4 was not able to solve the following constraint: $x\ is\ even \implies div(x) + div(x) = x$ where $div: Real \rightarrow Real$ is the function to be synthesized. The constraint hints on the fact that the division operator needs to be used in the final program. A human would have had no issue in figuring this out. Consequently, we expect to design and train a neural network that could pick up these patterns and synthesize sketches accordingly. For example, feeding this constraint to the neural network could synthesize a sketch as follows: $div(x) = x / HOLE$ i.e. the neural network realizes that the division operator is to be used but doesn't really know which constant is needed so it synthesizes a hole in place of the constant. A traditional sketch solver can then be used to synthesize the constant $2$.
+
+On the other hand, the neural network may even choose to synthesize the sketch $div(x) = HOLE / HOLE$ in which case you will also need an enumerative solver to fill up the hole for the variable $x$.
+
+The other motivation is to improve the performance of existing tools by the use of sketches. In the experiments section, we will comment on DeepSynth's performance on its benchmarks.

@@ -1,0 +1,51 @@
+%\section{Problem Statement}\label{sec:problem}
+%
+%We define a \emph{risk-sensitive controller synthesis problem} using the tuple $\Prob=(\SysT,\Whi,\Spec)$, where $\SysT=(\Xc,\Uc,\Wnor,\fc)$ is a sampled-time control system that is normally exposed to disturbances from $\Wnor$, the set $\Whi\supset \Wnor$ is a set of higher disturbance spikes that $\Sys$ is only occasionally exposed to, and $\Spec$ is a parity specification over the state space $\Xc$.
+%%Assume that we are given a sampling time $\tau>0$, for which $\SysT$ is the sampled-time system associated with $\Sys$.
+%
+%For a risk-sensitive controller synthesis problem, we focus on the trajectories $\traj^{\Whi}(\xc_0)$ with disturbance values from the set $\Whi$, rather than $\traj^{\Wnor}(\xc_0)$.
+%Note that in practice, we interpret disturbances from the set $\Whi\setminus \Wnor$ as rare events.
+%Given any trajectory $\traj^{\Whi}(\xc_0)=(\xc_0,w_0)(\xc_1,w_1)\ldots$, define the operator $\NSpikes: \traj^{\Whi}(\xc_0)\mapsto \card \set{i \leq \omega \mid w_i\in \Whi\setminus \Wnor}$, where $\card{S}$ is the cardinality of a given set $S$, and it is understood that $\Wnor$ is clear from the context.
+%Intuitively, $\NSpikes(\traj^{\Whi}(\xc_0))$ returns the number of times a disturbance outside $\Wnor$ (but in $\Whi$) occurred in the trajectory $\traj^{\Whi}(\xc_0)$.
+%A closed-loop trajectory $\traj^{\Whi}(\xc_0)$ is called \emph{spike-free} if $\NSpikes(\traj^{\Whi}(\xc_0))=0$.
+%
+%%Given any state $\xc_0\in \dom{C}$, define the set of violating trajectories: $\BadTraj(\xc_0):=\set{ \traj^{\Whi}(\xc_0) \mid \traj^{\Whi}(\xc_0)\nvDash \Spec}$.
+%
+%%For a fixed controller $C\in \Cfamily^{\SysT,\Spec}$, we assign \emph{resilience} to each state in the domain of the controller.
+%%The resilience of a state is a measure of how many disturbance spikes can the closed loop tolerate from that state before violating the specification.
+%%Given a controller $C\in \Cfamily^{\SysT,\Spec}$ and a state $\xc\in \dom{C}$, the resilience is returned by the function $\risk:(\xc,C)\mapsto \min\set{\NSpikes(\traj^{\Whi}(\xc)) \mid  \traj^{\Whi}(\xc)\nvDash \Spec}$. 
+%%\new{Intuitively, the closed-loop $\SysT\parallel C$ starting at a state $\xc\in \dom{C}$ satisfies $\Spec$ even under at most $\risk(\xc,C)-1$ disturbance spikes; when $\risk(\xc,C)=\omega$ or $\risk(\xc,C)=(\omega + 1)$, the closed-loop satisfies $\Spec$ from $\xc$ even under any finite or infinite number of disturbance spikes.}
+%%Note that, since $\xc\in \dom{C}$ and $C\in \Cfamily^{\SysT,\Spec}$, hence all the controlled trajectories $\traj^{\Wnor}(\xc)$ satisfy $\Spec$.
+%%For a given sampled-time control system $\SysT$, and for a state $\xc\in \Xc$, the optimal resilience for $\xc$ is given by $\risk^*:\xc\mapsto \max_{C\in \Cfamily^{\SysT,\Spec}}\risk(\xc,C)$.
+%
+%Let $C\in \Cfamily^{\SysT,\Spec}$ be a controller, and $\alpha \in \omega + 2$.
+%We say that $C$ is \emph{$\alpha$-resilient} from a state $\xc_0 \in \Xc$ of $\SysT$ if every closed-loop trajectory $\traj^{\Whi}(\xc_0)$ of $\SysT\parallel C$ that starts in $\xc_0$, and that satisfies $\NSpikes(\traj^{\Whi}(\xc_0)) < \alpha$ is winning.
+%This means that a $k$-resilient controller with $k \in \omega$ satisfies $\Spec$ even under at most $k-1$ high disturbance spikes, an $\omega$-resilient controller satisfies $\Spec$ even under any finite number of high disturbance spikes, and an $(\omega + 1)$-resilient controller satisfies $\Spec$ even under infinitely many high disturbance spikes.
+%
+%Next, we define the \emph{resilience} of a state $\xc \in \Xc$ to be
+%\begin{multline*}
+%	r_{\Prob}(\xc) = \sup \{ \alpha \in \omega + 2 \mid \text{there exists an} \\
+%	\text{$\alpha$-resilient controller from $\xc$} \}.
+%\end{multline*}
+%Note that $r_{\Prob}(\xc) > 0$ if and only if $\xc \in \dom{C}$, because any controller is $1$-resilient from $\xc$ if and only if $\xc\in \dom{C}$. 
+%% 
+%We call a controller $C^*\in \Cfamily^{\SysT,\Spec}$ \emph{optimally resilient}, if it is $r_{\Prob}(\xc)$-resilient from every state $\xc \in \Xc$.
+%%Note that every such controller is a \emph{uniform} winning strategy for the control player (i.e., a strategy that is winning from every vertex in the winning region). 
+%
+%%For a risk-sensitive control problem $\Prob=(\SysT,\Whi,\Spec)$, we call a controller $C^*$ to be \emph{optimally resilient} if the following two conditions are satisfied:
+%%\begin{itemize}
+%%	\item The controller is sound and maximal w.r.t.\ the normal disturbance $\Wnor$, i.e.\ $C^*\in \Cfamily^{\SysT,\Spec}$, and
+%%	\item the controller is optimal w.r.t.\ resilience, i.e.\ for all states $\xc\in \dom{C^*}$, $\risk(\xc,C^*)=\risk^*(\xc)$.
+%%\end{itemize}
+%
+%In this paper, we address the following problem: \emph{Given a risk-sensitive controller synthesis problem $\Prob$, find a procedure that will automatically synthesize an optimally resilient controller $C^*$}.
+%
+%Following the paradigm of abstraction-based controller synthesis (ABCS), we address this problem in three steps. We
+%\begin{inparaenum}[(i)]
+% \item construct a \emph{risk-aware finite-state abstraction} $\Gamma$ of the given \emph{risk-sensitive controller synthesis problem} $(\SysT,\Whi,\Spec)$ (see Sec.~\ref{sec:compute_abs}),
+% \item we synthesize an \emph{optimally resilient controller} $C$ for the finite state system $\Gamma$ in (see Sec.~\ref{sec:synth}), and
+% \item we refine $C^*$ into an approximately optimally resilient controller $\widehat{C}^*$ for $\SysT$ which approaches the optimal solution if the grid size for the state and input grid goes to zero.
+%\end{inparaenum}
+%% 
+%% \KM{We actually find an approximate solution. Not sure if this is the correct place to talk about that approximation.}
+%% \AKS{I suggest to make this part more precise once we wrote the controller refinement section and know what precisely we are claiming.}

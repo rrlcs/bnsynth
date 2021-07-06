@@ -1,0 +1,71 @@
+%\section{Preliminaries on Abstraction-based Controller Synthesis}\label{sec:prelims_abcs}
+\subsection{Preliminaries}\label{sec:prelims_abcs}
+
+The method that we primarily build upon is the so-called Abstraction-Based Controller Synthesis techniques (ABCS).
+In the following, we briefly recap one of the several available ABCS techniques.
+
+First, we introduce certain types of finite state abstract transition systems that approximates the continuous system dynamics.\\
+\noindent\textbf{Finite State Transition System.}
+A \emph{finite state transition system} is a tuple $\Delta= (\Xa, \Ua, \fa)$ that consists of a finite set of states $\Xa$, a finite set of control actions $\Ua$, and a set-valued transition map $\fa:\Xa\times \Ua\setmap \Xa$.
+
+\smallskip
+\noindent\textbf{Finite State Abstraction of Control Systems.}
+A finite state transition system $\Delta$ is called a \emph{finite state abstraction}, or simply an abstraction, of a given control system $\Sys$ if certain relation holds between the transitions of $\SysT$ and the transitions of $\Delta$.
+Depending on the controller synthesis problem at hand, there are several such relations available in the literature. %f\cite{bisimulation-paulo-girard, alt-bisimulation, dist-bisimulation, FRR, augmented transition systems, jun liu rocs}. 
+The one that we use in our work is the \emph{feedback refinement relation} (FRR) \cite{ReissigWeberRungger_2017_FRR}.
+
+% In this paper, we do not formally define FRR, nor do we discuss how to find an abstraction that is in FRR with the given control system: A formal treatment can be found in \cite{ReissigWeberRungger_2017_FRR}.
+% Instead, we only define FRR informally, and assume that there is an algorithm, called $\proc$, that computes the sought abstraction.
+An FRR is a relation $R\subseteq \Xc\times \Xa$ between $\SysT$ and a finite-state transition system $\Delta$, written as $\SysT \preccurlyeq_R \Delta$, so that for every $(\xc,\xa)\in R$, the set of allowed control inputs (element of $\Ua$) from $\xa$ is a subset of the set of allowed control inputs (element of $\Uc$) from $\xc$, and moreover when the same allowed control input is applied to both $\xa$ and $\xc$, the image of the set of possible successors of $\xc$ under $R$ is contained in the set of successors of $\xa$.
+
+
+%\removeb
+%Before defining FRR, we introduce some notation overloading.
+%We use the notation $\Uc(\xc)$ and $\Ua(\xa)$ to represent respectively the set of allowed control inputs at any given states $\xc\in \Xc$ and $\xa\in \Xa$ of $\SysT$ and $\Delta$.
+%Formally, $\Uc(\xc):=\set{u\in \Uc\mid \exists w\in \Wnor\;.\;\fc(\xc,u,w)\neq \emptyset}$, and $\Ua(\xa):=\set{u\in \Ua\mid \fa(\xa,u)\neq \emptyset}$.
+%Also, we will occasionally interpret relations as functions for simpler notation: for any relation $R\subseteq S_1\times S_2$ and for any $s_1\in S_1$, we define $R(s_1):=\set{s_2\in S_2\mid (s_1,s_2)\in R}$, and for any $s_2\in S_2$, we define $R^{-1}(s_2):=\set{s_1\in S_1\mid (s_1,s_2)\in R}$.
+%Moreover, for any set $S\subseteq S_1$, we define $R(S):=\cup_{s\in S} R(s)$, and for any $S\subseteq S_2$, we define $R^{-1}(S):=\cup_{s\in S} R^{-1}(s)$.
+%
+%\begin{definition}
+%	Let $\SysT= (\Xc, \Uc, \ft)$ be a sampled-time system, and $\Delta= (\Xa, \Ua, \fa)$ be a finite state transition system s.t.\ $\Ua\subseteq \Uc$.
+%	Let $R\subseteq \Xc\times \Xa$ be a relation s.t.\ every $(\xc,\xa)\in R$ satisfies the following conditions:
+%	\begin{enumerate}[(i)]
+%		\item $\Ua(\xa)\subseteq \Uc(\xc)$, and
+%		\item $u\in \Ua(\xa)\Rightarrow \cup_{w\in \Wnor}R(\ft(\xc,u,w))\subseteq \fa(\xa,u)$.
+%	\end{enumerate}	
+%	Then $R$ is a feedback refinement relation from $\SysT$ to $\Delta$.	
+%\end{definition}
+%
+%We use the notation $\SysT \preccurlyeq_R \Delta$ to denote that $R$ is an FRR from $\SysT$ to $\Delta$, in which case $\Delta$ serves as our finite state abstraction for the control system $\Sys$.
+%\removee
+Within this paper we assume that there is an algorithm, called $\proc$, which takes as input a given control system $\Sys$ and a given set of additional tuning parameters $P$ (like the state space discretization and the control space discretization), and outputs an abstract finite state transition system $\Delta$ and an associated FRR $R$, s.t.\ $\SysT\preccurlyeq_R \Delta$.
+For the actual implementation of $\proc(\Sys,P)$, we refer the reader to \cite{ReissigWeberRungger_2017_FRR}.
+
+Without going into the details of how the parameter set $P$ influences the outcome of $\proc$, we would like to point out one property that we expect to hold.
+Let $\SysT=(\Xc,\Uc,\Wnor,\fc)$ and $\SysT'=(\Xc,\Uc,\Wnor',\fc')$ be two different control systems with same state and control input spaces.
+Suppose $\Abs=(\Xa,\Ua,\fa)$ and $\Abs'=(\Xa',\Ua',\fa')$ be two transition systems computed using $\proc$ using the same parameter set $P$ i.e.\ $\proc(\SysT,P)=\Abs$ and $\proc(\SysT',P)=\Abs'$.
+Then there are one-to-one correspondences between $\Xa$ and $\Xa'$, and between $\Ua$ and $\Ua'$.
+Moreover, there is an FRR $R$ so that both $\SysT\preccurlyeq_R \Abs$ and $\SysT'\preccurlyeq_R \Abs'$ hold.
+We will abuse this property, and will use the same state space and input space for both $\Abs$ and $\Abs'$.
+
+%\removeb
+%
+%\smallskip
+%\noindent\textbf{Abstraction-based Controller Synthesis.}
+%Abstraction-based Controller Synthesis (ABCS) is a procedure that takes as input the description of a control system $\Sys$ and a control specification $\mathit{Win}$ in Linear Temporal Logic (LTL), and automatically produces a sound feedback controller for $\SysT$ as output.
+%The algorithms in ABCS generally work in three stages: First, a finite state abstraction of the given continuous control system is computed.
+%In our case, this is done using the procedure $\proc$.
+%Second, the finite state abstraction $\Delta$ produced by $\proc$ is used to synthesize a discrete control strategy $\widehat{C}:\Xa\rightarrow \Ua$ by using well-known techniques from reactive synthesis literature \cite{xx}. %\cite{maler pnueli, gr1}.
+%In the end, this discrete control strategy is refined into a continuous controller $C:\Xc\rightarrow \Uc$ for $\SysT$ with the help of the FRR $R$ produced by $\proc$ as a by-product.
+%
+%One of the important advantages that ABCS offers is that $C$ is by design sound: It can be shown that the closed loop $C\parallel\SysT$ guarantees that the specification $\mathit{Win}$ will be satisfied at all instances in all runs of $\SysT$ starting at any state in $\dom{C}$.
+%This formal soundness guarantee stems from the defining properties of FRR.
+%
+%On the downside, the soundness guarantee of the controller $C$ is rigidly conditioned on the correctness of the used control system model $\Sys$.
+%For example, if the controlled closed loop experiences a higher disturbance value than the one which was considered during the design phase, then $\mathit{Win}$ could be violated.
+%In fact, the existing ABCS techniques do not offer any means to synthesize controllers which are robust against unaccounted for disturbances.
+%Addressing this limitation is the subject of this paper.
+%
+%\removee
+%
+%\AKS{I would like to have sec IV as a prelim section inside V}

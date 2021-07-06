@@ -1,0 +1,76 @@
+\subsection{Preliminaries}
+
+
+Let $\Prob=(\SysT,\Whi,\Spec)$ be a given risk-sensitive controller synthesis problem, $\Gamma=(\Xa,\Ua,\fanor,\fadist)$ be a risk-aware abstraction of $\SysT$, and $R$ be the associated FRR between $\SysT$ and $(\Xa,\Ua,\fanor)$.
+We assume that the parity specification $\Spec$ is so given and $\Gamma$ is so obtained that for every abstract state $q\in \Xa$, every pair of associated system states $x_1,x_2 \in \Xc$ with $(x_1,q),(x_2,q)\in R$ are assigned the same color by $\Spec$, i.e.\ $\Spec(x_1)=\Spec(x_2)$.
+This allows us to lift the parity specification $\mathit{Parity}(\Spec)$ in a well-defined way to the abstract state space as $\mathit{Pairty}(\widehat{\Spec})\subseteq \Xa^\omega$, s.t.\ for all $q\in \Xa$ and for all $x\in \Xc$ with $(x,q)\in R$, $\widehat{\Spec}:q\mapsto \Spec(x)$.
+We define an \emph{abstract risk-sensitive controller synthesis problem}, or abstract synthesis problem in short, using the tuple $\ProbA=(\Gamma,\widehat{\Spec})$.
+
+We export the concepts of controllers, closed-loops, closed-loop trajectories etc.\ from the domain of sampled-time control systems to the domain of risk-aware abstractions in the natural way.
+An abstract controller $\widehat{C}$ is a partial function $\widehat{C}:\Xa\rightarrow \Ua$.
+The abstract closed-loop is obtained by connecting $\widehat{C}$ in feedback with $\Gamma$, and is defined using the tuple $\Gamma\parallel \widehat{C}=(\dom{\widehat{C}}, \faC)$, where $\faC:\dom{\widehat{C}}\setmap \Xa$ s.t.\ $\faC:q\mapsto \fanor(q,\widehat{C}(q))\cup \fadist(q,\widehat{C}(q))$.
+The notion of trajectory, the satisfaction of specification, $\NSpikes$, spike-free trajectories, and resilience are naturally adapted for the system $\Gamma$.
+It should be noted, however, that $\NSpikes$ and resilience are now computed by \emph{counting the number of $\fadist$-transitions} appearing in any given abstract closed-loop trace, as opposed to counting the number of disturbances appearing from the set $\Whi\setminus\Wnor$ in a given sampled-time closed-loop trace.
+
+%Let us use the notation $Q^\omega$ to represent the set of all infinite sequences that can be formed by the abstract states in $Q$.
+
+%An \emph{abstract game}, or a game in short, is a pair $\mathcal G = (\Gamma, \mathit{Win})$ consisting of a risk-aware abstraction $\Gamma=(\Xa, \Ua, \fanor, \fadist)$ and a \emph{winning condition} $\mathit{Win} \subseteq \Xa^\omega$.
+%In this paper, we consider two different winning conditions: safety and parity.
+%In the case of a safety condition, the set $\mathit{Win}$ is defined by $\mathit{Safety}(W) = \{ \xa_0 \xa_1 \ldots \in \Xa^\omega \mid \xa_i \notin W \text{ for all } i \in \omega \}$ for a given set $W \subseteq \Xa$ of unsafe vertices and requires the controller to stay outside the set $W$.
+%In the case of a parity conditions, on the other hand, the set $\mathit{Win}$ is then defined by $\mathit{Parity}(\Phi) \coloneqq \{ \xa_0 \xa_1 \ldots \in \Xa^\omega \mid \limsup{\Phi(\xa_1) \Phi(\xa_2) \ldots} \text{ is even} \}$ for a coloring $\Phi \colon \Xa \to \omega$ and requires the controller to ensure that the maximum color seen infinitely often is even.
+%For notational convenience, we write $\mathcal G = (\Gamma, \Phi)$ for parity games and $\mathcal G = (\Gamma, W)$ for safety games.
+
+%A game is played by two players, the \emph{control player} and the (nondeterministic) \emph{environment player}.
+%Initially, a token is played on a vertex $\xa \in \Xa$.
+%In every round, the game proceeds as follows: first, the control player picks an action $\ua \in \Ua$; second, the environment player picks an action $\ua \in \Ua$; and thrid, the token moves to 
+
+%Given an abstract controller $\widehat{C}$, an \emph{abstract closed-loop trajectory} is an infinite sequence $\widehat{\rho}(\xa_0) = (\xa_0, b_0) (\xa_1, b_1) \ldots \in (\Xa \times \{ 0, 1 \})^\omega$ such that $b_0 = 0$ and for all $i >0$ we have that $b_i = 0$ implies $\xa_i \in \fanor(\xa_{i-1}, \widehat{C}(\xa_{i-1}))$ for some $\ua \in \Ua$  and $b_i = 1$ implies $\xa_i \in \fadist(\xa_{i-1}, \widehat{C}(\xa_{i-1}))$ for some $\ua \in \Ua$.
+%Intuitively, the bits $b_i$ for $i > 0$ indicate whether a disturbance spike occurred on the move from abstract state $\xa_{i-1}$ to $\xa_i$.
+%We export the operator $\NSpikes$ to the domain of the abstract trajectories: $\NSpikes:\widehat{\rho}(\xa_0)\mapsto \card \set{i\in \omega\mid b_i=1}$.
+%Note that $\NSpikes(\widehat{\rho}(\xa_0))$ is either some $k \in \omega$ (i.e., finitely many, namely exactly $k$, disturbances occurred) or it is $\omega$ (i.e., infinitely many disturbances occurred). 
+%An abstract closed-loop trajectory is called \emph{spike-free} if $\NSpikes(\widehat{\rho}) = 0$.
+
+%We denote the number of disturbances in a play $\rho = (\xa_0, b_0) (\xa_1, b_1) \ldots$ by $\#_d(\rho) = |\{ j \in \omega \mid b_j = 1 \}|$, which is either some $k \in \omega$ (i.e., finitely many, namely exactly $k$, disturbances occurred) or it is $\omega$ (i.e., infinitely many disturbances occurred). 
+%A play is called \emph{disturbance-free} if $\#_d(\pi) = 0$.
+
+%For a given abstract closed-loop $\Gamma\parallel\widehat{C}$, an abstract closed-loop trajectory $\widehat{\rho}(\xa_0)=(\xa_0,b_0)(\xa_1,b_1)\ldots
+%$ satisfies a given specification $\mathit{Win}\subseteq \Xa^\omega$ if the sequence $\xa_0\xa_1\ldots$ belongs to $\mathit{Win}$. 
+%
+%Parity and safety conditions are know to permit memoryless (or positional) control strategies, which only depend on the current vertex. 
+%Thus, we here define a \emph{(discrete) control strategy} to be a mapping $\widehat{C} \colon \Xa \rightarrow \Ua$, which prescribes the next control action depending on the current vertex.
+%We say that a play $(\xa_0 ,b_0) (\xa_1, b_1) \ldots$ is \emph{consistent} with a control strategy $\widehat{C}$ if $\xa_{i+1} \in \fanor(\xa_i, \pi(\xa_i))$ for every $i \in \omega$ with $b_{i+1} = 0$---in other words, the controller can reach the next state via $\fanor$ unless a disturbance spike occurs.
+%
+%An abstract controller $\widehat{C}$ is a \emph{winning controller} from an abstract state $\xa \in \Xa$ if every spike-free trajectory of $\Gamma\parallel \widehat{C}$ that begins in $\xa$ satisfies a given abstract specification $\mathit{Win}\subseteq \Xa^\omega$.
+%The winning region of $\widehat{C}$ in the abstract risk-sensitive controller synthesis problem $\ProbA$ is the domain of $\widehat{C}$: $\mathcal W(\ProbA) =\dom{\widehat{C}}$.
+%It is well known that both safety and parity games are determined~\cite{?}, meaning that the controller either wins or loses.
+%Hence, the set $\Xa$ is partitioned into $\mathcal W(\ProbA)$, called the \emph{winning region of $\ProbA$}, and $\overline{\mathcal W}(\ProbA) = \Xa \setminus \mathcal W(\ProbA)$.
+%Note that the winning region of $\ProbA$ is independent of disturbance spikes.
+
+Like in the case of controller synthesis problem $\Prob$, we require our abstract controllers to be sound and maximal.
+Such a controller is called a \emph{winning controller} w.r.t.\ a given abstraction specification $\mathit{Win}\subseteq \Xa^\omega$, and the respective controller domain is called the winning domain $\mathcal W(\ProbA)$.
+Let $\mathcal{C}^{\Gamma,\mathit{Win}}$ be the set of winning abstract controllers for the abstract synthesis problem $\ProbA=(\Gamma,\mathit{Win})$.
+We assume that we have access to a solver for the sound and maximal abstract controllers for the (spike-free) safety and parity specifications, which serves as a black-box method in our synthesis routine (for the actual implementation, one can use any of the available methods from the literature \cite{van2018oink}).
+Such a solver takes a controller synthesis problem $\ProbA$ with safety, parity, or a conjunction of safety and parity specification as input, and outputs the winning region $\mathcal W(\ProbA)$ (as well as the complement $\overline{\mathcal W}(\ProbA)$) together with a (uniform) abstract controller $\widehat{C}$ that is winning for every abstract state $\xa \in \mathcal W(\ProbA)$.
+%Our algorithm also requires to solve $\ProbA = (\Gamma, \mathit{Win})$ with $\mathit{Win} = \mathit{Parity}(\widehat{\Spec}) \cap \mathit{Safety}(\widehat{W})$ for some coloring $\widehat{\Phi}$ and set of unsafe abstract states $\widehat{W}\subseteq \Xa$ (i.e., the controller has to satisfy the parity specification while staying outside states of $\widehat{W}$).
+%This can be done by standard reactive synthesis technique of decomposing the synthesis problem into a safety and a parity sub-problem.
+%However, this can easily be achieved by first solving the safety problem $\ProbA_S = (\Gamma, \mathit{Safety}(\widehat{W}))$ and subsequently solving the parity problem $\ProbA_P = (\Gamma', \mathit{Parity}(\widehat{\Spec}))$ on the restricted transition system $\Gamma'$ that is obtained by restricting $\Gamma$ to only the winning region $\mathcal W(\ProbA_S)$.
+
+%---------- Resilience and Optimally Resilient Abstract Controllers ----------
+We define the resilience of abstract states and the optimally resilient abstract states analogously to the same for the continuous system defined in \REFsec{sec:problem}.
+Recall that a $k$-resilient control strategy with $k \in \omega$ is winning even under at most $k-1$ disturbance spikes, an $\omega$-resilient strategy is winning even under any finite number of disturbance spikes, and an $(\omega + 1)$-resilient strategy is winning even under infinitely many disturbance spikes.
+%\subsection{Resilience and Optimally Resilient Abstract Controllers}
+%We are now ready to define the main ingredients of our algorithm: the resilience of vertices and optimally resilient (discrete) control strategies.
+%To this end, let $\ProbA$ be a parity game with vertex set $\Xa$ and $\alpha \in \omega + 2$.
+%We say that a control strategy $\widehat{C}$ is \emph{$\alpha$-resilient} from a vertex $\xa \in \Xa$ if every play that starts in $\xa$, that is consistent with $\widehat{C}$, and that satisfies $\#_d(\widehat{C}) < \alpha$ is winning.
+%This means that a $k$-resilient control strategy with $k \in \omega$ is winning even under at most $k-1$ disturbance spikes, an $\omega$-resilient strategy is winning even under any finite number of disturbance spikes, and an $(\omega + 1)$-resilient strategy is winning even under infinitely many disturbance spikes.
+%
+%Next, we define the \emph{resilience} of a vertex $\xa \in \Xa$ to be
+%\begin{multline*}
+%	r_{\ProbA}(\xa) = \sup \{ \alpha \in \omega + 2 \mid \text{there exists an} \\
+%	\text{$\alpha$-resilient control strategy from $\xa$} \}.
+%\end{multline*}
+%Note that $r_{\ProbA}(\xa) > 0$ if and only if $\xa \in \mathcal W(\ProbA)$ because any control strategy is $1$-resilient from $\xa$ if and only if it is winning for the control player from $\xa$.
+%
+%Finally, we call a control strategy $\widehat{C}$ \emph{optimally resilient}, if it is $r_{\ProbA}(\xa)$-resilient from every vertex $\xa \in \Xa$.
+%Note that every such strategy is a \emph{uniform} winning strategy for the control player (i.e., a strategy that is winning from every vertex in the winning region). 
+

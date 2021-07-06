@@ -1,0 +1,46 @@
+\section{Controller Refinement}
+
+Suppose $\SysT=(\Xc,\Uc,\Wnor,\fc)$ is a control system, and $\Delta=(\Xa,\Ua,\fanor)$ is a finite state transition system s.t.\ $\SysT\preccurlyeq_R \Delta$ for some $R\subseteq \Xc\times \Xa$.
+Let $\widehat{C}:\Xa\rightarrow \Ua$ be an abstract controller for $\Delta$.
+Then $\widehat{C}$ can be refined to a concrete controller $C$ for $\SysT$ by defining $C:= \widehat{C}\circ R$.
+From the literature of FRR, it is known that if the abstract closed loop $\widehat{C}\parallel \Delta$ satisfies the abstract specification $\widehat{\Spec}$, then $C\parallel \SysT$ satisfies $\Spec$ \cite{reissig2016feedback}.
+%\KM{In reality, we need to approximate the real specification for the abstraction. This is missing in the current synthesis part.}
+
+%\begin{theorem}
+%	Let $(\SysT, \Whi, \Spec)$ be a risk-sensitive controller synthesis problem, and $\Gamma = (\Xa,\Ua,\fanor,\fadist)$ a risk-aware abstraction.
+%	Suppose $\widehat{C}:\Xa\rightarrow \Ua$ be an optimally resilient controller. 
+%	Then for any given state $x\in \Xc$, the following assertion holds:
+%	\begin{equation}
+%		\risk(x,\widehat{C}\circ R) \leq \risk^*(x).
+%	\end{equation}
+%\end{theorem}
+
+
+%Suppose $\SysT=(\Xc,\Uc,\Wnor,\fc)$ is a control system, $(\SysT, \Whi, \Spec)$ is a risk-sensitive controller synthesis problem, and $\Gamma_1=(\Xa_1,\Ua,\fanor_1,\fadist_1)$, $\Gamma_2=(\Xa_2,\Ua,\fanor_2,\fadist_2)$ are two risk-aware abstractions of $\Sigma$.
+%Let $R_1\subset \Xc\times \Xa_1$ and $R_2\subset \Xc\times \Xa_2$ be two relations s.t.\ $\SysT\preccurlyeq_{R_1} (\Xa_1,\Ua,\fanor_1)$ and $\SysT\preccurlyeq_{R_2} (\Xa_2,\Ua,\fanor_2)$.
+%The abstraction $\Gamma_2$ is called \emph{finer} than the abstraction $\Gamma_1$ (alternatively, $\Gamma_1$ is \emph{coarser} than $\Gamma_2$) if for all $q_2\in \Xa_2$, there exists a $q_1\in \Xa_1$, s.t.\ $R_2^{-1}(q_2)\subset R_1^{-1}(q_1)$, and moreover for all $q_2\in \Xa_2$, there does not exist a $q_1\in \Xa_1$, s.t.\ $R_2^{-1}(q_2)\supset R_1^{-1}(q_1)$.
+
+\begin{theorem}
+	Consider the risk-sensitive controller synthesis problem $(\SysT, \Whi, \Spec)$.
+	Let $\Gamma = (\Xa,\Ua,\fanor,\fadist)$ be a risk-aware abstraction of $\SysT$ with the associated FRR $R$.
+	Suppose $\widehat{C}^*:\Xa\rightarrow \Ua$ be the optimally resilient controllers for $\Gamma$.
+	Then for all $\xc\in \Xc$, there exists an $\alpha\leq \risk(\xc)$, s.t.\ $\widehat{C}^*\circ R$ is $\alpha$-resilient.
+\end{theorem}
+
+\KM{To polish:}
+\begin{proof}
+	By induction over $i\in\omega+2$, we show that for all $x\in X$, if $\risk(x)=i$ then $\widehat{C}^*\circ R$ is $\alpha$-resilient for some $\alpha\leq i$.
+	\begin{itemize}
+		\item Base case: for all $\xc\in \Xc$ with $\risk(\xc)=0$, by construction it holds that $r^*(\xa)=0$. 
+		This follows from the fact that resilience $0$ is assigned to all the losing abstract states, and moreover the losing abstract states over-approximate the losing continuous states by the theory of FRR.
+		\item Induction step: Note that all the concrete states inside one abstract state get a unique resilience.
+		So it would suffice if we show that for all $x\in X$ with $\risk(x)=i$, if $\xa\in \Xa$ is the abstract state s.t.\ $(x,q)\in R$, then $r^*(q) \leq i$.		
+		Let for all $x\in X$ with $\risk(x)=i$, $r^*(q) \leq i$ holds.
+		FACT: This implies that the set $R^{-1}(\set{q\in Q\mid \risk(q,\widehat{C})\leq i})$ over-approximates the set $\set{x\in X\mid \risk^*(x)\leq i}$.
+		Let $x'\in X$ be a state s.t.\ $\risk^*(x')=i+1$, and $q'\in\Xa$ be the abstract state s.t.\ $(x',q')\in R_2$.
+		We need to show that $\risk(q',\widehat{C})\leq i+1$.
+		Since $\risk^*(x')=i+1$, hence for all control action chosen from $x$ in $\SysT$, there exists a high disturbance transition to the set $\set{x\in X\mid \risk^*(x)\leq i}$.
+		Since the disturbance transitions of the abstraction $\Gamma_2$ over-approximates the high disturbance transitions of the system $\Sigma$ by construction, and by applying FACT, it follows that there will be disturbance transition for all control input from $q'$ to the set $\set{q\in \Xa\mid \risk(q,\widehat{C}) \leq i}$.
+		So, because of the particular implementation of $Spre$, we obtain that $\risk(q',\widehat{C})\leq i+1$.
+	\end{itemize}
+\end{proof}

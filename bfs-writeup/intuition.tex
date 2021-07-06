@@ -1,0 +1,326 @@
+%---------- Finite resilience ----------
+\clearpage
+\section{Intuition}
+\subsubsection{Disturbance Update intuition}
+\begin{itemize}	
+\item \emph{Preliminaries}:
+In the CSL paper by Daniel et. al., the game graph had an explicit two player representation with circles denoting the system positions and squares denoting the environment positions. During the disturbance update, we updated the resilience of the system vertices if there existed a disturbance edge originating from it that takes it into some state with already computed resilience. Note that the system state could have normal (solid) outgoing edges as well and choosing one of those normal edges implies that a disturbance could occur any time which is why we update the resilience of this vertex in the first place.
+\\
+\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,
+                    semithick]
+
+  \node[state] [fill=red,draw=none,text=white] (X)                    {$X$};
+  \node[state]         (Y) [right of=X] {$Y$};
+  \node[state] [rectangle]         (Z) [right of=Y] {$Z$};
+
+  \path 	(Y) edge [dashed]  node {} (X)
+  			(Y) edge [loop above]  node {} (X)
+  			(Y) edge  node {} (Z)
+  ;
+\end{tikzpicture}
+\\ \\
+To expound, consider the above graph (a sub-graph of some larger game). Here, X and Y are system nodes, Z is an environment node and state X is a state with already computed resilience (say $i$). If the system is at state Y and chooses any solid edge which is in it's control, the disturbance could push it away to X, which is why we need to mark state Y with resilience $i+1$ based on the CSL paper.
+However, in domains such as control, the disturbances depend on the input that the system chooses. This is not considered in the above graph. If we extend the above graph with inputs, it is possible that Y is not updated with a finite resilience value.
+
+For example, consider the input set $\Ua =\{0,1\}$ and the graph as follows:
+
+\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,
+                    semithick]
+
+  \node[state] [fill=red,draw=none,text=white] (X)                    {$X$};
+  \node[state]         (Y) [right of=X] {$Y$};
+  \node[state] [rectangle]         (Z) [right of=Y] {$Z$};
+
+  \path 	(Y) edge [dashed]  node {0} (X)
+  			(Y) edge [loop above]  node {0} (X)
+  			(Y) edge  node {1} (Z)
+  ;
+\end{tikzpicture}
+\\
+In this game, Y can now choose to select the input 0 or 1. This choice is no longer "unknown" as in the previous graph. Thus, Y can move away from X by specifically choosing input 1. We are guaranteed from the graph that there exists no disturbance on this input value. Consequently, we do not update the resilience of state Y. This is not handled by the CSL paper. \\
+We use SCOTS tool for this work. SCOTS represents the game differently from the CSL paper. The graph uses a two player game where the system is explicitly represented using circled states and the environment is represented implicitly using the non determinism over the edges, for each input. The game graph in SCOTS also has inputs over the transitions as mentioned earlier. \\
+Due to the above mentioned reasons, the earlier definition of disturbance update mentioned in the CSL paper will not suffice and we need a reformation. This is what we define in the next section. \\
+
+\item \emph{Intuition}:
+In this section, we explain the intuition for the disturbance update defined in section 7. \\
+Given a ranking $r$, we update a state $\xa$ with a finite resilience during a disturbance update iff the following two conditions hold: 
+\begin{itemize}
+\item  There \emph{does not} exist an input $\ua \in \Ua$ such that the following condition holds:
+\begin{align}
+\begin{split}
+	& \fanor(\xa, \ua) \neq \emptyset \text{ and } \fanor(\xa, \ua) \cap \mathrm{dom}(r) = \emptyset \\
+	& \text{and } \neg (\fadist(\xa, \ua) \cap \mathrm{dom}(r) \neq \emptyset). \label{equ:dui1}
+\end{split}
+\end{align}
+i.e. an input on which a \emph{non-empty} normal transition from state $\xa$ takes you out of ${dom}(r)$ and a disturbance transition on the same input \emph{does not} take you into ${dom}(r)$. \\
+(Please note that the negation of the condition used in the definition of section 7 is used here. This is more intuitive to explain.)
+\item  There exists an input $\ua \in \Ua$ such that the following condition holds:
+\begin{align}
+\begin{split}
+	& \fanor(\xa, \ua) \neq \emptyset \text{ and } \fanor(\xa, \ua) \cap \mathrm{dom}(r) = \emptyset \\
+	& \text{and } \xa' \in \fadist(\xa, \ua) \text{ and } \xa' \in \mathrm{dom}(r). \label{equ:dui2}
+\end{split}
+\end{align}
+i.e. an input on which a \emph{non-empty} normal transition from state $\xa$ takes you out of ${dom}(r)$ and \emph{some} disturbance transition on the same input takes you into ${dom}(r)$.
+\end{itemize}
+The resilience for state $\xa$ is updated using the resiliences of states $\xa'$ as shown in Section 7. States $\xa'$ are retrieved from equation \ref{equ:dui2}.
+\\
+
+Therefore, we do not update the resilience if there \emph{exists} an input that satisfies equation \ref{equ:dui1} because this input can move the system away from an already computed resilient state, as mentioned in the preliminaries section.
+\\
+We also do not update the resilience if equation \ref{equ:dui2} is violated.\\
+We explain these intricacies using an example.
+Consider the input set $\Ua =\{0,1,2,3\}$ and the SCOTS graph as follows:
+
+\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,
+                    semithick]
+
+  \node[state] [fill=red,draw=none,text=white] (X)                    {$X$};
+  \node[state]         (Y) [right of=X] {$Y$};
+  \node[state]        (Z) [right of=Y] {$Z$};
+
+  \path 	
+  			(Y) edge [swap, dashed]  node {0,3} (X)
+  			(Y) edge  [bend left] node {1} (X)
+  			(Y) edge [loop above]  node {1,3} (X)
+  			(Y) edge  node {2} (Z)
+  ;
+\end{tikzpicture}
+\\
+Here, state X is a state with already computed resilience (say $i$). Consider the disturbance update for state Y.
+(We do not consider the transitions on X and Z and the colors of the states because it is irrelevant to our discussion at this point)
+We consider the four scenarios for completeness:
+\begin{itemize}
+\item \emph{Input 0 - No transition:}\\
+There does not exist a normal transition for Y on input 0. Consequently, it does not matter if there exists a disturbance transition for Y on this input because the system can never choose 0 in the normal transition (such that disturbance transition is possibly summoned).\\
+Thus, even if there exists a disturbance edge to some state $\xa'$ with already computed resilience, from $\xa$ on a transition like $0$, we do not consider the resilience of $\xa'$ to update the resilience of $\xa$, as it can be suboptimal. For example, the disturbance update would update the resilience  of state Y as $i+1$ due to disturbance transition 0 to state X, when it is clear that the actual resilience of state Y is greater than $i+1$ due to the presence of input 2 that can the take the system into a higher resilient state Z.\\
+This case violates equation \ref{equ:dui2} since $\fanor(\xa, \ua) = \emptyset$; hence, we do not consider its disturbance edge to state $\xa'$, if any. This is necessary for an optimal solution.
+\item \emph{Input 1 - Non deterministic transition:}\\
+This is a non deterministic transition modelling the environment move that can potentially take the system into a state X with already computed resilience. Hence, the presence of a disturbance transition for this input is irrelevant because the environment itself can push the system towards a state already computed resilience.\\
+Using the same argument as for input 0, we do not consider the disturbance edges for input 1.
+(An aside: If it hadn't been for inputs 2 and 3 on Y, Y would have been assigned the same resilience as X because it cannot avoid reaching X in the previous risk update, due to input 1.) \\
+This case violates equation \ref{equ:dui2} since $\fanor(\xa, \ua) \cap \mathrm{dom}(r) \neq \emptyset$; hence, we do not consider its disturbance edge to state $\xa'$, if any. This is necessary for an optimal solution as well.
+\item \emph{Input 2:}\\
+This input violates equation \ref{equ:dui1} and hence falsifies the disturbance update condition. Consequently, the resilience for state Y is not updated since this input can take the system to a higher resilient state.
+\item \emph{Input 3:}\\ 
+Inputs of this type constitute the premise for the design of disturbance update. The system can choose the input 3 on the normal transition that does not take it to an already computed resilience state but it is not aware of the underlying disturbance transition on the same input that can take it into an already computed resilience state. Thus, this is the type of input for which the resilience update for state Y is considered. However, this does not necessarily mean that the resilience for state Y is  updated. This is contingent on the the condition that an input of type 2 does not exist which is exactly what the disturbance update formulation reflects.
+\\(We claim that transitions of this type i.e. on input 3 have the same semantics as the transitions in the CSL paper on which the disturbance update was initially formulated.)  \color{red}{This needs to be phrased properly.} 
+\end{itemize}
+To summarize, a state in the game graph is updated during a disturbance update iff there does not exist an input of type \emph{input 2} and there exists an input of type \emph{input 3}.\\
+
+\item \emph{Further discussion: } \\
+ \emph{Q: Is it possible that some states are not assigned finite resilience even when they should be?} \\
+	No. Based on the previous explanation, the only potential cases where this could happen are when there exist states having the following types of inputs:
+	\begin{itemize}
+	\item \emph{All normal transition inputs are of type 0 and there does not exist an input of type 2}\\
+	Assume we have a disturbance transition on input 0 as follows: \\ \\
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,
+                    semithick]
+
+  \node[state] [fill=red,draw=none,text=white] (X)                    {$X$};
+  \node[state]         (Y) [right of=X] {$Y$};
+
+  \path 	
+  			(Y) edge [swap, dashed]  node {0} (X)
+  ;
+\end{tikzpicture} \\
+This situation can never arise because Y would have been assigned resilience 0 in the first game due to the absence of normal edges and a disturbance edge out of a resilience 0 state is never considered in our computation. The argument is same for the absence of disturbance edges.
+	\item \emph{All inputs are of type 1 and there does not exist an input of type 2}\\
+	Consider this example: \\ \\ 
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,
+                    semithick]
+
+  \node[state] [fill=red,draw=none,text=white] (X)                    {$X$};
+  \node[state]         (Y) [right of=X] {$Y$};
+
+  \path 	
+  			(Y) edge  [bend left] node {1} (X)
+  			(Y) edge [loop above]  node {1} (X)
+  ;
+\end{tikzpicture} \\
+	This situation can never arise as well since in the previous risk update (or first parity game), Y would have been assigned the resilience of X as it can not avoid reaching X. Thus, the presence or absence of disturbance update for this input does not matter.
+	\item \emph{All inputs are of type 0 or 1 and there does not exist an input of type 2}\\
+	Same argument as above.
+	\end{itemize}
+	Thus, we have proved exhaustively by cases that a state will be updated with finite resilience if it exists and it will be optimal because we do not update the resilience if there exists an input of type 2 leading into a higher resilient state.
+\end{itemize}	
+\subsubsection{Strategy Pruning intuition} 
+Consider the parity game $\mathcal G = (\Gamma, \Phi)$ with risk-aware abstraction $\Gamma=(\Xa,\Ua,\fanor,\fadist)$ given below:
+
+%\label{fig:sp_ex}
+\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,
+                    semithick]
+
+  \node[state] (X)                    {$x/1$};
+  \node[state]         (Y) [above right of=X] {$y/2$};
+  \node[state]         (Z) [below right of=Y] {$z/2$};
+  \node[state]         (W) [below right of=X] {$w/2$};
+
+  \path (X) edge [loop left] node {0} (X)
+        (Y) edge [loop above] node {0} (Y)
+            edge              node {1} (Z)
+            edge  [swap, dashed]            node {0} (X)
+        (W) edge  [loop below ]            node {0} (W)
+        edge  [dashed]            node {0} (X)
+        (Z) edge [loop right] node {0} (Z)
+        edge  [dashed]            node {0} (W);
+\end{tikzpicture}
+
+Here, $\Xa = \{x,y,z,w\}$ and $\Ua= \{0,1\}$. The dashed edges represent the disturbance edges belonging to $\fadist$ whereas the solid edges are the normal edges belonging to $\fanor$. The colors of each state are shown in the states itself. It is easy to see that the resilience values for these states are as follows: $r_\mathcal G(x)$ = 0 because it is winning for player 1. $r_\mathcal G(w)$ = 1 since a single disturbance on input 0 can take it to a losing state i.e. state $x$, $r_\mathcal G(z)$ = 2 since a single disturbance on input 0 can take it to state with resilience 1 viz. state $w$. Finally, $r_\mathcal G(y)$ = 2 (and not 1) because it can choose 1 to avoid reaching state $x$ with resilience 0 and instead reach a state with a higher value of resiience viz. state $z$ with resilience 2.\\ 
+
+\begin{itemize}
+\item \emph{The need for Strategy Pruning: } \\
+Consider the disturbance update mentioned in the previous section. If we compute the algorithm in the CSL paper viz. alternation of disturbance and risk updates until a fixed point is reached, then the algorithm is suboptimal \textbf{but still sound and refines the ranking function at every step.} \\
+The first parity game yields the ranking \\r: $ x\mapsto 0$. \\
+The first disturbance yields \\r: $ x\mapsto 0, w \mapsto 1 $.\\
+The first risk update also yields \\r: $ x\mapsto 0 , w \mapsto 1 $. \\
+The second disturbance update yields \\r: $ x\mapsto 0 , w \mapsto 1 , z \mapsto 2$.\\
+The second risk update yields \\r: $ x\mapsto 0 , w \mapsto 1 , z \mapsto 2$.\\
+The third disturbance update yields \\r: $ x\mapsto 0 , w \mapsto 1 , z \mapsto 2, y \mapsto 1$.\\
+However, as discussed in the previous section, $r_\mathcal G(y)$ = 2 whereas the algorithm returns $r^\ast(y)$ = 1 . Since $r^\ast(y) \neq r_\mathcal G(y)$, the algorithm does not give an optimal resilient strategy.\\
+
+\emph{Reason for sub-optimality:} \\
+The input $0$ for state $y$  was considered in the second risk update when it should not have been! This caused the suboptimal resilience being assigned to state $y$.
+The presence of inputs in the graph induces an ordering over these transitions for that input, for every state, after a disturbance update. Strategy pruning essentially removes inputs with the least ordering, assuming a better one exists. This was not of concern in the previous graph by Daniel et. al. \\
+
+We define an ordering function for every state:
+\[
+\lambda_{\xa}:\ \Ua \mapsto \  \mathbb{N}   \ \ \ \ \xa \in \Xa
+\]
+Initially,
+\[
+\lambda_{\xa}(\ua) = 0   \ \ \ \ \xa \in \Xa, \Ua \in \Ua
+\]
+Notice that state $y$ \textbf{was not updated in the first disturbance update because of the existence of a 'better' input 1} that violated the disturbance update equation \ref{equ:dui1}. Input 1 can surely take the system to state $z$ having resilience greater than 0. On the other hand, the input 0 was not to be selected as a strategy because it could potentially invoke the disturbance edge on input 0 taking the system to a resilience 0 state viz. $x$. Clearly, we have a winner here. In short, we have an \emph{ordering} on the strategies for state Y. We say that the input 1 is ranked higher in the ordering than input 0 because input 1 \emph{will} lead the system into a higher resilient state than input 0 which \emph{may} lead the system into a higher resilient state due to the presence of a disturbance edge.   \\
+
+Thus, we increment the order of input 1 indicating the fact that it is a better strategy.
+i.e.
+\[
+\lambda_{y}(1) = 1
+\]
+and the ordering for input 0 on state y remains the same i.e.
+\[
+\lambda_{y}(0) = 0
+\]
+
+\begin{lemma}
+The algorithm is optimal if for every state, at every step in the resilience computation algorithm, the inputs with the highest ordering are considered.
+\end{lemma}
+\emph{Informal argument for sub-optimality}:\\
+In the second risk update, the resilience of state $y$ is not updated because it returns a strategy for the system to win the parity game while not reaching a state with already computed resilience i.e either $x$, $w$, or $z$. This strategy is the input 0 on state y. This occurred because there was no ordering on inputs. Thus, considering inputs with the highest order is needed for optimality.
+
+\begin{lemma}
+The condition :
+\begin{align*}
+F =\ \  
+&\fanor(\xa, \ua) \cap \mathrm{dom}(r) \neq \emptyset \text {   or } \\ 
+&\fadist(\xa, \ua) \cap \mathrm{dom}(r) \neq \emptyset
+\end{align*}
+for strategy update is sufficient to ensure that Lemma 1 holds.
+\end{lemma}
+\emph{Proof: TODO}\\
+\emph{Informal rationale behind the condition: }\\
+
+\begin{lemma}
+The condition :
+
+		$\exists q \in \Xa, u \in \Ua: q \notin R_{size(R)-1} \wedge \fadist(q,u) \in R_{size(R)-2}$ \\
+		$\fanor = \fanor [q \times u \rightarrow \phi]$
+		
+
+for strategy update is necessary and sufficient to ensure that Lemma 1 holds.
+\end{lemma}
+
+
+\end{itemize} 
+
+
+
+\subsubsection{Finite Resilience}
+\begin{itemize}	
+	\item \emph{Risk update}:
+	For $k \in \mathrm{im}(r)$, let $B_k = W_1(\Delta_{\delta^{nor'}}, \mathit{Win} \cap \mathit{Safety}( \{x \in \mathrm{dom}(r) \mid r(x) \leq k \}))$.
+	Define
+	\[ r'(x) = \min{\{ k \mid x \in B_k \}}, \]
+	where again $\min{\emptyset}$ is undefined.
+	\item Repeat risk updates, strategy pruning and disturbance updates until the process becomes stationary.
+	Call the resulting ranking $r^\ast$.
+
+\end{itemize}
+
+\begin{lemma}
+Let $r^\ast$ as above and $x \in \Xa$.
+Then:
+\begin{enumerate}
+	\item If $x \in \mathrm{dom}(r^\ast)$, then $r_\Delta(x) = r^\ast(x)$.
+	\item If $x \notin \mathrm{dom}(r^\ast)$, then $r_\Delta(x) \in \{ \omega, \omega+1\}$.
+\end{enumerate}
+\end{lemma}
+
+\begin{itemize}
+	\item The disturbance update can be implemented using $\mathit{Spre}$.
+	We need to prove that!
+	\DN{Should the disturbance update not be the exact same as $\mathit{Spre}$?! If so, then my above definition of the disturbance update is wrong and we can just use the definition of $\mathit{Spre}$.}
+	\item The risk update is a call to the underlying game solver.
+\end{itemize}
+
+
+%---------- Resilience Omega + 1 ----------
+\subsubsection{Resilience $\omega + 1$}
+
+\begin{itemize}
+	\item Can be computed simply by the ``rigged game'', which in this case is just the game with edges $\fadist \cup \fanor$
+\end{itemize}
+
+\begin{lemma}
+Let $x \in \Xa$. 
+Then, \\ $x \in W_0(\Delta_{\fadist \cup \fanor}, Win)$ if and only if $r_\Delta(x) = \omega+1$.
+\end{lemma}
+
+\clearpage
+\subsubsection{Roughwork: Strategy Pruning}
+	Some states will not be updated during the previous disturbance update even though there exists an input a on which a disturbance edge takes it to a state in dom(r). This is because there exists a better strategy b for which the system can move out of dom(r) for which there exists no disturbance edge that leads into dom(r). \DN{What does ``better'' mean?} Consequently, we need to prune out the outgoing transitions ($ \fanor \text{ and } \fadist$) on input a so that future games do not consider input a as a potential strategy.
+	
+	\DN{Stanly, can you please define the new risk-aware abstractio completely!?}
+	
+	The strategy pruning step is performed after a disturbance update that updates a ranking $ r \mapsto r'$. Strategy pruning uses r and r' to modify a risk-aware abstraction $\Gamma$ and returns $\Gamma^{'}$ as described in \cite{alg:strategy_pruning}:
+	
+
+
+	
+The strategy pruning step is invoked in the context of a previous disturbance update. Consider the ranking $r$ on which the previous disturbance update is computed and let $r'$ be the updated ranking returned by this disturbance update. Not all states having an outgoing disturbance edge to an already computed resilience state will be updated with some resilience value. Such states which are neither in $r$ nor $r'$ (say $\xa$) \emph{must} have an input $u$ such that $\fanor(\xa, \ua) \cap \mathrm{dom}(r) = \emptyset$ is true i.e. normal transitions on $u$ from $\xa$ go out of $\mathrm{dom}(r)$ . Moreover, these states also satisfy $\fadist(\xa, \ua)\cap \mathrm{dom}(r) = \emptyset$ i.e. no disturbance edges for this input go to a state with an already computed resilience. An example is the state input pair (y,1) in the diagram after the first disturbance update. It is important to note that the remaining normal edges (like (y,0)) \emph{will} have a disturbance edge associated with it, by construction and we will have to eliminate them as they can cause trouble in future risk updates as explained in the text associated with the diagram.
+\\
+This is what strategy pruning does. It checks the states that are not updated in the previous disturbance update but still has an outgoing disturbance edge leading to some already computed resilience state and removes such transitions.\\
+
+It is safe to remove these edges as we know that there must exist an input like the transition transition 1 in the diagram that can lead us to a higher resilience state. It is compulsory to remove to remove these edges because, if we don't, it can cause unsoundness in future updates.
+Thus, we don't need to consider these transitions ever again. \\
+
+To the best of my knowledge, it suffices to prune normal transitions only. I have also pruned the disturbance transitions because they are redundant in the finite resilience computation. I need to think whether it is necessary to prune disturbance transitions for the sake of the rigged game.
+\\
+\emph{Why we need Strategy Pruning}: \\
+\emph{Claim}: After the disturbance update mentioned above, we must remove the transition $(y,0,\fanor(y,0))$.\\
+Assume we do not remove this transition. After the 2nd disturbance update, this is the state of r: $ x\mapsto 0 , w \mapsto 1 , z \mapsto 2$. During the 2nd risk update, (y,0) is considered to be a winning strategy to "avoid" already computed resilient states. But this is a contradiction because we showed in the earlier disturbance update that on state y, with input 0, we can reach a resilience 0 state x with one disturbance. This transition should not have been present in  the first place as it "promises" future risk updates better prospects much like a pyramid scheme. Strategy pruning avoids this. This "prospect" crashes in the next disturbance update (like any pyramid scheme) and the algorithm marks it with resilience 1 which is wrong as shown before. This is also avoided when we use Strategy pruning. Thus, the Strategy Pruning performs two important functions in one go: 1) Removes false strategies for future risk updates and 2) Avoids spurious future disturbance updates.\\
+Note: It suffices to prune  out normal edges of a state for that particular input. Nevertheless, since the disturbance edges on this same state - input deem redundant after this operation (they will never be...) , you can safely remove them as well.
+
+%Our major contribution is the refined disturbance update procedure that first computes the new resiliences using SPre, then does a Strategy Pruning operation failing which the algorithm will be unsound. Finally, we remove already computed resiliences from the graph which is again needed for soundness.
+%\begin{algorithm}
+%	\caption{Disturbance update}
+%	\label{alg:driver code}
+%	\begin{algorithmic}[1]
+%		\INPUT $\Gamma=(\Xa,\Ua,\fanor,\fadist)$ 
+%		\OUTPUT true/false
+%		\State $ R_{size(R)} = Spre (R_{size(R)-1}))$
+%		\If{$\exists q \in \Xa, u \in \Ua: q \notin R_{size(R)-1} \wedge \fadist(q,u) \in R_{size(R)-2}$}
+%		\State$\fanor = \fanor [q \times u \rightarrow \phi]$
+%		\EndIf
+%		\Comment Strategy pruning
+%		\State $ \Xa = \Xa \setminus R_{size(R)-2} $
+%		\State $\fanor = \fanor [R_{size(R)-2} \times \Ua \rightarrow \phi]$
+%		\Comment Remove previous resilience states from transition system
+%		\If{$R_{size(R)-1} = \phi$}
+%		\State \Return false
+%		\Else
+%		\State \Return true
+%		\EndIf
+%	\end{algorithmic}
+%\end{algorithm}

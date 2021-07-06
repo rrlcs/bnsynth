@@ -1,0 +1,27 @@
+\subsection{Generating training data}
+Our aim is not to replace IO with generalized specifications but to aid these specifications with I/O examples.
+Generating training data has been the bottleneck for this research work since it is not a trivial pursuit in our case.
+Consequently, if we manage to generate synthetic SyGuS training data, it can prove to be a substantial contribution for Deep Learning based SyGuS research. Thus, generating data is one of the ideas we will focus on in this report. 
+As discussed in Section \ref{dgnn}, DeepSynth's Neural Network architecture requires training data which is a pair of finite I/O specification and correct program. They achieve this by first randomly generating programs and inputs with certain restrictions.  Next, they generate the outputs by feeding these inputs to the generated programs. Thus, it is relatively easier to generate programs this way. Moreover, they claim to have promising results using this strategy.
+This is encouraging for us to try a similar strategy for the generation of synthetic sygus benchmarks as well. However, we need training examples of the form (logical constraint + IO examples, correct program). The only option is to generate programs by feeding the constraints to different solvers. A natural question to ask would be how to generate millions of constraints? This is a challenging problem and will require a new data generation pipeline. We will discuss some ideas for data generation in this section.
+Our aim is to train the Neural Network with constraint-program pairs in such a way that the NN can generalize well. Thus, it is important that we feed various combinations of the existing constraints to the NN.
+
+\smallskip
+\noindent\textbf{Mutations of existing SyGuS benchmarks:}
+We can exploit properties of logical formulae such as commutativity, associativity etc to synthesize semantically equivalent but syntactically different constraints. For example, the formula A and B can be represented as B and A. Such mutations to existing formula will help in generation of constraints. Moreover, it should generate the same program which will aid the training of the NN.
+
+\smallskip
+\noindent\textbf{Using different solvers:}
+The other possibility is to use different solvers so that they generate different programs for the same constraint. We have made this observation while experimenting with different tools. Correctness of these programs is important as well and hence a reliable solver such as CVC4 is important. As per our experiments, some solvers such as DryadSynth were not sound.
+
+\smallskip
+\noindent\textbf{Bounding synthesis time:}
+Assume we require 80 million training examples as per DeepSynth. In such a case, we need 80 million constraints randomly generated using an intelligent strategy. Assuming we have access to a standard solver that can solve each constraint in approx 10 ms (which is a realistic expectation), the solving should take approx 10 days on a basic machine whereas increasing it to 50 ms may need 52 days of solving and 1 sec bound leads to 2.5 years of solving. Thus, bounding the synthesis time for constraints is important. More importantly, it is important to generate constraints that will be solvable within these bounds.
+
+\smallskip
+\noindent\textbf{Random generation of constraints:}
+The previous ideas may not scale to millions of training data that we need. Thus, at some point, we have to look into generating random constraints using ideas from DeepSynth as a starting point. This becomes challenging in our situtation as the structure of the constraints change for different classes of SyGuS benchmarks. For example, Loop Invariant SyGuS benchmarks have a PRE, TRANS, POST format whereas the others do not. Thus, it is prudent to decide a class of benchamarks first and proceed.
+
+\smallskip
+\noindent\textbf{Number of training examples:}
+Since we are using logical constraint and I/O specification as an input to the NN instead of just I/O specifications, it may be possible that we require fewer examples for training. However, this can only be empirically evaluated.

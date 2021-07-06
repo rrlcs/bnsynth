@@ -1,0 +1,131 @@
+% ------------------------------------------
+% Comments
+% ------------------------------------------
+\newcommand{\TODO}[1]{\textcolor{cyan}{\textbf{TODO:} #1}}
+\newcommand{\KM}[1]{\textcolor{blue}{\textbf{KM:} #1}}
+\newcommand{\DN}[1]{\textcolor{red}{\textbf{DN:} #1}}
+\newcommand{\Stanly}[1]{\textcolor{red}{\textbf{SS:} #1}}
+\newcommand{\AKS}[1]{\textcolor{violet}{\textbf{AKS:} #1}}
+\newcommand{\new}[1]{{\leavevmode\color{orange}#1}}
+\newcommand{\newb}[1]{\textcolor{cyan}{#1}}
+\newcommand{\old}[1]{\textcolor{blue}{#1}}
+\newcommand{\removeb}{\begingroup\color{gray}}
+\newcommand{\removee}{\color{black}\endgroup}
+
+
+% ------------------------------------------
+% Cross-referencing
+% ------------------------------------------
+\newcommand{\REFlem}[1]{\text{Lem.~\ref{#1}}}
+\newcommand{\REFthm}[1]{\text{Thm.~\ref{#1}}}
+\newcommand{\REFdef}[1]{Def.~\ref{#1}}
+\newcommand{\REFalg}[1]{Alg.~\ref{#1}}
+\newcommand{\REFrem}[1]{Rem.~\ref{#1}}
+\newcommand{\REFexp}[1]{Expl.~\ref{#1}}
+\newcommand{\REFsec}[1]{Sec.~\ref{#1}}
+\newcommand{\REFprop}[1]{Prop.~\ref{#1}}
+\newcommand{\REFfig}[1]{Fig.~\ref{#1}}
+\newcommand{\REFass}[1]{Ass.~\ref{#1}}
+\newcommand{\REFapp}[1]{App.~\ref{#1}}
+\newcommand{\REFcor}[1]{Cor.~\ref{#1}}
+\newcommand{\REFline}[1]{Line~\ref{#1}}
+
+% -------------------------------------------
+% Environments
+% -------------------------------------------
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
+
+% -------------------------------------------
+% Misc.
+% -------------------------------------------
+\newcommand{\setmap}{\rightrightarrows}
+\newcommand{\set}[1]{\{#1\}}
+\newcommand{\BR}[1]{\left( #1 \right)}
+\newcommand\tuple[1]{{\langle #1 \rangle}}
+\newcommand\braket[3]{{\langle #1|\;#2\;|#3 \rangle}}
+\newcommand{\dom}[1]{\mathrm{dom}(#1)}
+\newcommand{\card}[1]{\mathrm{card}\,#1}
+
+% -------------------------------------------
+% Continuous control system
+% -------------------------------------------
+\newcommand{\Sys}{\Sigma}
+\newcommand{\Xc}{\ensuremath{X}}
+\newcommand{\Uc}{\ensuremath{U}}
+\newcommand{\fc}{\ensuremath{f}}
+
+\newcommand{\xc}{\ensuremath{x}}
+\newcommand{\Sol}{\ensuremath{\mathit{Sol}}}
+
+% -------------------------------------------
+% Sampled-time system
+% -------------------------------------------
+\newcommand{\SysT}{\Sys}
+\newcommand{\ft}{\ensuremath{f}}
+\newcommand{\ftc}{\ensuremath{\ft^C}}
+\newcommand{\traj}{\rho}
+\newcommand{\BadTraj}{P^{\mathrm{bad}}}
+
+% -------------------------------------------
+% Controller synthesis
+% -------------------------------------------
+\newcommand{\Spec}{\Phi}
+\newcommand{\SpecP}{\Spec_{\mathrm{parity}}}
+\newcommand{\SpecS}{\Spec_{\mathrm{safety}}}
+\newcommand{\Cfamily}{\mathcal{C}}
+\newcommand{\pr}{\mathrm{pr}}
+\newcommand{\Parity}{\mathit{GameSolver}}
+\newcommand{\Prob}{\mathcal{P}}
+\newcommand{\ProbA}{\widehat{\Prob}}
+
+% -------------------------------------------
+% Finite state system (abstraction)
+% -------------------------------------------
+\newcommand{\Abs}{\Delta}
+\newcommand{\Xa}{\ensuremath{Q}}
+\newcommand{\Ua}{\ensuremath{A}}
+\newcommand{\fa}{\delta}
+\newcommand{\fanor}{\fa^{\mathrm{nor}}}
+\newcommand{\fadist}{\fa^{\mathrm{dist}}}
+\newcommand{\faC}{\fa^{\widehat{C}}}
+
+\newcommand{\xa}{\ensuremath{q}}
+\newcommand{\ua}{\ensuremath{u}}
+\newcommand{\proc}{\ensuremath{\mathit{FindAbstraction}}}
+\newcommand{\procRisk}{\ensuremath{\mathit{FindRiskAwareAbstraction}}}
+
+% -------------------------------------------
+% Disturbance
+% -------------------------------------------
+\newcommand{\Wnor}{\ensuremath{W_{\mathrm{normal}}}}
+\newcommand{\Whi}{\ensuremath{W_{\mathrm{high}}}}
+
+% -------------------------------------------
+% Resilient controller synthesis 
+% -------------------------------------------
+\newcommand{\NSpikes}{\ensuremath{\mathit{NumSpikes}}}
+\newcommand{\risk}{\mathrm{r}_\Prob}
+\newcommand{\update}{\ensuremath{\mathit{FiniteResilienceUpdate}}}
+\newcommand{\dUpdate}{\ensuremath{\mathit{DisturbanceUpdate}}}
+\newcommand{\rUpdate}{\ensuremath{\mathit{RiskUpdate}}}
+\newcommand{\disabled}{\ensuremath{\mathit{DisabledPairs}}}
+\newcommand{\spre}{\ensuremath{\mathit{Spre}}}
+\newcommand{\compRes}{\ensuremath{\mathit{ComputeResilience}}}
+
+% -----------------------------------------------------------
+% Define custom commands for the algorithm environment
+% -----------------------------------------------------------
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\INPUT{\item[\algorithmicinput]}
+\algnewcommand\algorithmicparameters{\textbf{Parameters:}}
+\algnewcommand\PARAMETERS{\item[\algorithmicparameters]}
+\algnewcommand\algorithmicoutput{\textbf{Output:}}
+\algnewcommand\OUTPUT{\item[\algorithmicoutput]}
+\algdef{SE}[DOWHILE]{Do}{doWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}%
+% separate highlighted sections in algorithm
+%define a marking command
+\newcommand*{\tikzmk}[1]{\tikz[remember picture,overlay,] \node (#1) {};\ignorespaces}
+%define a boxing command, argument = colour of box
+\newcommand{\boxit}[1]{\tikz[remember picture,overlay]{\node[yshift=3pt,fill=#1,opacity=.25,fit={(A)($(B)+(.95\linewidth,.8\baselineskip)$)}] {};}\ignorespaces}
