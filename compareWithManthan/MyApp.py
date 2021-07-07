@@ -10,11 +10,11 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--spec", type=int, default=1, help="Enter values from 1 to 5")
 	args = parser.parse_args()
-	filename = "sample"+str(args.spec)+"_skolem.v"
+	filename = "sample"+str(args.spec)+".v"
 
 	# Parse Skolem Function from Manthan and
 	# Generate Z3Py Format
-	f = open("compareWithManthan/sample_skf/"+filename, "r")
+	f = open("compareWithManthan/sample_examples/"+filename, "r")
 	data = f.read()
 	inputStream = antlr4.InputStream(data)
 	lexer = Verilog2001Lexer(inputStream)

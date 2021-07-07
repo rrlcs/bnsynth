@@ -22,13 +22,13 @@ def valid(formula):
 
         return False
 
-i0 ,i1 ,i2 ,i3 = Bools('i0 i1 i2 i3')
-i4_2 = Bool('i4_2')
-i4_1 = Bool('i4_1')
-n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16 = Bools('n6 n7 n8 n9 n10 n11 n12 n13 n14 n15 n16')
+i_0 ,i_1 ,i_2 = Bools('i_0 i_1 i_2')
+out_2 = Bool('out_2')
+out_1 = Bool('out_1')
+w1 = Bool('w1')
 
-i4 = Bool('i4')
-A = i4_1 == $$
-B = (And((n6 == And(Not(i0),Not(i3),)), (n7 == And(Not(i1),(n6),)), (n8 == And(Not(i2),(i3),)), (n9 == And(Not(i0),(n8),)), (n10 == And(Not(i1),(n9),)), (n11 == And(Not(n7),Not(n10),)), (n12 == And((i2),(i3),)), (n13 == And(Not(i1),(n12),)), (n14 == And((i0),(n13),)), (n15 == And((n11),Not(n14),)), (n16 == And((i1),(n12),)), (i4_2 == Or(Not(n15),(n16),))))
-formula = Implies(And(A,B), Implies(i4_1, i4_2))
+out = Bool('out')
+A = out_1 == ((i_0))
+B = (And((w1 == Xor((i_0),(i_1),)), (out_2 == Xor((w1),(i_2),))))
+formula = Implies(And(A,B), Implies(out_1, out_2))
 valid(formula)
