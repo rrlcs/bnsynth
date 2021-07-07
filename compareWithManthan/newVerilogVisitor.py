@@ -4,6 +4,8 @@ from Verilog2001Visitor import Verilog2001Visitor
 
 class verilogVisitor(Verilog2001Visitor):
 	def visitModule_declaration(self, ctx: Verilog2001Parser.Module_declarationContext):
+		f = open("compareWithManthan/sample_examples/Yvarlist/sample1_varstoelim.txt", "r")
+		output = f.read()
 		self.visit(ctx.module_identifier())
 		self.visit(ctx.list_of_ports())
 		z3filecontent = ""
@@ -34,14 +36,13 @@ class verilogVisitor(Verilog2001Visitor):
 				var_dec = input_dec+"\n"+output_dec2+"\n"+output_dec1+"\n"+aux+"\n"+var_out
 			if ctx.module_item()[i].module_or_generate_item():
 				if ctx.module_item()[i].module_or_generate_item().continuous_assign():
-					eq += self.visit(ctx.module_item()[i])
+					eq += self.visit(ctx.module_item()[i])[1:-3]+"\n"
 		inp = inp[:-2]
-		eq = eq[:-2]
-		z3constraint1 = "A = "+out1+" == $$"
-		z3constraint2 = "B = "+"(And("+eq+"))"
-		z3constraint2 = z3constraint2.replace(out, out2)
+		z3constraint1 = output+" = $$"
+		z3constraint2 = eq
+		# z3constraint2 = z3constraint2.replace(out, out2)
 		z3filecontent = var_dec+"\n"+z3constraint1+"\n"+z3constraint2
-		formula = "formula = Implies(And(A,B), Implies("+out1+", "+out2+"))"
+		formula = "formula = "+out
 		z3filecontent += "\n"+formula+"\nvalid(formula)"
 		return z3filecontent
 
@@ -78,7 +79,7 @@ class verilogVisitor(Verilog2001Visitor):
 	def visitNet_assignment(self, ctx: Verilog2001Parser.Net_assignmentContext):
 		lv = self.visit(ctx.net_lvalue())
 		rv = self.visit(ctx.expression())
-		return "(" + lv + " == " + rv + ")" + ", "
+		return "(" + lv + " = " + rv + ")" + ", "
 
 	def visitNet_lvalue(self, ctx: Verilog2001Parser.Net_lvalueContext):
 		return str(ctx.getText())

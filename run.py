@@ -93,4 +93,4 @@ if __name__ == "__main__":
 	pt.plot()
 
 	# Check Validity
-	os.system("python compareWithManthan/MyApp.py --spec="+str(args.spec))
+	os.system("python3 compareWithManthan/MyApp.py --spec="+str(args.spec))

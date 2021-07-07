@@ -46,4 +46,4 @@ if __name__ == "__main__":
 		file.write(filedata)
 	
 	# Run the Validity Checker File
-	os.system("python compareWithManthan/z3ValidityChecker.py")
+	os.system("python3 compareWithManthan/z3ValidityChecker.py")

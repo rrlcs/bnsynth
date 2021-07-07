@@ -10,8 +10,8 @@ def get_skolem_function(cln, no_of_input_var, threshold, K):
 	literals = []
 	neg_literals = []
 	for i in range(no_of_input_var):
-		literals.append("i"+str(i))
-		neg_literals.append("~i"+str(i))
+		literals.append("i_"+str(i))
+		neg_literals.append("~i_"+str(i))
 	clause = np.array(literals + neg_literals)
 	clauses = []
 	for i in range(K):

@@ -25,10 +25,13 @@ def valid(formula):
 i_0 ,i_1 ,i_2 = Bools('i_0 i_1 i_2')
 out_2 = Bool('out_2')
 out_1 = Bool('out_1')
-w1 = Bool('w1')
+w1,w2 = Bools('w1 w2')
 
 out = Bool('out')
-A = out_1 == ((i_0))
-B = (And((w1 == Xor((i_0),(i_1),)), (out_2 == Xor((w1),(i_2),))))
-formula = Implies(And(A,B), Implies(out_1, out_2))
+i_2 = And(((i_0)),((i_1)),)
+w1 = Xor((i_0),(i_1),)
+w2 = And((i_1),(i_2),)
+out = Xor((w1),(w2),)
+
+formula = out
 valid(formula)
