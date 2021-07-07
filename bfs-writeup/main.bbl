@@ -1,106 +1,37 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{1}
 
-\bibitem{abate2018counterexample}
-A.~Abate, C.~David, P.~Kesseli, D.~Kroening, and E.~Polgreen.
-\newblock Counterexample guided inductive synthesis modulo theories.
-\newblock In {\em International Conference on Computer Aided Verification},
-  pages 270--288. Springer, 2018.
+\bibitem{Alur2005}
+{Alur, R., Madhusudan, P. & Nam, W.}
+\newblock {Symbolic computational techniques for solving games.}
+\newblock {118–128 (2005)}.
 
-\bibitem{6679385}
-R.~{Alur}, R.~{Bodik}, G.~{Juniwal}, M.~M.~K. {Martin}, M.~{Raghothaman}, S.~A.
-  {Seshia}, R.~{Singh}, A.~{Solar-Lezama}, E.~{Torlak}, and A.~{Udupa}.
-\newblock Syntax-guided synthesis.
-\newblock In {\em 2013 Formal Methods in Computer-Aided Design}, pages 1--8,
-  2013.
+\bibitem{Balabnav2012}
+{Balabanov, V., Jiang, JH.R.}
+\newblock {Unified QBF certification and its applications.}
+\newblock {2012}.
 
-\bibitem{balog2016deepcoder}
-M.~Balog, A.~L. Gaunt, M.~Brockschmidt, S.~Nowozin, and D.~Tarlow.
-\newblock Deepcoder: Learning to write programs.
-\newblock {\em arXiv preprint arXiv:1611.01989}, 2016.
+\bibitem{Jo}
+{Jo, Satoshi and Matsumoto, Takeshi and Fujita, Masahiro}.
+\newblock {SAT-Based Automatic Rectification and Debugging of Combinational
+  Circuits with LUT Insertions}.
+\newblock In {\em {2012 IEEE 21st Asian Test Symposium}}, pages {19--24},
+  {2012}.
 
-\bibitem{bengio1994learning}
-Y.~Bengio, P.~Simard, and P.~Frasconi.
-\newblock Learning long-term dependencies with gradient descent is difficult.
-\newblock {\em IEEE transactions on neural networks}, 5(2):157--166, 1994.
+\bibitem{Manthan}
+{Priyanka Golia and Subhajit Roy and Kuldeep S. Meel}.
+\newblock {Manthan: {A} Data Driven Approach for Boolean Function Synthesis}.
+\newblock {\em {CoRR}}, {abs/2005.06922}, {2020}.
 
-\bibitem{brody2020neural}
-S.~Brody, U.~Alon, and E.~Yahav.
-\newblock Neural edit completion, 2020.
+\bibitem{Solar2013}
+{Solar-Lezama, A.}
+\newblock {Program sketching}.
+\newblock {\em {Int J Softw Tools Technol Transfer}}, {15}({475–495}),
+  {2013}.
 
-\bibitem{chen2019multi}
-Q.~Chen, X.~Wang, X.~Ye, G.~Durrett, and I.~Dillig.
-\newblock Multi-modal synthesis of regular expressions.
-\newblock {\em arXiv preprint arXiv:1908.03316}, 2019.
-
-\bibitem{chenprogram}
-Y.~Chen, C.~Wang, O.~Bastani, I.~Dillig, and Y.~Feng.
-\newblock Program synthesis using deduction-guided reinforcement learning.
-
-\bibitem{cho2014learning}
-K.~Cho, B.~Van~Merri{\"e}nboer, C.~Gulcehre, D.~Bahdanau, F.~Bougares,
-  H.~Schwenk, and Y.~Bengio.
-\newblock Learning phrase representations using rnn encoder-decoder for
-  statistical machine translation.
-\newblock {\em arXiv preprint arXiv:1406.1078}, 2014.
-
-\bibitem{chung2014empirical}
-J.~Chung, C.~Gulcehre, K.~Cho, and Y.~Bengio.
-\newblock Empirical evaluation of gated recurrent neural networks on sequence
-  modeling.
-\newblock {\em arXiv preprint arXiv:1412.3555}, 2014.
-
-\bibitem{devlin2017robustfill}
-J.~Devlin, J.~Uesato, S.~Bhupatiraju, R.~Singh, A.~rahman Mohamed, and
-  P.~Kohli.
-\newblock Robustfill: Neural program learning under noisy i/o, 2017.
-
-\bibitem{evans2018neural}
-R.~Evans, D.~Saxton, D.~Amos, P.~Kohli, and E.~Grefenstette.
-\newblock Can neural networks understand logical entailment?, 2018.
-
-\bibitem{feng2018program}
-Y.~Feng, R.~Martins, O.~Bastani, and I.~Dillig.
-\newblock Program synthesis using conflict-driven learning.
-\newblock {\em ACM SIGPLAN Notices}, 53(4):420--435, 2018.
-
-\bibitem{hochreiter2001gradient}
-S.~Hochreiter, Y.~Bengio, P.~Frasconi, J.~Schmidhuber, et~al.
-\newblock Gradient flow in recurrent nets: the difficulty of learning long-term
-  dependencies, 2001.
-
-\bibitem{hochreiter1997long}
-S.~Hochreiter and J.~Schmidhuber.
-\newblock Long short-term memory.
-\newblock {\em Neural computation}, 9(8):1735--1780, 1997.
-
-\bibitem{li2015gated}
-Y.~Li, D.~Tarlow, M.~Brockschmidt, and R.~Zemel.
-\newblock Gated graph sequence neural networks.
-\newblock {\em arXiv preprint arXiv:1511.05493}, 2015.
-
-\bibitem{nye2019learning}
-M.~Nye, L.~Hewitt, J.~Tenenbaum, and A.~Solar-Lezama.
-\newblock Learning to infer program sketches.
-\newblock {\em arXiv preprint arXiv:1902.06349}, 2019.
-
-\bibitem{polgreen2020counterexample}
-E.~Polgreen, R.~Abboud, and D.~Kroening.
-\newblock Counterexample guided neural synthesis, 2020.
-
-\bibitem{si2018learning}
-X.~Si, H.~Dai, M.~Raghothaman, M.~Naik, and L.~Song.
-\newblock Learning loop invariants for program verification.
-\newblock In {\em Advances in Neural Information Processing Systems}, pages
-  7751--7762, 2018.
-
-\bibitem{10.5555/1714168}
-A.~Solar-Lezama.
-\newblock {\em Program Synthesis by Sketching}.
-\newblock PhD thesis, USA, 2008.
-
-\bibitem{wang2019learning}
-K.~Wang and Z.~Su.
-\newblock Learning blended, precise semantic program embeddings.
-\newblock {\em ArXiv, vol. abs/1907.02136}, 2019.
+\bibitem{Gulwani2013}
+{Srivastava, S., Gulwani, S. & Foster, J.S.}
+\newblock {Template-based program verification and program synthesis}.
+\newblock {\em {Int J Softw Tools Technol Transfer}}, {15}({497–518}),
+  {2013}.
 
 \end{thebibliography}

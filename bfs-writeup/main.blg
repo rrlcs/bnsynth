@@ -1,50 +1,62 @@
-This is BibTeX, Version 0.99d (TeX Live 2019)
+This is BibTeX, Version 0.99d (TeX Live 2017/Debian)
 Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: main.aux
 The style file: abbrv.bst
 Database file #1: bib.bib
-Warning--empty journal in chenprogram
-Warning--empty year in chenprogram
-Warning--empty school in 10.5555/1714168
-You've used 20 entries,
+Warning--I didn't find a database entry for "10.5555/1714168"
+Warning--I didn't find a database entry for "abate2018counterexample"
+Warning--I didn't find a database entry for "polgreen2020counterexample"
+Warning--I didn't find a database entry for "6679385"
+Warning--I didn't find a database entry for "cho2014learning"
+Warning--I didn't find a database entry for "bengio1994learning"
+Warning--I didn't find a database entry for "hochreiter2001gradient"
+Warning--I didn't find a database entry for "hochreiter1997long"
+Warning--I didn't find a database entry for "li2015gated"
+Warning--I didn't find a database entry for "chung2014empirical"
+Warning--I didn't find a database entry for "wang2019learning"
+Warning--I didn't find a database entry for "si2018learning"
+Warning--I didn't find a database entry for "chenprogram"
+Warning--empty journal in Alur2005
+Warning--empty journal in Balabnav2012
+You've used 6 entries,
             2118 wiz_defined-function locations,
-            599 strings with 7249 characters,
-and the built_in function-call counts, 7156 in all, are:
-= -- 645
-> -- 499
-< -- 3
-+ -- 196
-- -- 176
-* -- 525
-:= -- 1241
-add.period$ -- 55
-call.type$ -- 20
-change.case$ -- 146
+            547 strings with 4778 characters,
+and the built_in function-call counts, 1465 in all, are:
+= -- 142
+> -- 42
+< -- 1
++ -- 18
+- -- 12
+* -- 70
+:= -- 259
+add.period$ -- 18
+call.type$ -- 6
+change.case$ -- 24
 chr.to.int$ -- 0
-cite$ -- 23
-duplicate$ -- 224
-empty$ -- 464
-format.name$ -- 176
-if$ -- 1436
+cite$ -- 8
+duplicate$ -- 73
+empty$ -- 129
+format.name$ -- 12
+if$ -- 308
 int.to.chr$ -- 0
-int.to.str$ -- 20
-missing$ -- 14
-newline$ -- 97
-num.names$ -- 40
-pop$ -- 178
+int.to.str$ -- 6
+missing$ -- 6
+newline$ -- 33
+num.names$ -- 12
+pop$ -- 25
 preamble$ -- 1
-purify$ -- 127
+purify$ -- 18
 quote$ -- 0
-skip$ -- 179
+skip$ -- 58
 stack$ -- 0
-substring$ -- 265
-swap$ -- 47
-text.length$ -- 3
+substring$ -- 58
+swap$ -- 14
+text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 80
-warning$ -- 3
-while$ -- 54
-width$ -- 22
-write$ -- 197
-(There were 3 warnings)
+type$ -- 24
+warning$ -- 2
+while$ -- 14
+width$ -- 7
+write$ -- 64
+(There were 15 warnings)

@@ -95,15 +95,15 @@
 
 %---------- Title ----------
 \title{%\LARGE \bf
-PSML Report: Sketches for Logical Specifications using Deep Learning
+Boolean Function Synthesis using Gated Continuous Logic Network
 }
 
 %---------- Authors ----------
 \author{
+Aditya Kanade,
 Chiranjib Bhattacharyya,
 Deepak D'Souza,
-Ravi Raja,
-Sriram Rajamani, and
+Ravi Raja, and
 Stanly Samuel
 %
 %\authorrunning{K.\ Mallik et al.}
@@ -114,19 +114,17 @@ Stanly Samuel
 %}
 \thanks{
 Brainstormed under the helpful guidance of 
-	C. Bhattacharyya,
-D. D'Souza, and S. Rajamani
+Aditya Kanade,	
+C. Bhattacharyya, and
+D. D'Souza
 }
 \thanks{
+  Aditya Kanade,
 	C. Bhattacharyya,
 D. D'Souza,
 R. Raja and
 S. Samuel are with IISc, Bengaluru, India.
 %	Email: {\tt\small stanly@iisc.ac.in}.
-}
-\thanks{
-	S. Rajamani is with Microsoft Research, Bengaluru, India.
-%	Email: {\tt\small \{kmallik, neider, akschmuck\}@mpi-sws.org}.
 }
 }
 
@@ -144,7 +142,7 @@ S. Samuel are with IISc, Bengaluru, India.
 
 %---------- Abstract ----------
 \begin{abstract}
-We consider the synthesis of sketches for constraints specified using logical formulae using deep learning techniques. For this problem in program synthesis, we discuss relevant literature, gaps in existing techniques and our approach to attack the problem. This report broadly consists of a research proposal and preliminary progress in this direction. For the preliminary direction,  we discuss a prototype tool as a work in progress. 
+Boolean Function Synthesis is a fundamental problem in computer science with lots of different applications. The state of the art tool is able to solvel 356 out of 609 benchmarks, leaving room for improvement. We are using a specialized Neural Network called Gated Continuous Logic Network to synthesize the formulae that satisfies the given specification. Our expectation from using a Neural Network is two fold: 1. To beat the state-of-the-art tools and 2. To study whether a Neural Network can capture the underlying semantics of the Boolean Formula Specification.
 
 %The results on existing benchmarks show promise for the extension of this work. 
 \end{abstract}	
@@ -179,8 +177,8 @@ We consider the synthesis of sketches for constraints specified using logical fo
 
 %---------- Bibliography ----------
 % \bibliographystyle{splncs04}
-\bibliographystyle{abbrv}
 \bibliography{bib}
+\bibliographystyle{abbrv}
 
 %---------- Appendix: Synthesizing sketches using RL ----------
 %\input{appendix}
