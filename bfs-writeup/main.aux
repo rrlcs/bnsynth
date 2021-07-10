@@ -1,89 +1,40 @@
 \relax 
-\babel@aux{english}{}
 \citation{Alur2005}
 \citation{Balabnav2012}
 \citation{Solar2013}
 \citation{Gulwani2013}
 \citation{Jo}
 \citation{Manthan}
-\citation{10.5555/1714168}
-\citation{abate2018counterexample}
-\citation{polgreen2020counterexample}
-\citation{6679385}
-\@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{2}}
-\newlabel{sec:intro}{{I}{2}}
-\@writefile{toc}{\contentsline {section}{\numberline {II}Motivation}{2}}
-\@writefile{toc}{\contentsline {section}{\numberline {III}Background}{3}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {III-A}DeepSynth's Neural Network Architecture}{3}}
-\newlabel{dgnn}{{III-A}{3}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {III-A.1}Neural Network}{3}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {III-A.1.a}Processing a Single counterexample}{3}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {III-A.1.b}Pooling}{3}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {III-A.2}Training Data Generation}{3}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The DeepSynth Neural Network}}{4}}
-\newlabel{fig:dsnn}{{1}{4}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Seq2Seq network for a single I/O example}}{4}}
-\newlabel{fig:dsnn2}{{2}{4}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces The Pooling Operation}}{4}}
-\newlabel{fig:pool}{{3}{4}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {III-A.2.a}Eliminating redundancy in programs}{5}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {III-A.2.b}Input/Output Example Generation}{5}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {III-A.2.c}Program Tokenisation}{5}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {III-A.2.d}Batches}{5}}
-\@writefile{toc}{\contentsline {section}{\numberline {IV}Research Proposal}{5}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {IV-A}Overall idea}{5}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {IV-B}Proposed Neural Network Architecture}{5}}
-\citation{cho2014learning}
-\citation{bengio1994learning}
-\citation{hochreiter2001gradient}
-\citation{hochreiter1997long}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Synthesizing Sketches from Logical Embeddings}}{6}}
-\newlabel{fig:goal}{{4}{6}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Proposed Neural Network Architecture. The dimensions of all the hidden state vectors $\mathcal  {G}$, $\mathcal  {S}$, $\mathcal  {G^{'}}$, $\mathcal  {S^{'}}$, $\mathcal  {E}$, $\mathcal  {D}$, is 128-by-1 and size of $P_\tau $ is equal to the size of Vocabulary. The Encoder gives output as $\mathcal  {E}$, which is then passed to the Decoder LSTM to get the program token probabilities $P_\tau $}}{6}}
-\newlabel{fig:nna}{{5}{6}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV-B.1}Neural Network Architectures}{6}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {IV-B.1.a}RNN}{6}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {IV-B.1.b}Gated Recurrent Unit}{6}}
-\citation{li2015gated}
-\citation{chung2014empirical}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Recurrent Neural Network (RNN) Cell $x_t$: input vector, $h_t$: hidden state vector, $o_t$: output vector, W, U and V: parameter matrices}}{7}}
-\newlabel{fig:rnn}{{6}{7}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Gated Recurrent Unit (GRU) Cell, Propagation Model ($x_t$: input vector, $h_t$: hidden state, $\mathaccentV {hat}05E{h_t}$: candidate activation vector, $z_t$: update gate vector, $r_t$: reset gate vector, W, U and b: parameter matrices and vector, $\sigma _g$: sigmoid, $\phi _h$: tanh}}{7}}
-\newlabel{fig:gru}{{7}{7}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {IV-B.1.c}LSTM}{7}}
-\newlabel{gnn}{{IV-B.1.d}{7}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {IV-B.1.d}Gated Graph Neural Network (GGNN)}{7}}
-\citation{wang2019learning}
-\citation{si2018learning}
-\citation{polgreen2020counterexample}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Long-Short Term Memory (LSTM) Cell}}{8}}
-\newlabel{fig:lstm}{{8}{8}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces (a) An Example Gated Graph Neural Network (GGNN), (b) Message Passing}}{8}}
-\newlabel{fig:ggnn}{{9}{8}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {IV-B.1.e}Seq2Seq Architecture}{8}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV-B.2}Learning Representations}{8}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {IV-B.2.a}Encoder: Learning Representations for Logical spec and given Grammar}{8}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {IV-B.2.b}Encoder: Learning Representations for I/O spec}{9}}
-\@writefile{toc}{\contentsline {paragraph}{\numberline {IV-B.2.c}Aggregating $\mathcal  {G}$ and $\mathcal  {S}$}{9}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV-B.3}Decoder: Neural Network for Synthesizing sketches}{9}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV-B.4}Solving Sketches and Training the Neural Network}{9}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {IV-C}Generating training data}{9}}
-\citation{polgreen2020counterexample}
-\citation{10.5555/1714168}
-\citation{chenprogram}
-\@writefile{toc}{\contentsline {section}{\numberline {V}SyGuS-Sketcher: A preliminary prototype}{10}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {V-A}Tool architecture}{10}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {V-B}Planned experiment}{10}}
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Future work and extensions}{10}}
+\citation{gcln}
+\citation{luka}
+\citation{baaz1996}
+\citation{hajek1996}
+\babel@aux{english}{}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}}
+\newlabel{sec:intro}{{I}{1}}
+\@writefile{toc}{\contentsline {section}{\numberline {II}Motivation}{1}}
+\@writefile{toc}{\contentsline {section}{\numberline {III}Background}{1}}
+\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces }}{2}}
+\newlabel{tab:tnorms}{{I}{2}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Workflow}{2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV-A}Sampling Strategy}{2}}
 \bibdata{bib}
 \bibcite{Alur2005}{1}
-\bibcite{Balabnav2012}{2}
-\bibcite{Jo}{3}
-\bibcite{Manthan}{4}
-\bibcite{Solar2013}{5}
-\bibcite{Gulwani2013}{6}
+\bibcite{baaz1996}{2}
+\bibcite{Balabnav2012}{3}
+\bibcite{hajek1996}{4}
+\bibcite{gcln}{5}
+\bibcite{Jo}{6}
+\bibcite{luka}{7}
+\bibcite{Manthan}{8}
+\bibcite{Solar2013}{9}
+\bibcite{Gulwani2013}{10}
 \bibstyle{abbrv}
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces SyGuS-Sketcher architecture}}{11}}
-\newlabel{fig:curr}{{10}{11}}
-\@writefile{toc}{\contentsline {section}{\numberline {VII}Conclusion}{11}}
-\@writefile{toc}{\contentsline {section}{References}{11}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Workflow}}{3}}
+\newlabel{fig:workflow}{{1}{3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Sampling Pipeline}}{3}}
+\newlabel{fig:sampling}{{2}{3}}
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Example Samples for XOR(x, y) with threshold = 0.7 and Product t-norm}}{3}}
+\newlabel{tab:tnorms}{{II}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV-B}GCLN Architecture}{3}}
+\@writefile{toc}{\contentsline {section}{References}{3}}

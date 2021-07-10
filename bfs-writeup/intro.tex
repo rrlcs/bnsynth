@@ -7,25 +7,23 @@ The problem of Boolean Function Synthesis is a well known problem in computer sc
 automated program synthesis (\cite{Solar2013, Gulwani2013}), circuit repair and debugging \cite{Jo} and the likes. This has motivated the community to develop practically efficient algorithms for synthesizing Boolean functions. Latest tool Manthan \cite{Manthan} claims to have beaten all the other state of the art tools by a margin of 76 benchmarks.
 Manthan uses a Decision Tree based Learning approach to generate the skolem functions satisfying the given specification.
 
-\noindent Based on this exhaustive survey, we propose the following problem statement:
-
-\noindent\textbf{Problem Statement:} Given a logical specification and a DSL for the space of programs, we wish to design a system that synthesizes sketches in such a way that the work load between neural synthesis and symbolic search is managed efficiently i.e. we want a neural network to synthesize sketches when pattern based techniques are unable to proceed and invoke a solver to complete the sketch. We want the neural network to be trained using a multi-modal "concolic" approach i.e by using an input embedding based on logical specifications and I/O examples generated from these I/O examples.
-
-To the best of our knowledge, we are the first to work on sketch generation using logical embeddings.
+\noindent\textbf{Problem Statement:} Formally, given a Boolean formula F(X, Y) specifying a desired relation between inputs X and outputs Y, we wish to synthesize each output in Y as a function of inputs X such that F(X, Y) is satisfied, whenever possible.
 
 \smallskip
-\noindent\textbf{Other works using sketches: } 
-Neural Edit Completion is a code completion technique that uses the context of the code environment as specification. A sketch in this context is the partial code that the user provides.
+Gated Continuous Logic Network or GCLN has been earlier used in learning Non Linear loop invariants \cite{gcln}. We leverage its power for our problem such that it generates the required skolem funciton.
+% \noindent\textbf{Other works using sketches: } 
+% Neural Edit Completion is a code completion technique that uses the context of the code environment as specification. A sketch in this context is the partial code that the user provides.
 
 %Compare Sketches with code completion (predicts code) by Eran Yahav
 %and edit completion (predicts edits)2020 Yahav
 %Spec is context here!! Based on context you can predict a lot. Not keen on writing specs in FOL for sorting an array but ...(see the video) 45 mins approx
-Program synthesis using conflict-driven learning also talks about sketches in terms of partial programs. 
+% Program synthesis using conflict-driven learning also talks about sketches in terms of partial programs. 
 
 \smallskip
-\noindent\textbf{Contribution: } In this report, we will talk about a research proposal and preliminary work in this direction. The major topics are:
+\noindent\textbf{Contribution: } In this report, we discuss the details of how GCLN is employed to synthesize boolean formulae. We also discuss various approaches for solving Boolean Function Synthesis using Neural Network. The major topics are:
 \begin{itemize}
-\item  A line of direction to generate synthetic dataset for SyGuS benchmarks.
-\item  A "concolic" neural network architecture using logical embeddings and I/O embeddings.
-\item  A prototype tool SyGuS-Sketcher using existing techniques with experimentation plan.
+\item  Sampling Strategy.
+\item  A CNF based GCLN architecture.
+\item  4 different problem formulations and their performance on toy examples
+\item  Important meeting discussions
 \end{itemize}

@@ -28,7 +28,7 @@
 \usepackage{color,colortbl}
 \usepackage{mathtools}
 \usepackage{enumerate}
-\usepackage{algorithm, algpseudocode}
+% \usepackage{algorithm, algpseudocode}
 \usepackage{booktabs}
 \usepackage[normalem]{ulem}
 \usepackage{pgf}
@@ -37,7 +37,7 @@
 \usetikzlibrary{calc,matrix,fit,petri,decorations.pathmorphing,patterns}
 \usetikzlibrary{decorations.pathreplacing,decorations.markings,shapes.geometric,calc}
 \usepackage{paralist}
-\usepackage{stmaryrd}
+% \usepackage{stmaryrd}
 \usepackage{xspace}
 \usepackage{graphicx}
 \usepackage{float}
@@ -48,17 +48,24 @@
   \usepackage{epstopdf}
   \usepackage{multicol}
 % \usepackage{csquotes}
-
+\usepackage{tabularx}
 % \usepackage{amscd}
 % \usepackage{amsmath}
 % \usepackage{amssymb}
 % \usepackage{amsthm}
 
-
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\@makecaption}
+  {\scshape}
+  {}
+  {}
+  {}
+\makeatother
 % \usepackage[usenames,dvipsnames]{xcolor}
 % % tables
  \usepackage{array}
-
+\usepackage{breqn}
 % \usepackage{xspace}
 % \usepackage{paralist}
 \usepackage{xifthen}
@@ -136,13 +143,13 @@ S. Samuel are with IISc, Bengaluru, India.
 
 %---------- Title ----------
 \maketitle
-\thispagestyle{empty}
-\pagestyle{empty}
+% \thispagestyle{empty}
+% \pagestyle{empty}
 
 
 %---------- Abstract ----------
 \begin{abstract}
-Boolean Function Synthesis is a fundamental problem in computer science with lots of different applications. The state of the art tool is able to solvel 356 out of 609 benchmarks, leaving room for improvement. We are using a specialized Neural Network called Gated Continuous Logic Network to synthesize the formulae that satisfies the given specification. Our expectation from using a Neural Network is two fold: 1. To beat the state-of-the-art tools and 2. To study whether a Neural Network can capture the underlying semantics of the Boolean Formula Specification.
+Boolean Function Synthesis is a fundamental problem in computer science with lots of different applications. The state of the art tool is able to solvel 356 out of 609 benchmarks, leaving room for improvement. We propose to use a specialized Neural Network called Gated Continuous Logic Network to synthesize the formulae that satisfies the given specification. Our expectation from using a Neural Network is two fold: 1. To beat the state-of-the-art tools and 2. To study whether a Neural Network can capture the underlying semantics of the Boolean Formula Specification.
 
 %The results on existing benchmarks show promise for the extension of this work. 
 \end{abstract}	
@@ -154,7 +161,7 @@ Boolean Function Synthesis is a fundamental problem in computer science with lot
 \input{motivation}
 
 %---------- Problem Statement -------
-\input{problem}
+% \input{problem}
 
 %---------- Preliminaries --------
 \input{prelims}
@@ -163,20 +170,21 @@ Boolean Function Synthesis is a fundamental problem in computer science with lot
 \input{proposal}
 
 %---------- Proposed NN architecture-------
-\input{nn}
-\input{gendata}
+% \input{nn}
+% \input{gendata}
 
 %---------- SyGuS Sketcher: A preliminary prototype-------
-\input{tool}
+% \input{tool}
  
 %---------- Future work -------
-\input{future}
+% \input{future}
 
 %---------- Conclusion ----------
-\input{conclusion}
+% \input{conclusion}
 
 %---------- Bibliography ----------
 % \bibliographystyle{splncs04}
+\newpage
 \bibliography{bib}
 \bibliographystyle{abbrv}
 
