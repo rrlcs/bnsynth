@@ -31,7 +31,7 @@ values. Formally, a t-norm is defined $\otimes$ : $[0, 1] \times [0, 1] \rightar
  tconorm ($\oplus$) & $min(t + u, 1)$ & $max(t, u)$ & $t + u - t * u$
 \end{tabular*}
 \caption{}
-\label{tab:tnorms}
+\label{tab:tnorm_conorm}
 \end{table*}
 
 \noindent BL additionally requires that t-norms be continuous. \textit{T-conorms} ($\oplus$) are derived from t-norms via DeMorgan’s law and operate as disjunctions on continuous truth values, while negations are defined $\neg{t} := 1 - t$.
@@ -39,7 +39,7 @@ values. Formally, a t-norm is defined $\otimes$ : $[0, 1] \times [0, 1] \rightar
 \noindent Three widely used t-norms that satisfy the requirements are the
 Lukaseiwicz t-norm \cite{luka}, the Godel t-norm \cite{baaz1996} and the product t-norm \cite{hajek1996}. Each t-norm has a \textit{t-conorm} associated with it (denoted $\oplus$), which can be
 considered as logical disjunction. Given a t-norm $\otimes$, the t-conorm can be derived with DeMorgan’s
-law: $t \oplus u$ $\overset{\Delta}{=}$ $\neg{(\neg{t} \otimes \neg{u})}$. Table \ref{tab:tnorms} shows the formule for tnorms and tconorms.
+law: $t \oplus u$ $\overset{\Delta}{=}$ $\neg{(\neg{t} \otimes \neg{u})}$. Table \ref{tab:tnorm_conorm} shows the formule for tnorms and tconorms.
 
 % \centering
 
@@ -76,12 +76,13 @@ and has following property -
 \]
 
 \noindent\textbf{Continuous Logic Network (CLN):} CLN's are based on parametric relaxation Logical formulas that maps the logical formulation from boolean first order logic to BL.
-The model defines the operator \script{S}. A quantifier-free boolean formula $F: X \rightarrow {True, False}$, \script{S} maps it to a continuous function $\script{S}(F): X \rightarrow [0, 1]$. In order for the continuous model to be both usable in gradient-guided optimization while also preserving the semantics of boolean
+The model defines the operator $\mathcal{S}$. A quantifier-free boolean formula $F: X \rightarrow {True, False}$, $\mathcal{S}$ maps it to a continuous function 
+$\mathcal{S}(F): X \rightarrow [0, 1]$. In order for the continuous model to be both usable in gradient-guided optimization while also preserving the semantics of boolean
 logic, it must fulfill three conditions:
 
 \begin{enumerate}
     \item It must preserve the meaning of the logic, such that the continuous truth values of a valid assignment are always greater than the value of an invalid assignment:
-        \begin{dmath}(F(x) = True \wedge F(x') = False) \implies \script{S}(F)(x) > \script{S}(F)(x')\end{dmath}
+        \begin{dmath}$(F(x) = True \wedge F(x') = False) \implies \mathcal{S}(F)(x) > \mathcal{S}(F)(x')$\end{dmath}
     \item It must be must be continuous and smooth (i.e. differentiable almost everywhere) to facilitate training.
     \item It must be strictly increasing as an unsatisfying assignment of terms approach satisfying the mapped formula,
 and strictly decreasing as a satisfying assignment of

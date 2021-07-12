@@ -11,41 +11,6 @@ Figure \ref{fig:workflow} shows the general workflow of our approach towards Boo
 \end{figure*}
 
 % -------------- CODE FOR GOAL ARCHITECTURE ------------------
-
-% \begin{figure*}
-% \resizebox{!}{!}{%
-% \begin{tikzpicture}[node distance=2cm]
-% \node (pr) [process] {LOGICAL SPEC};
-% \node (sam) [startstop, right of=pr, xshift=1.5cm] {SAMPLER};
-% \node (nn) [startstop, right of=sam, xshift=2cm] {PRE-TRAINED NN FOR SKETCHES FOR A GIVEN GRAMMAR};
-% \node (sol) [startstop, right of=nn, xshift=2.5cm] {SOLVER};
-% \node (bs) [process, below of=nn, yshift=-0.5cm] {BAD SKETCH};
-% \node (gr) [process, above of=sol, yshift=0.5cm] {GRAMMAR};
-% \node (dec1) [decision, below of=sol, yshift=-0.5cm] {SOLVED?};
-% \node (sn) [solution, below of=dec1, yshift=-0.5cm] {PROGRAM};
-% \draw [arrow] (pr) -- node[anchor=south] {} (sam);
-% \draw[-latex,bend right=45]  (pr) edge (nn);
-% \draw [arrow] (sam) -- node[anchor=south] {I/O} (nn);
-% \draw [arrow] (sam) -- node[anchor=north] {Examples} (nn);
-% \draw [arrow] (nn) -- node[anchor=south] {SKETCHES} (sol);
-% \draw [arrow] (sol) -- node[anchor=south] {} (dec1);
-% \draw [arrow] (gr) -- node[anchor=south] {} (sol);
-% \draw [arrow] (dec1) -- node[anchor=south] {NO} (bs);
-% \draw [arrow] (bs) -- node[anchor=south] {} (nn);
-% \draw [arrow] (dec1) -- node[anchor=west] {YES} (sn);
-% \end{tikzpicture}
-% }
-% \caption{Synthesizing Sketches from Logical Embeddings}
-% \label{fig:goal}
-% \end{figure*}
-
-
-
-%\Stanly{See where this fits in........We propose how to synthesize the dataset from existing SyGuS benchmarks.
-%We propose an architecture for an NN that takes an embedding of I/O + Logical Formula and synthesizes a sketch which is expected to work better than previous approaches. The reason is because we encode the semantics of the logical spec using GNN.
-%As a consequence of the above two points, we will also have a baseline approach that synthesizes complete programs from logical spec embeddings.
-%Lastly, we wish to think about teaching the NN to recognise "bad sketches" which is now feasible due to this architecture.}
-
 \subsection{Sampling Strategy}
 Figure \ref{fig:sampling} describes the sampling pipeline that we have implemented to generate the training data.
 Currently we are using Random Sampling Strategy in which, 
@@ -64,8 +29,10 @@ Apart from Random Sampling, we also use Correlated Sampling Strategy for one of 
 In this strategy, we first sample the input variables and the output variables are conditioned on input variables. 
 This may help to capture the correlation betweenn input and output variables.
 
+Table \ref{tab:tnorms} shows an example of random sampling.
+
 \begin{table}[t]
-\begin{center}
+\centering
 \begin{tabular}{cccc}
 	x: & y: & XOR(x, y)\\ 
 	0.9 & 0.2 & 0.72 \\  
@@ -73,12 +40,50 @@ This may help to capture the correlation betweenn input and output variables.
 \end{tabular}
 \caption{Example Samples for XOR(x, y) with threshold = 0.7 and Product t-norm}
 \label{tab:tnorms}
-\end{center}
 \end{table}
 
 
 \subsection{GCLN Architecture}
+Figure \ref{fig:gcln} shows the generic architecture that we use for predicting the skolem function from relational specifications.
+It consists of 3 layers viz. Input Layer, Disjunction Layer, and Conjunction Layer. After each layer Gates are applied except for the final Conjunction Layer.
+These Gates are the trainable weights of the neural network. More details below:
 
+\noindent\textbf{Input Layer:} This layer is of shape 2N x 1, where N is the number of input variables in the given specification. 
+Along with positive variables, we also consider their negations and include them in the input vector. For e.g. if the input variables 
+are i1 and i2 then the input vector would contain $[i1, i2, \neg{i1}, \neg{i2}]$.
+
+\noindent\textbf{Gates G1:} G1 is of shape 2N x K (K = No. of clauses and 2N = Size of each clause).
+These Gates decides which input variables to be selected in each clause.
+
+\noindent\textbf{Disjunction Layer:} This layer takes gated input variables. Shape of this layer is K x 1, where K is the maximum 
+number of clauses that could possibly be present in the final solution. K is a hyperparameter and can be tuned.
+%This layer decides which input variables to selected for each clause.
+
+\noindent\textbf{Gates G2:} G2 is of shape K x 1 i.e. each node represents one of the clause. 
+Here we decide upon which clause to keep as part of the solution skolem function.
+
+\noindent\textbf{Conjunction Layer:} This layer takes input the gated output of the Disjunction Layer. It is of shape 1 x 1. 
+%This layer decides which clauses to be selected.
+
+\begin{figure*}
+	\centering
+    \includegraphics[scale=0.4]{gcln.png}
+    \caption{GCLN Architecture}
+    \label{fig:gcln}
+\end{figure*}
+
+Due to the design of the network, the formula that we extract is in CNF form.
+\newline
+
+\noindent\textbf{Running Example:} Figure \ref{fig:ex} shows a running example of XOR(i1, i2, i3), 
+where i1 and i2 are input variable and i3 is the output variable.
+
+\begin{figure*}
+	\centering
+    \includegraphics[scale=0.3]{example.png}
+    \caption{Example run of GCLN over specification XOR(i1, i2, i3). Input Variable = i1, i2 and Output Variable = i3}
+    \label{fig:ex}
+\end{figure*}
 % Figure \ref{fig:goal} describes the high level idea for synthesizing sketches from logical embeddings. We first sample a finite set of I/O examples from the logical specification. We wish to have a pre trained neural network for a given DSL that is trained to generate the required sketches when a logical specification and I/O specification are given as input. As a novel extension, it may also be possible for the NN to take as input a bad sketch and make decisions accordingly. This would be something similar to CEGIS(T) but using an NN. We then feed it to a traditional solver that solves the sketch using enumerative techniques if the sketch has non constant holes and constraint based techniques, if the sketch has constant holes. If the sketch is infeasible, then we use this to direct our NN to synthesize a better sketch. The meaning of an infeasible sketch is that there does not exist a valid (w.r.t. the DSL) completion of the sketch for the given specification.
 
 % The major research question here is how to make the NN understand whether a given sketch is an infeasible sketch or not.

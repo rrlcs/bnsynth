@@ -1,9 +1,9 @@
 \begin{thebibliography}{10}
 
 \bibitem{Alur2005}
-{Alur, R., Madhusudan, P. & Nam, W.}
+{Alur, R., Madhusudan, P. and Nam, W.}
 \newblock {Symbolic computational techniques for solving games.}
-\newblock {118–128 (2005)}.
+\newblock {\em {Int J Softw Tools Technol Transfer}}, {118–128 (2005)}.
 
 \bibitem{baaz1996}
 {Baaz, Matthias}.
@@ -17,7 +17,7 @@
 \bibitem{Balabnav2012}
 {Balabanov, V., Jiang, JH.R.}
 \newblock {Unified QBF certification and its applications.}
-\newblock {2012}.
+\newblock {\em {Form Methods Syst Des}}, {2012}.
 
 \bibitem{hajek1996}
 {H{\'a}jek, Petr and Godo, Llu{\'\i}s and Esteva, Francesc}.
@@ -54,7 +54,7 @@
   {2013}.
 
 \bibitem{Gulwani2013}
-{Srivastava, S., Gulwani, S. & Foster, J.S.}
+{Srivastava, S., Gulwani, S. and Foster, J.S.}
 \newblock {Template-based program verification and program synthesis}.
 \newblock {\em {Int J Softw Tools Technol Transfer}}, {15}({497–518}),
   {2013}.
