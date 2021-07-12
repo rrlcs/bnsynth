@@ -26,14 +26,14 @@ class verilogVisitor(Verilog2001Visitor):
 			if inp and var_out:
 				rinp = inp.split(",")
 				out = var_out.split(" = ")[0]
-				out1 = out+"_1"
-				out2 = out+"_2"
+				# out1 = out+"_1"
+				# out2 = out+"_2"
 				rinp = " ".join(rinp)
 				rinp = rinp.replace("  ", " ")
 				input_dec = inp[:-2] + " = Bools('" + (rinp[:-1]) + "')"
-				output_dec1 = out1+" = Bool('" + out1 + "')"
-				output_dec2 = out2+" = Bool('" + out2 + "')"
-				var_dec = input_dec+"\n"+output_dec2+"\n"+output_dec1+"\n"+aux+"\n"+var_out
+				# output_dec1 = out1+" = Bool('" + out1 + "')"
+				# output_dec2 = out2+" = Bool('" + out2 + "')"
+				var_dec = input_dec+"\n"+aux+"\n"+var_out
 			if ctx.module_item()[i].module_or_generate_item():
 				if ctx.module_item()[i].module_or_generate_item().continuous_assign():
 					eq += self.visit(ctx.module_item()[i])[1:-3]+"\n"

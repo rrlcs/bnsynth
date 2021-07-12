@@ -7,10 +7,10 @@ def init_weights(m):
         torch.nn.init.xavier_uniform_(m.weight)
         m.bias.data.fill_(0.01)
 
-def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, name, P, torch, CLN, util):
+def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, name, P, torch, CLN, util, spec):
     lossess = []
-    lambda1 = 1e-9
-    lambda2 = 1e-9
+    lambda1 = 1e-4
+    lambda2 = 1e-6
     cln = CLN(input_size, K, device, name, P, p=0).to(device)
     cln.apply(init_weights)
     optimizer = torch.optim.Adam(list(cln.parameters()), lr=learning_rate)
@@ -23,7 +23,16 @@ def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_siz
             tgts = tgts.reshape((-1)).to(device)
             out = cln(inps)
             inpOut = torch.cat((inps, out), dim=1)
-            fOut = util.continuous_xor_vectorized(inpOut.T, name).to(device)
+            if spec == 1:
+                fOut = util.spec1(inpOut.T, name).to(device)
+            elif spec == 2:
+                fOut = util.spec2(inpOut.T, name).to(device)
+            elif spec == 3:
+                fOut = util.spec3(inpOut.T, name).to(device)
+            elif spec == 4:
+                fOut = util.spec4(inpOut.T, name).to(device)
+            elif spec == 5:
+                fOut = util.spec5(inpOut.T, name).to(device)
             loss = criterion(fOut, tgts)
             loss = loss + lambda1*torch.linalg.norm(cln.G1, 1) + lambda2*torch.linalg.norm(cln.G2, 1)
             total_epoch_loss += loss

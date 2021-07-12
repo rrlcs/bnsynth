@@ -77,7 +77,7 @@ if __name__ == "__main__":
 	elif args.P == 2:
 		if args.train:
 			loss_fn = nn.BCEWithLogitsLoss()
-			cln, lossess = tc2.train_classifier(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, args.K, device, args.tnorm_name, args.P, torch, gcln.CLN, util)
+			cln, lossess = tc2.train_classifier(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, args.K, device, args.tnorm_name, args.P, torch, gcln.CLN, util, args.spec)
 			torch.save(cln.state_dict(), "classifier2")
 		else:
 			cln = gcln.CLN(input_size, args.K, device, args.tnorm_name, args.P, p=0).to(device)
