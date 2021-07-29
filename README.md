@@ -28,16 +28,20 @@ pip3 install argparse
 
 ## Train GCLN and get Skolem Function:
 ```
-python run.py --th=0.7 --P=0 --train=1 --no_of_samples=100000
+python3 run.py --th=0.5 --P=0 --correlated_sampling=0 --train=1 --no_of_samples=100000 --tnorm_name=product --no_of_input_var=2 --epochs=100 --spec=1 --learning_rate=0.0001
 ```
-- th is threshold for boolean output (0.5 < th < 1)
+- th is threshold for boolean output (0.5)
 - P value states which Problem Formulation to run (0, 1, 2):
 	- Select Problem:
 		- 0: Regression
-		- 1: Classification with y as labels
-		- 2: Classification with output of F as labels
+		- 1: Classification 1
+		- 2: Classification 2
+		- 2: Classification 3 when ```--correlated_sampling=1```
 - train=1 train model (train=0 load saved model)
 - no_of_samples states the number of random samples to generate (keep it >= 50000)
+- tnorm_name declares the type of tnorm to be used
+- no_of_input_vars: input variables in the specification
+- spec: selects specification from the set of given specifications
 
 ## More information on options:
 ```
