@@ -9,8 +9,8 @@ def init_weights(m):
 
 def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, name, P, torch, CLN, util, spec):
     lossess = []
-    lambda1 = 1e-4
-    lambda2 = 1e-6
+    lambda1 = 1e-9
+    lambda2 = 1e-9
     cln = CLN(input_size, K, device, name, P, p=0).to(device)
     cln.apply(init_weights)
     optimizer = torch.optim.Adam(list(cln.parameters()), lr=learning_rate)
@@ -39,9 +39,11 @@ def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_siz
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            # print(tgts.shape)
         # average_loss = (total_epoch_loss/training_size) * 1000
         # lossess.append(average_loss.item())
-        lossess.append(total_epoch_loss.item())
+        # print(len(train_loader.dataset))
+        lossess.append(total_epoch_loss.item() / len(train_loader.dataset))
         print("total epoch loss: ", total_epoch_loss)
         if epoch % 5 == 0:
             print('epoch {}, loss {}'.format(epoch, loss.item()))

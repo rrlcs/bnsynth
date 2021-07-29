@@ -22,13 +22,19 @@ def valid(formula):
 
         return False
 
-i_0 ,i_1 ,i_2 = Bools('i_0 i_1 i_2')
-w1 = Bool('w1')
+i_0 ,i_1 ,i_2 ,i_3 = Bools('i_0 i_1 i_2 i_3')
+w1,w2 = Bools('w1 w2')
 
 out = Bool('out')
-i_2 = And((Or((i_0),Not(i_1),)),(Or((i_1),Not(i_0),Not(i_1),)),(Or((i_1),Not(i_0),)),)
-w1 = Xor((i_0),(i_1),)
-out = Xor((w1),(i_2),)
-
-formula = out
+nn_out = And((Or((i_2),Not(i_0),Not(i_1),)),(Not(i_2)),)
+w1 = And((i_0),(i_1))
+w2 = Xor((i_2),(i_3))
+out = Or((w1),(w2))
+z1 = Exists(i_3, out)
+i_3 = nn_out
+w1 = And((i_0),(i_1))
+w2 = Xor((i_2),(i_3))
+out = Or((w1),(w2))
+z2 = out
+formula = z1==z2
 valid(formula)

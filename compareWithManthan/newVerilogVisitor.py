@@ -3,14 +3,19 @@ from Verilog2001Parser import Verilog2001Parser
 from Verilog2001Visitor import Verilog2001Visitor
 
 class verilogVisitor(Verilog2001Visitor):
+	def __init__(self, spec) -> None:
+		super().__init__()
+		self.spec = spec
 	def visitModule_declaration(self, ctx: Verilog2001Parser.Module_declarationContext):
-		f = open("compareWithManthan/sample_examples/Yvarlist/sample1_varstoelim.txt", "r")
+		filename = "sample"+str(self.spec)+"_varstoelim.txt"
+		f = open("compareWithManthan/sample_examples/Yvarlist/"+filename, "r")
 		output = f.read()
 		self.visit(ctx.module_identifier())
 		self.visit(ctx.list_of_ports())
 		z3filecontent = ""
 		inp = out2 = aux = var_dec = var_out = ""
 		eq = ""
+		eqn = []
 		for i in range(len(ctx.module_item())):
 			if ctx.module_item()[i].port_declaration():
 				if ctx.module_item()[i].port_declaration().input_declaration():
@@ -25,24 +30,26 @@ class verilogVisitor(Verilog2001Visitor):
 					aux += self.visit(ctx.module_item()[i]) +"\n"
 			if inp and var_out:
 				rinp = inp.split(",")
-				out = var_out.split(" = ")[0]
-				# out1 = out+"_1"
-				# out2 = out+"_2"
 				rinp = " ".join(rinp)
 				rinp = rinp.replace("  ", " ")
 				input_dec = inp[:-2] + " = Bools('" + (rinp[:-1]) + "')"
-				# output_dec1 = out1+" = Bool('" + out1 + "')"
-				# output_dec2 = out2+" = Bool('" + out2 + "')"
 				var_dec = input_dec+"\n"+aux+"\n"+var_out
 			if ctx.module_item()[i].module_or_generate_item():
 				if ctx.module_item()[i].module_or_generate_item().continuous_assign():
-					eq += self.visit(ctx.module_item()[i])[1:-3]+"\n"
+					const = self.visit(ctx.module_item()[i])[1:-3]+"\n"
+					eqn.append(const)
+
+		eqn = [i[:-3]+")" for i in eqn]
+		eq = '\n'.join(eqn)
 		inp = inp[:-2]
-		z3constraint1 = output+" = $$"
+		z3constraint1 = "nn_out = $$"
 		z3constraint2 = eq
-		# z3constraint2 = z3constraint2.replace(out, out2)
-		z3filecontent = var_dec+"\n"+z3constraint1+"\n"+z3constraint2
-		formula = "formula = "+out
+		exists_constraint = "z1 = Exists("+output+", out)"
+		assign = output+" = nn_out"
+		quant_free_constraint = "z2 = out"
+		z3filecontent = var_dec+"\n"+z3constraint1+"\n"+z3constraint2+"\n"+exists_constraint+"\n"
+		z3filecontent += assign+"\n"+z3constraint2+"\n"+quant_free_constraint
+		formula = "formula = z1==z2"
 		z3filecontent += "\n"+formula+"\nvalid(formula)"
 		return z3filecontent
 

@@ -9,7 +9,7 @@ def generateTrainData(P, util, no_of_samples, name, spec, threshold, no_of_input
     elif P == 2:
         if correlated_sampling:
             training_samples = util.correlated_fractional_sampling(
-            no_of_samples, name, threshold, no_of_input_var
+            no_of_samples, name, threshold, no_of_input_var, spec
             )
         else:
             training_samples = util.fractional_sampling_pos_and_neg(

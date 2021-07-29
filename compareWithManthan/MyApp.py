@@ -21,7 +21,7 @@ if __name__ == "__main__":
 	tokenStream = antlr4.CommonTokenStream(lexer)
 	parser = Verilog2001Parser(tokenStream)
 	tree = parser.module_declaration()
-	visitor = verilogVisitor()
+	visitor = verilogVisitor(args.spec)
 	z3filecontent = visitor.visit(tree)
 	with open('compareWithManthan/templateZ3Checker.py', 'r') as file :
 		filedata = file.read()
@@ -37,7 +37,7 @@ if __name__ == "__main__":
 	tokenStream = antlr4.CommonTokenStream(lexer)
 	parser = Verilog2001Parser(tokenStream)
 	tree = parser.expression()
-	visitor = verilogVisitor()
+	visitor = verilogVisitor(args.spec)
 	nnOut = visitor.visit(tree)
 	with open('compareWithManthan/z3ValidityChecker.py', 'r') as file :
 		filedata = file.read()

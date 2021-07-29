@@ -57,6 +57,53 @@ class utils():
             op1 = res
         return res
     
+    def cov(x, rowvar=False, bias=False, ddof=None, aweights=None):
+        """Estimates covariance matrix like numpy.cov"""
+        # ensure at least 2D
+        if x.dim() == 1:
+            x = x.view(-1, 1)
+
+        # treat each column as a data point, each row as a variable
+        if rowvar and x.shape[0] != 1:
+            x = x.t()
+
+        if ddof is None:
+            if bias == 0:
+                ddof = 1
+            else:
+                ddof = 0
+
+        w = aweights
+        if w is not None:
+            if not torch.is_tensor(w):
+                w = torch.tensor(w, dtype=torch.float)
+            w_sum = torch.sum(w)
+            avg = torch.sum(x * (w/w_sum)[:,None], 0)
+        else:
+            avg = torch.mean(x, 0)
+
+        # Determine the normalization
+        if w is None:
+            fact = x.shape[0] - ddof
+        elif ddof == 0:
+            fact = w_sum
+        elif aweights is None:
+            fact = w_sum - ddof
+        else:
+            fact = w_sum - ddof * torch.sum(w * w) / w_sum
+
+        xm = x.sub(avg.expand_as(x))
+
+        if w is None:
+            X_T = xm.t()
+        else:
+            X_T = torch.mm(torch.diag(w), xm).t()
+
+        c = torch.mm(X_T, xm)
+        c = c / fact
+
+        return c.squeeze()
+    
     def spec1(self, inp_vars, name):
         return self.continuous_xor_vectorized(inp_vars, name)
     
@@ -94,6 +141,19 @@ class utils():
             res = self.spec5(inp_vars, name)
         
         samples = inp_vars[:, res >= threshold].T
+        cov = torch.stack((samples[:, 0], samples[:, -1])).T
+        print("shape: ", torch.stack((samples[:, 2], samples[:, -1])).shape)
+        print("covariance: ", cov)
+        if torch.all(cov) > 0:
+            print("Positively Correlated")
+        x = samples[:, 0]
+        y = samples[:, -1]
+        print(x.shape, y.shape)
+        vx = x - torch.mean(x)
+        vy = y - torch.mean(y)
+        correlation_coefficient = torch.sum(vx * vy) / (torch.sqrt(torch.sum(vx ** 2)) * torch.sqrt(torch.sum(vy ** 2)))
+        print("Correlation Coefficient: ", correlation_coefficient)
+        # samples = samples[samples[:, -1] < threshold, :]
         print("Train Data Generated: ", samples.shape)
 
         return samples
@@ -121,7 +181,7 @@ class utils():
         return train_samples
 
         # Fractional Sampling
-    def correlated_fractional_sampling(self, no_of_samples, name, threshold, no_of_input_var):
+    def correlated_fractional_sampling(self, no_of_samples, name, threshold, no_of_input_var, spec):
         inp_vars = torch.from_numpy(np.random.uniform(0, 1, (no_of_input_var, no_of_samples)))
         if no_of_input_var == 1:
             data = []
@@ -132,7 +192,16 @@ class utils():
                     t2 = torch.cat([inp_vars[0, i].unsqueeze(-1), inp_vars[0, i].unsqueeze(-1)], dim=0)
                     data.append(t2)
             train_samples = torch.stack(data)
-            res = self.continuous_xor_vectorized(train_samples.T, name)
+            if spec == 1:
+                res = self.spec1(train_samples.T, name)
+            elif spec == 2:
+                res = self.spec2(train_samples.T, name)
+            elif spec == 3:
+                res = self.spec3(train_samples.T, name)
+            elif spec == 4:
+                res = self.spec4(train_samples.T, name)
+            elif spec == 5:
+                res = self.spec5(train_samples.T, name)
             outs = (res > threshold).double()
             # print(outs)
             train_samples = torch.cat((train_samples[:, :no_of_input_var], outs.reshape(-1, 1)), dim=1)
