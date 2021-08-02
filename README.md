@@ -29,6 +29,9 @@ pip3 install argparse
 ## To run without Hyperparameter Search
 ```git checkout 2dc92eba65de1d61fa6a973239eeccf8d7d3b87a```
 
+## To switch to writeup branch
+```git checkout writeup```
+
 ## Train GCLN and get Skolem Function:
 ```
 python3 run.py --th=0.5 --P=0 --correlated_sampling=0 --train=1 --no_of_samples=100000 --tnorm_name=product --no_of_input_var=2 --epochs=100 --spec=1 --learning_rate=0.0001
