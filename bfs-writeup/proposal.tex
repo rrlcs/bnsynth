@@ -11,12 +11,18 @@ Figure \ref{fig:workflow} shows the general workflow of our approach towards Boo
 \end{figure*}
 
 % -------------- CODE FOR GOAL ARCHITECTURE ------------------
-\subsection{Sampling Strategy}
-Figure \ref{fig:sampling} describes the sampling pipeline that we have implemented to generate the training data.
-Currently we are using Random Sampling Strategy in which, 
-we sample uniformly at random for input and output variables in the range $[0, 1]$. 
-These random samples are then applied with the continous mapping of relational specification (F). 
-Output of F is then thresholded to get the positive samples. 
+\subsection{Sampling Strategy}\label{sample}
+Figure \ref{fig:sampling} describes the sampling pipeline that we have implemented to 
+generate the training data.
+
+\noindent\textbf{Random Sampling Strategy \Romannum{1}: }\label{sample1} In this we sample uniformly at random 
+for input and output variables in the range $[0, 1]$. 
+These random samples are then supplied to the continous mapping of relational specification (F). 
+Output of F is then thresholded to get binary values. The ones that make F = 1 are taken to be 
+positive samples. 
+
+\noindent\textbf{Random Sampling Strategy \Romannum{2}: }\label{sample2} In this we collect positive samples 
+as explained above and then add equal number of negative samples (F = 0) as well in the dataset.
 
 \begin{figure*}
 	\centering
@@ -25,52 +31,59 @@ Output of F is then thresholded to get the positive samples.
     \label{fig:sampling}
 \end{figure*}
 
-Apart from Random Sampling, we also use Correlated Sampling Strategy for one of the problem formulation. 
-In this strategy, we first sample the input variables and the output variables are conditioned on input variables. 
-This may help to capture the correlation betweenn input and output variables.
+\noindent\textbf{Correlated Sampling: }\label{sample3} 
+In this strategy, we first sample the input variables. Output variables are conditioned on input variables. 
+This may help to capture the correlation betweenn input and output variables. we keep both positive and 
+negative samples.
 
 Table \ref{tab:tnorms} shows an example of random sampling.
 
 \begin{table}[t]
 \centering
 \begin{tabular}{cccc}
-	x: & y: & XOR(x, y)\\ 
-	0.9 & 0.2 & 0.72 \\  
-	0.85 & 0.01 & 0.84
+	x: & y: & XOR(x, y) (thresholded value)\\ 
+	0.9 & 0.2 & 1\\  
+	0.85 & 0.01 & 1\\
+    0.3 & 0.4 & 0
 \end{tabular}
 \caption{Example Samples for XOR(x, y) with threshold = 0.7 and Product t-norm}
 \label{tab:tnorms}
 \end{table}
 
 
-\subsection{GCLN Architecture}
+\subsection{GCLN Architecture}\label{gcln}
 Figure \ref{fig:gcln} shows the generic architecture that we use for predicting the skolem function from relational specifications.
 It consists of 3 layers viz. Input Layer, Disjunction Layer, and Conjunction Layer. After each layer Gates are applied except for the final Conjunction Layer.
 These Gates are the trainable weights of the neural network. More details below:
 
+\smallskip
 \noindent\textbf{Input Layer:} This layer is of shape 2N x 1, where N is the number of input variables in the given specification. 
 Along with positive variables, we also consider their negations and include them in the input vector. For e.g. if the input variables 
 are i1 and i2 then the input vector would contain $[i1, i2, \neg{i1}, \neg{i2}]$.
 
+\smallskip
 \noindent\textbf{Gates G1:} G1 is of shape 2N x K (K = No. of clauses and 2N = Size of each clause).
 These Gates decides which input variables to be selected in each clause.
 
+\smallskip
 \noindent\textbf{Disjunction Layer:} This layer takes gated input variables. Shape of this layer is K x 1, where K is the maximum 
 number of clauses that could possibly be present in the final solution. K is a hyperparameter and can be tuned.
 %This layer decides which input variables to selected for each clause.
 
+\smallskip
 \noindent\textbf{Gates G2:} G2 is of shape K x 1 i.e. each node represents one of the clause. 
 Here we decide upon which clause to keep as part of the solution skolem function.
 
+\smallskip
 \noindent\textbf{Conjunction Layer:} This layer takes input the gated output of the Disjunction Layer. It is of shape 1 x 1. 
 %This layer decides which clauses to be selected.
 
-\begin{figure*}
+\begin{figure}
 	\centering
     \includegraphics[scale=0.4]{gcln.png}
     \caption{GCLN Architecture}
     \label{fig:gcln}
-\end{figure*}
+\end{figure}
 
 Due to the design of the network, the formula that we extract is in CNF form.
 \newline

@@ -3,14 +3,32 @@
 \section{Introduction}
 \label{sec:intro}
 
-The problem of Boolean Function Synthesis is a well known problem in computer science and has been in the limelight for past decade. Recently, synthesis of Boolean functions has found its applications in wide range of areas which includes reactive strategy synthesis \cite{Alur2005}, certified QBF-SAT solving \cite{Balabnav2012}, 
-automated program synthesis (\cite{Solar2013, Gulwani2013}), circuit repair and debugging \cite{Jo} and the likes. This has motivated the community to develop practically efficient algorithms for synthesizing Boolean functions. Latest tool Manthan \cite{Manthan} claims to have beaten all the other state of the art tools by a margin of 76 benchmarks.
-Manthan uses a Decision Tree based Learning approach to generate the skolem functions satisfying the given specification.
-
-\noindent\textbf{Problem Statement:} Formally, given a Boolean formula F(X, Y) specifying a desired relation between inputs X and outputs Y, we wish to synthesize each output in Y as a function of inputs X such that F(X, Y) is satisfied, whenever possible.
+The problem of Boolean Function Synthesis is a well known problem in computer science and 
+has been in the limelight for past decade. Recently, synthesis of Boolean functions has 
+found its applications in wide range of areas which includes reactive strategy synthesis 
+\cite{Alur2005}, certified QBF-SAT solving \cite{Balabnav2012}, 
+automated program synthesis (\cite{Solar2013, Gulwani2013}), circuit repair and debugging 
+\cite{Jo} and the likes. This has motivated the community to develop practically efficient 
+algorithms for synthesizing Boolean functions. Latest tool Manthan \cite{Manthan} claims 
+to have beaten all the other state of the art tools by a margin of 76 benchmarks.
+Manthan uses a Decision Tree based Learning approach to generate the skolem functions 
+satisfying the given specification.
 
 \smallskip
-Gated Continuous Logic Network or GCLN has been earlier used in learning Non Linear loop invariants \cite{gcln}. We leverage its power for our problem such that it generates the required skolem funciton.
+\noindent\textbf{Problem Statement:} Formally, 
+% given a Boolean formula F(X, Y) specifying 
+% a desired relation between inputs X and outputs Y, we wish to synthesize each output in Y 
+% as a function of inputs X such that F(X, Y) is satisfied, whenever possible.
+given a Boolean specification $F(X, Y)$ between set of
+inputs $X = {x_1, . . . , x_n}$ and vector of outputs $Y = \langle y_1, . . . , y_m \rangle$, the problem of
+Skolem function synthesis is to synthesize a function vector $\psi(X) = \langle \psi_1(X), . . . , \psi_m(X)\rangle$
+such that $\exists Y F(X, Y ) \equiv F(X, \psi(X))$. We refer to $\psi$ as the Skolem
+function vector and $\psi_i$ as the Skolem function for $y_i$.
+
+\smallskip
+Gated Continuous Logic Network or GCLN has been earlier used in learning Non Linear loop 
+invariants \cite{gcln}. We leverage its power for our problem such that it generates the 
+required skolem funciton.
 % \noindent\textbf{Other works using sketches: } 
 % Neural Edit Completion is a code completion technique that uses the context of the code environment as specification. A sketch in this context is the partial code that the user provides.
 
@@ -25,5 +43,5 @@ Gated Continuous Logic Network or GCLN has been earlier used in learning Non Lin
 \item  Sampling Strategy.
 \item  A CNF based GCLN architecture.
 \item  4 different problem formulations and their performance on toy examples
-\item  Important meeting discussions
+\item  Future Directions
 \end{itemize}

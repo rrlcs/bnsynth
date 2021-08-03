@@ -4,6 +4,14 @@
 \BOOKMARK [1][-]{section.4}{Workflow}{}% 4
 \BOOKMARK [2][-]{subsection.4.1}{Sampling Strategy}{section.4}% 5
 \BOOKMARK [2][-]{subsection.4.2}{GCLN Architecture}{section.4}% 6
-\BOOKMARK [1][-]{section.5}{Problem Formulations}{}% 7
-\BOOKMARK [2][-]{subsection.5.1}{Formulating it as Regression Problem}{section.5}% 8
-\BOOKMARK [1][-]{section*.1}{References}{}% 9
+\BOOKMARK [1][-]{section.5}{Proposed Solution}{}% 7
+\BOOKMARK [1][-]{section.6}{Problem Formulations}{}% 8
+\BOOKMARK [2][-]{subsection.6.1}{Regression}{section.6}% 9
+\BOOKMARK [2][-]{subsection.6.2}{Classification Problem - 1}{section.6}% 10
+\BOOKMARK [2][-]{subsection.6.3}{Classification Problem - 2}{section.6}% 11
+\BOOKMARK [2][-]{subsection.6.4}{Classification Problem - 3}{section.6}% 12
+\BOOKMARK [1][-]{section.7}{Results}{}% 13
+\BOOKMARK [1][-]{section.8}{Future Directions}{}% 14
+\BOOKMARK [2][-]{subsection.8.1}{Sampling Strategy}{section.8}% 15
+\BOOKMARK [2][-]{subsection.8.2}{Training}{section.8}% 16
+\BOOKMARK [1][-]{section*.1}{References}{}% 17
