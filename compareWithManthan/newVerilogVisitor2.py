@@ -1,6 +1,6 @@
 from antlr4 import *
-from Verilog2001Parser import Verilog2001Parser
-from Verilog2001Visitor import Verilog2001Visitor
+from compareWithManthan.Verilog2001Parser import Verilog2001Parser
+from compareWithManthan.Verilog2001Visitor import Verilog2001Visitor
 
 class verilogVisitor(Verilog2001Visitor):
 	def __init__(self, spec) -> None:
@@ -11,6 +11,8 @@ class verilogVisitor(Verilog2001Visitor):
 		f = open("compareWithManthan/sample_examples/Yvarlist/"+filename, "r")
 		output = f.read()
 		output_vars = output.split("\n")[:-1]
+		num_out_vars = len(output_vars)
+		# print(num_out_vars)
 		self.visit(ctx.module_identifier())
 		self.visit(ctx.list_of_ports())
 		z3filecontent = ""
@@ -30,7 +32,9 @@ class verilogVisitor(Verilog2001Visitor):
 				if ctx.module_item()[i].module_or_generate_item().module_or_generate_item_declaration():
 					aux += self.visit(ctx.module_item()[i]) +"\n"
 			if inp and var_out:
-				rinp = inp.split(",")
+				rinp = inp.split(",")[:-1]
+				io_vars = rinp
+				num_of_vars = len(rinp)
 				rinp = " ".join(rinp)
 				rinp = rinp.replace("  ", " ")
 				input_dec = inp[:-2] + " = Bools('" + (rinp[:-1]) + "')"
@@ -39,20 +43,27 @@ class verilogVisitor(Verilog2001Visitor):
 				if ctx.module_item()[i].module_or_generate_item().continuous_assign():
 					const = self.visit(ctx.module_item()[i])[1:-2]+"\n"
 					eqn.append(const)
+		# print(io_vars)
+		io_dict = {}
+		# i_0 = inp_vars[]
+		var_defs = []
+		for index, value in enumerate(io_vars):
+			io_dict[index] = value
+			value  = "	"+str(value)+" = "+"inp_vars["+str(index)+", :]"
+			var_defs.append(value)
 
-		eqn = [i[:-3]+")" for i in eqn]
+		var_defs = "\n".join(var_defs)
+		# print(var_defs)
+		# print(io_dict)
+		eqn = ["	"+i[:-3]+"name)" for i in eqn]
+		# print(eqn)
+		# print(input_dec)
 		eq = '\n'.join(eqn)
+		# print("eq",eq)
 		inp = inp[:-2]
-		z3constraint1 = "nn_out = $$"
-		z3constraint2 = eq
-		exists_constraint = "z1 = Exists("+output_vars[0]+", out)"
-		assign = output_vars[0]+" = nn_out"
-		quant_free_constraint = "z2 = out"
-		z3filecontent = var_dec+"\n"+z3constraint1+"\n"+z3constraint2+"\n"+exists_constraint+"\n"
-		z3filecontent += assign+"\n"+z3constraint2+"\n"+quant_free_constraint
-		formula = "formula = z1==z2"
-		z3filecontent += "\n"+formula+"\nvalid(formula)"
-		return z3filecontent
+		func_def = "def F(inp_vars, name, util):\n"
+		z3filecontent = func_def+var_defs+"\n"+eq+"\n"+"	return out"
+		return z3filecontent, num_out_vars, num_of_vars
 
 	def visitModule_identifier(self, ctx: Verilog2001Parser.Module_identifierContext):
 		return
@@ -135,11 +146,11 @@ class verilogVisitor(Verilog2001Visitor):
 	
 	def visitBinary_operator(self, ctx: Verilog2001Parser.Binary_operatorContext):
 		if str(ctx.getText()) == "&":
-			op = "And"
+			op = "util.tnorm_vectorized"
 		elif str(ctx.getText()) == "|":
-			op = "Or"
+			op = "util.tconorm_vectorized"
 		elif str(ctx.getText()) == "^":
-			op = "Xor"
+			op = "util.continuous_xor"
 		return op
 	
 	def visitModule_or_generate_item_declaration(self, ctx: Verilog2001Parser.Module_or_generate_item_declarationContext):

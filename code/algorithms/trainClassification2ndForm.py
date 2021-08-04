@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import func_spec
 
 # weight init
 def init_weights(m):
@@ -23,16 +24,7 @@ def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_siz
             tgts = tgts.reshape((-1)).to(device)
             out = cln(inps)
             inpOut = torch.cat((inps, out), dim=1)
-            if spec == 1:
-                fOut = util.spec1(inpOut.T, name).to(device)
-            elif spec == 2:
-                fOut = util.spec2(inpOut.T, name).to(device)
-            elif spec == 3:
-                fOut = util.spec3(inpOut.T, name).to(device)
-            elif spec == 4:
-                fOut = util.spec4(inpOut.T, name).to(device)
-            elif spec == 5:
-                fOut = util.spec5(inpOut.T, name).to(device)
+            fOut = func_spec.F(inpOut.T, name, util)
             loss = criterion(fOut, tgts)
             loss = loss + lambda1*torch.linalg.norm(cln.G1, 1) + lambda2*torch.linalg.norm(cln.G2, 1)
             total_epoch_loss += loss

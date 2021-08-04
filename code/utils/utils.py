@@ -1,5 +1,7 @@
 import numpy as np
 import torch
+# from func_spec import F
+import func_spec
 
 # Utilities class
 class utils():
@@ -26,6 +28,9 @@ class utils():
             return torch.multiply(t, u)
         else:
             print("Wrong Name!")
+    
+    def tconorm_vectorized(self, t, u, name):
+        return 1 - self.tnorm_vectorized(1-t, 1-u, name)
 
     # Continuous AND with n inputs
     def tnorm_n_inputs(self, inp, name):
@@ -45,7 +50,7 @@ class utils():
     def continuous_xor(self, x, y, name):
         t = self.tnorm_vectorized(1-x, y, name)
         u = self.tnorm_vectorized(x, 1-y, name)
-        return 1 - self.tnorm_vectorized(1-t, 1-u, name)
+        return self.tconorm_vectorized(t, u, name)
     
     def continuous_xor_vectorized(self, inp_vars, name):
         op1 = inp_vars[0, :]
@@ -53,7 +58,7 @@ class utils():
             op2 = inp_vars[i+1, :]
             t = self.tnorm_vectorized(1-op1, op2, name)
             u = self.tnorm_vectorized(op1, 1-op2, name)
-            res = 1-self.tnorm_vectorized(1-t, 1-u, name)
+            res = self.tconorm_vectorized(t, u, name)
             op1 = res
         return res
     
@@ -115,34 +120,53 @@ class utils():
     def spec3(self, inp_vars, name):
         res1 = self.tnorm_vectorized(inp_vars[0, :], inp_vars[1, :], name)
         res2 = self.continuous_xor(inp_vars[2, :], inp_vars[3, :], name)
-        return 1-self.tnorm_vectorized(1-res1, 1-res2, name)
+        return self.tconorm_vectorized(res1, res2, name)
     
     def spec4(self, inp_vars, name):
         return self.continuous_xor_vectorized(inp_vars, name)
 
     def spec5(self, inp_vars, name):
-        res1 = 1 - self.tnorm_vectorized(1-inp_vars[0, :], 1-inp_vars[1, :], name)
+        res1 = self.tconorm_vectorized(inp_vars[0, :], inp_vars[1, :], name)
         res2 = self.tnorm_vectorized(inp_vars[2, :], inp_vars[3, :], name)
         res3 = self.continuous_xor(res1, res2, name)
         return self.continuous_xor(res3, inp_vars[4, :], name)
+    
+    def spec6(self, inp_vars, name):
+        res1 = self.tconorm_vectorized(inp_vars[0, :], inp_vars[1, :], name)
+        res2 = self.tnorm_vectorized(inp_vars[2, :], inp_vars[3, :], name)
+        res3 = self.tconorm_vectorized(res1, res2, name)
+        return self.continuous_xor(res3, inp_vars[4, :], name)
+    
+    def spec7(self, inp_vars, name):
+        a1 = 1 - self.continuous_xor(self.continuous_xor(inp_vars[0, :], inp_vars[5, :], name), inp_vars[7, :], name)
+        a2 = 1 - self.continuous_xor(self.continuous_xor(self.continuous_xor(
+            self.tnorm_vectorized(
+                inp_vars[0, :], inp_vars[5, :], name), inp_vars[4, :], name), inp_vars[6, :], name), inp_vars[8, :]
+                , name)
+        t1 = self.tnorm_vectorized(inp_vars[4, :], inp_vars[6, :], name)
+        t2 = self.tnorm_vectorized(inp_vars[0, :], inp_vars[5, :], name)
+        t3 = self.continuous_xor(inp_vars[4, :], inp_vars[6, :], name)
+        t4 = self.tnorm_vectorized(t2, t3, name)
+        t5 = 1 - self.tnorm_vectorized(1-t1, 1-t4, name)
+        a3 = 1 - self.continuous_xor(t5, inp_vars[3, :], name)
+        a4 = 1 - self.continuous_xor(1 - inp_vars[9, :], inp_vars[1, :], name)
+        a5 = 1 - self.continuous_xor(inp_vars[10, :], 1 - self.tnorm_vectorized(1 - inp_vars[0, :], 1 - inp_vars[12, :], name), name)
+        a6 = 1 - self.continuous_xor(inp_vars[11, :], self.tnorm_vectorized(inp_vars[4, :], inp_vars[10, :], name), name)
+        a7 = 1 - self.continuous_xor(inp_vars[12, :], 1 - self.tnorm_vectorized(1 - inp_vars[5, :], 1 - inp_vars[11, :], name), name)
+        res1 = self.tnorm_vectorized(a1, a2, name)
+        res2 = self.tnorm_vectorized(res1, a3, name)
+        res3 = self.tnorm_vectorized(res2, a4, name)
+        res4 = self.tnorm_vectorized(res3, a5, name)
+        res5 = self.tnorm_vectorized(res4, a6, name)
+        return self.tnorm_vectorized(res5, a7, name)
 
     # Fractional Sampling
-    def fractional_sampling(self, no_of_samples, name, threshold, no_of_input_var, spec):
+    def fractional_sampling(self, no_of_samples, util, name, threshold, no_of_input_var):
         inp_vars = torch.from_numpy(np.random.uniform(0, 1, (no_of_input_var+1, no_of_samples)))
-        if spec == 1:
-            res = self.spec1(inp_vars, name)
-        elif spec == 2:
-            res = self.spec2(inp_vars, name)
-        elif spec == 3:
-            res = self.spec3(inp_vars, name)
-        elif spec == 4:
-            res = self.spec4(inp_vars, name)
-        elif spec == 5:
-            res = self.spec5(inp_vars, name)
-        
+        res = func_spec.F(inp_vars, name, util)
         samples = inp_vars[:, res >= threshold].T
         cov = torch.stack((samples[:, 0], samples[:, -1])).T
-        print("shape: ", torch.stack((samples[:, 2], samples[:, -1])).shape)
+        # print("shape: ", torch.stack((samples[:, 2], samples[:, -1])).shape)
         print("covariance: ", cov)
         if torch.all(cov) > 0:
             print("Positively Correlated")

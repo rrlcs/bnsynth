@@ -1,5 +1,7 @@
 import os
 import argparse
+
+from matplotlib.pyplot import pause
 from data.dataLoader import dataLoader
 import torch
 import torch.nn as nn
@@ -13,6 +15,7 @@ from code.utils.utils import utils
 from code.model import gcln as gcln
 from code.utils import plot as pt
 from code.utils import getSkolemFunc as skf
+from compareWithManthan.MyApp2 import build_spec
 
 # Init utilities
 util = utils()
@@ -35,15 +38,22 @@ if __name__ == "__main__":
 
 	# training_size = min(args.no_of_samples, 50000)
 	training_size = args.no_of_samples
-	output_var_pos = args.no_of_input_var
-	input_size = 2*args.no_of_input_var
+	
+	
 	device = 'cuda' if torch.cuda.is_available() else 'cpu'
+	F, num_of_vars, num_out_vars = build_spec(args.spec)
+	no_of_input_var = num_of_vars - num_out_vars
+	output_var_pos = no_of_input_var
+	input_size = 2*no_of_input_var
+	print(F)
+	print(no_of_input_var)
+	# exit()
 
 	# generate training data
-	training_samples = generateTrainData(args.P, util, args.no_of_samples, args.tnorm_name, args.spec, args.threshold, args.no_of_input_var, args.correlated_sampling)
+	training_samples = generateTrainData(args.P, util, args.no_of_samples, args.tnorm_name, args.spec, args.threshold, no_of_input_var, args.correlated_sampling)
 
 	# load data
-	train_loader = dataLoader(training_samples, training_size, args.P, args.no_of_input_var, output_var_pos, args.threshold, args.batch_size, TensorDataset, DataLoader)
+	train_loader = dataLoader(training_samples, training_size, args.P, no_of_input_var, output_var_pos, args.threshold, args.batch_size, TensorDataset, DataLoader)
 
 	'''
 	Select Problem:
@@ -63,7 +73,7 @@ if __name__ == "__main__":
 			cln = gcln.CLN(input_size, args.K, device, args.tnorm_name, args.P, p=0).to(device)
 			cln.load_state_dict(torch.load("regressor"))
 			cln.eval()
-		skf.get_skolem_function(cln, args.no_of_input_var, args.threshold, args.K)
+		skf.get_skolem_function(cln, no_of_input_var, args.threshold, args.K)
 	elif args.P == 1:
 		if args.train:
 			loss_fn = nn.BCEWithLogitsLoss()
@@ -73,7 +83,7 @@ if __name__ == "__main__":
 			cln = gcln.CLN(input_size, args.K, device, args.tnorm_name, args.P, p=0).to(device)
 			cln.load_state_dict(torch.load("classifier1"))
 			cln.eval()
-		skf.get_skolem_function(cln, args.no_of_input_var, args.threshold, args.K)
+		skf.get_skolem_function(cln, no_of_input_var, args.threshold, args.K)
 	elif args.P == 2:
 		if args.train:
 			loss_fn = nn.BCEWithLogitsLoss()
@@ -83,7 +93,7 @@ if __name__ == "__main__":
 			cln = gcln.CLN(input_size, args.K, device, args.tnorm_name, args.P, p=0).to(device)
 			cln.load_state_dict(torch.load("classifier2"))
 			cln.eval()
-		skf.get_skolem_function(cln, args.no_of_input_var, args.threshold, args.K)
+		skf.get_skolem_function(cln, no_of_input_var, args.threshold, args.K)
 
 	if args.train:
 		f = open("lossess", "w")
