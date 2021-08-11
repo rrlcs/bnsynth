@@ -1,6 +1,6 @@
 from antlr4 import *
-from Verilog2001Parser import Verilog2001Parser
-from Verilog2001Visitor import Verilog2001Visitor
+from compareWithManthan.Verilog2001Parser import Verilog2001Parser
+from compareWithManthan.Verilog2001Visitor import Verilog2001Visitor
 
 class verilogVisitor(Verilog2001Visitor):
 	def __init__(self, spec) -> None:
@@ -43,10 +43,14 @@ class verilogVisitor(Verilog2001Visitor):
 		eqn = [i[:-3]+")" for i in eqn]
 		eq = '\n'.join(eqn)
 		inp = inp[:-2]
-		z3constraint1 = "nn_out = $$"
+		z3constraint1 = ""
+		assign = ""
+		for i in range(len(output_vars)):
+			z3constraint1 += "nn_out"+str(i)+" = $$"+str(i)+"\n"
+			assign += output_vars[i]+" = nn_out"+str(i)+"\n"
 		z3constraint2 = eq
 		exists_constraint = "z1 = Exists("+output_vars[0]+", out)"
-		assign = output_vars[0]+" = nn_out"
+		
 		quant_free_constraint = "z2 = out"
 		z3filecontent = var_dec+"\n"+z3constraint1+"\n"+z3constraint2+"\n"+exists_constraint+"\n"
 		z3filecontent += assign+"\n"+z3constraint2+"\n"+quant_free_constraint
@@ -102,7 +106,7 @@ class verilogVisitor(Verilog2001Visitor):
 				if i < len(ctx.term()):
 					exp += ","
 			exp += ")"
-		if len(ctx.term()) == 1:
+		if len(ctx.term()) == 1 and type(ctx.term()[0]) != None:
 			exp = self.visit(ctx.term()[0])
 		return exp
 	
@@ -110,6 +114,7 @@ class verilogVisitor(Verilog2001Visitor):
 		term = ""
 		if ctx.unary_operator():
 			term = self.visit(ctx.unary_operator())
+		# print(ctx.primary().getText())
 		term += "("+self.visit(ctx.primary())+")"
 		return term
 	

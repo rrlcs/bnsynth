@@ -8,11 +8,11 @@ def init_weights(m):
         torch.nn.init.xavier_uniform_(m.weight)
         m.bias.data.fill_(0.01)
 
-def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, name, P, torch, CLN, util, spec):
+def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, P, torch, CLN, util, spec):
     lossess = []
     lambda1 = 1e-9
     lambda2 = 1e-9
-    cln = CLN(input_size, K, device, name, P, p=0).to(device)
+    cln = CLN(input_size, K, device, P, p=0).to(device)
     cln.apply(init_weights)
     optimizer = torch.optim.Adam(list(cln.parameters()), lr=learning_rate)
     criterion = loss_fn
@@ -24,7 +24,7 @@ def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_siz
             tgts = tgts.reshape((-1)).to(device)
             out = cln(inps)
             inpOut = torch.cat((inps, out), dim=1)
-            fOut = func_spec.F(inpOut.T, name, util)
+            fOut = func_spec.F(inpOut.T, util)
             loss = criterion(fOut, tgts)
             loss = loss + lambda1*torch.linalg.norm(cln.G1, 1) + lambda2*torch.linalg.norm(cln.G2, 1)
             total_epoch_loss += loss

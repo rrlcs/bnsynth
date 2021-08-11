@@ -1,9 +1,9 @@
 import numpy as np
-def train_regressor(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, name, P, torch, CLN):
+def train_regressor(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, P, torch, CLN):
     lossess = []
     lambda1 = 1e-5
     lambda2 = 5e-4
-    cln = CLN(input_size, K, device, name, P, p=0).to(device)
+    cln = CLN(input_size, K, device, P, p=0).to(device)
     optimizer = torch.optim.Adam(list(cln.parameters()), lr=learning_rate)
     criterion = loss_fn
     cln.train()

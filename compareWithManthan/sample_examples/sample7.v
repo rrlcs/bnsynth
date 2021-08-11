@@ -20,7 +20,7 @@ assign c1 = x_0 ^ x_5;
 wire carry1;
 assign carry1 = (x_0 & x_5);
 wire c2;
-assign c2 = carry1 ^ x_4 ^ x_6;
+assign c2 = ((carry1 ^ x_4) ^ x_6);
 wire carry2;
 assign carry2 = (x_4 & x_6) | (carry1 & (x_4 ^ x_6));
 wire a1;
@@ -45,5 +45,5 @@ wire c6;
 assign c6 = x_5 | i_11 ;
 wire a7;
 assign a7 = ~(i_12 ^ c6);
-assign out = a1 & a2 & a3 &a4 & a5 & a6 & a7;
+assign out = ((((((a1 & a2) & a3) &a4) & a5) & a6) & a7);
 endmodule

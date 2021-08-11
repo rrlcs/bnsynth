@@ -1,6 +1,7 @@
-def dataLoader(training_samples, training_size, P, no_of_input_var, output_var_pos, threshold, batch_size, TensorDataset, DataLoader):
+def dataLoader(training_samples, training_size, P, input_var_idx, output_var_pos, threshold, batch_size, TensorDataset, DataLoader):
 	# Define training data loader
-	inps = training_samples[:training_size, :no_of_input_var]
+	inps = training_samples[:training_size, input_var_idx]
+	print("inpshape: ", inps.shape)
 	tgts = training_samples[:training_size, output_var_pos]
 	if P == 1:
 		tgts = (tgts > threshold).double()

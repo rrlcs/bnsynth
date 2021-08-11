@@ -1,7 +1,31 @@
-def F(inp_vars, name, util):
-	i_0  = inp_vars[0, :]
-	i_1  = inp_vars[1, :]
+def F(inp_vars, util):
+	x_0 = inp_vars[0, :]
+	i_1 = inp_vars[1, :]
 	i_2 = inp_vars[2, :]
-	w1 = util.continuous_xor((i_0),(i_1),name)
-	out = util.continuous_xor((w1),(i_2),name)
+	i_3 = inp_vars[3, :]
+	x_4 = inp_vars[4, :]
+	x_5 = inp_vars[5, :]
+	x_6 = inp_vars[6, :]
+	i_7 = inp_vars[7, :]
+	i_8 = inp_vars[8, :]
+	i_9 = inp_vars[9, :]
+	i_10 = inp_vars[10, :]
+	i_11 = inp_vars[11, :]
+	i_12 = inp_vars[12, :]
+	c1 = util.continuous_xor((x_0),(x_5))
+	carry1 = util.tnorm_vectorized((x_0),(x_5))
+	c2 = util.continuous_xor((util.continuous_xor((carry1),(x_4))),(x_6))
+	carry2 = util.tconorm_vectorized((util.tnorm_vectorized((x_4),(x_6))),(util.tnorm_vectorized((carry1),(util.continuous_xor((x_4),(x_6))))))
+	a1 = util.negation(util.continuous_xor((c1),(i_7)))
+	a2 = util.negation(util.continuous_xor((c2),(i_8)))
+	a3 = util.negation(util.continuous_xor((carry2),(i_3)))
+	c3 = util.negation(i_9)
+	a4 = util.negation(util.continuous_xor((c3),(i_1)))
+	c4 = util.tconorm_vectorized((x_0),(i_12))
+	a5 = util.negation(util.continuous_xor((i_10),(c4)))
+	c5 = util.tnorm_vectorized((x_4),(i_10))
+	a6 = util.negation(util.continuous_xor((i_11),(c5)))
+	c6 = util.tconorm_vectorized((x_5),(i_11))
+	a7 = util.negation(util.continuous_xor((i_12),(c6)))
+	out = util.tnorm_vectorized((util.tnorm_vectorized((util.tnorm_vectorized((util.tnorm_vectorized((util.tnorm_vectorized((util.tnorm_vectorized((a1),(a2))),(a3))),(a4))),(a5))),(a6))),(a7))
 	return out

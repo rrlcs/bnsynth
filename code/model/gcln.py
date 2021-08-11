@@ -5,7 +5,7 @@ from run import util
 # Gated CLN
 class CLN(torch.nn.Module):
     literal_pairs = []
-    def __init__(self, input_size, K, device, name, P, p=0):
+    def __init__(self, input_size, K, device, P, p=0):
         super(CLN, self).__init__()
         self.device = device
         self.P = P
@@ -28,8 +28,6 @@ class CLN(torch.nn.Module):
         self.b1 = torch.nn.Parameter(torch.randn((self.input_size, K)).to(self.device))
         # self.b2.shape: K x 1
         self.b2 = torch.nn.Parameter(torch.randn((K, 1)).to(self.device))
-        
-        self.name = name
 
     def apply_gates(self, x, y):
         return torch.mul(x, y)
@@ -57,7 +55,7 @@ class CLN(torch.nn.Module):
         # print(gated_inputs.shape)
 
         # or_res.shape: batch_size x K
-        or_res = 1 - util.tnorm_n_inputs(1 - gated_inputs, self.name)
+        or_res = 1 - util.tnorm_n_inputs(1 - gated_inputs)
         or_res = or_res.unsqueeze(-1)
         # print(or_res.shape)
         # neg_or_res = 1 - or_res
@@ -72,6 +70,6 @@ class CLN(torch.nn.Module):
         # print(gated_or_res.shape)
 
         # out.shape: batch_size x 1
-        out = util.tnorm_n_inputs(gated_or_res, self.name).to(self.device)
+        out = util.tnorm_n_inputs(gated_or_res).to(self.device)
 
         return out
