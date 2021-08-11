@@ -26,8 +26,8 @@ pip3 install numpy
 pip3 install argparse
 ```
 
-## To run without Hyperparameter Search
-```git checkout 2dc92eba65de1d61fa6a973239eeccf8d7d3b87a```
+## Switch to updated branch
+```git checkout autotest```
 
 ## To switch to writeup branch
 ```git checkout writeup```
