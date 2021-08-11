@@ -49,6 +49,12 @@ python3 run.py --th=0.5 --P=0 --correlated_sampling=0 --train=1 --no_of_samples=
 - no_of_input_vars: input variables in the specification
 - spec: selects specification from the set of given specifications
 
+## Run autotest on 6 samples
+1. Regression: ```./script/regression.sh```
+2. Classification 1: ```./script/classification1.sh```
+3. Classification 2: ```./script/classification2.sh```
+4. Classification 3: ```./script/classification3.sh```
+
 ## More information on options:
 ```
 python run.py --help
