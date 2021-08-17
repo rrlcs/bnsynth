@@ -14,9 +14,9 @@ from code.algorithms import trainClassification2ndForm as tc2
 from code.utils.utils import utils
 from code.utils import plot as pt
 from code.utils import getSkolemFunc as skf
-from compareWithManthan.verilog2python import build_spec
-from compareWithManthan.verilog2z3 import preparez3
-from compareWithManthan.verilogPreprocess import verilog_preprocess
+from data_preparation_and_result_checking.verilog2python import build_spec
+from data_preparation_and_result_checking.verilog2z3 import preparez3
+from data_preparation_and_result_checking.verilogPreprocess import verilog_preprocess
 
 # Init utilities
 util = utils()
@@ -36,6 +36,7 @@ if __name__ == "__main__":
 	parser.add_argument("--train", type=int, default=0, help="1/0; 0 loads the saved model")
 	parser.add_argument("--correlated_sampling", type=int, default=0, help="1/0")
 	parser.add_argument("--verilog_spec", type=str, default="sample1", help="Enter file name")
+	parser.add_argument("--verilog_spec_location", type=str, default="sample_examples", help="Enter file location")
 	args = parser.parse_args()
 
 	util.name = args.tnorm_name
@@ -44,9 +45,9 @@ if __name__ == "__main__":
 
 	device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-	verilog_preprocess(args.verilog_spec)
+	# verilog_preprocess(args.verilog_spec, args.verilog_spec_location)
 	# exit()
-	F, num_of_vars, num_out_vars, output_var_idx, io_dict = build_spec(args.verilog_spec)
+	F, num_of_vars, num_out_vars, output_var_idx, io_dict = build_spec(args.verilog_spec, args.verilog_spec_location)
 	var_indices = [i for i in range(num_of_vars)]
 	input_var_idx = torch.tensor([x for x in var_indices if x not in output_var_idx])
 
@@ -124,6 +125,6 @@ if __name__ == "__main__":
 	f.write(skolem_functions[:-1])
 	f.close()
 	# Check Validity
-	preparez3(args.verilog_spec, output_var_idx)
+	preparez3(args.verilog_spec, args.verilog_spec_location)
 	# Run the Validity Checker
-	os.system("python3 compareWithManthan/z3ValidityChecker.py")
+	os.system("python3 data_preparation_and_result_checking/z3ValidityChecker.py")
