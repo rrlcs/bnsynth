@@ -3,10 +3,10 @@ import torch.nn as nn
 from run import util
 
 # Gated CLN
-class CLN(torch.nn.Module):
+class GCLN(torch.nn.Module):
     literal_pairs = []
     def __init__(self, input_size, K, device, P, p=0):
-        super(CLN, self).__init__()
+        super(GCLN, self).__init__()
         self.device = device
         self.P = P
         self.input_size = input_size
@@ -66,7 +66,7 @@ class CLN(torch.nn.Module):
         # gated_or_res.shape: batch_size x K
         gated_or_res = self.apply_gates(self.G2, or_res)
         gated_or_res = torch.add(gated_or_res, 1 - self.G2, alpha=1)
-        # gated_or_res = self.apply_bias(gated_or_res, self.b2)
+        gated_or_res = self.apply_bias(gated_or_res, self.b2)
         # print(gated_or_res.shape)
 
         # out.shape: batch_size x 1

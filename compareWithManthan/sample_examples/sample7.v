@@ -45,5 +45,5 @@ wire c6;
 assign c6 = x_5 | i_11 ;
 wire a7;
 assign a7 = ~(i_12 ^ c6);
-assign out = ((((((a1 & a2) & a3) &a4) & a5) & a6) & a7);
+assign out = a1 & a2 & a3 &a4 & a5 & a6 & a7;
 endmodule

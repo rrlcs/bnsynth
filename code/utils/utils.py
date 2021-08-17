@@ -46,10 +46,10 @@ class utils():
         u = self.tnorm_vectorized(x, 1-y)
         return self.tconorm_vectorized(t, u)
     
-    def continuous_xor_vectorized(self, inp_vars):
-        op1 = inp_vars[0, :]
-        for i in range(inp_vars.shape[0]-1):
-            op2 = inp_vars[i+1, :]
+    def continuous_xor_vectorized(self, XY_vars):
+        op1 = XY_vars[0, :]
+        for i in range(XY_vars.shape[0]-1):
+            op2 = XY_vars[i+1, :]
             t = self.tnorm_vectorized(1-op1, op2)
             u = self.tnorm_vectorized(op1, 1-op2)
             res = self.tconorm_vectorized(t, u)
@@ -114,16 +114,15 @@ class utils():
         numbers += first_interval.min()
         numbers[numbers > first_interval.max()] += second_interval.min()-first_interval.max()
 
-        inp_vars = torch.from_numpy(numbers)
+        XY_vars = torch.from_numpy(numbers)
 
-        res = func_spec.F(inp_vars, util)
-        samples = inp_vars[:, res >= threshold].T
+        res = func_spec.F(XY_vars, util)
+        samples = XY_vars[:, res >= threshold].T
         cov = torch.stack((samples[:, 0], samples[:, -1])).T
         if torch.all(cov) > 0:
             print("Positively Correlated")
         x = samples[:, 0]
         y = samples[:, -1]
-        print(x.shape, y.shape)
         vx = x - torch.mean(x)
         vy = y - torch.mean(y)
         correlation_coefficient = torch.sum(vx * vy) / (torch.sqrt(torch.sum(vx ** 2)) * torch.sqrt(torch.sum(vy ** 2)))
@@ -144,9 +143,9 @@ class utils():
         numbers += first_interval.min()
         numbers[numbers > first_interval.max()] += second_interval.min()-first_interval.max()
 
-        inp_vars = torch.from_numpy(numbers)
-        res = func_spec.F(inp_vars, util)
-        samples = inp_vars[:num_of_vars, :]
+        XY_vars = torch.from_numpy(numbers)
+        res = func_spec.F(XY_vars, util)
+        samples = XY_vars[:num_of_vars, :]
         outs = (res > threshold).double()
         train_samples = torch.cat((samples.T, outs.reshape(-1, 1)), dim=1)
         sorted_data = torch.stack(sorted(train_samples, key=lambda train_samples: train_samples[-1], reverse=True))
@@ -166,30 +165,30 @@ class utils():
         numbers += first_interval.min()
         numbers[numbers > first_interval.max()] += second_interval.min()-first_interval.max()
 
-        inp_vars = torch.from_numpy(numbers)
+        XY_vars = torch.from_numpy(numbers)
         if num_of_vars == 1:
             data = []
-            for i in range(inp_vars.shape[1]):
-                if inp_vars[0, i] > threshold:
-                    t1 = torch.cat([inp_vars[0, i].unsqueeze(-1), 1-inp_vars[0, i].unsqueeze(-1)], dim=0)
+            for i in range(XY_vars.shape[1]):
+                if XY_vars[0, i] > threshold:
+                    t1 = torch.cat([XY_vars[0, i].unsqueeze(-1), 1-XY_vars[0, i].unsqueeze(-1)], dim=0)
                     data.append(t1)
-                    t2 = torch.cat([inp_vars[0, i].unsqueeze(-1), inp_vars[0, i].unsqueeze(-1)], dim=0)
+                    t2 = torch.cat([XY_vars[0, i].unsqueeze(-1), XY_vars[0, i].unsqueeze(-1)], dim=0)
                     data.append(t2)
             train_samples = torch.stack(data)
-            res = func_spec.F(inp_vars, util)
+            res = func_spec.F(XY_vars, util)
             outs = (res > threshold).double()
             # print(outs)
             train_samples = torch.cat((train_samples[:, :num_of_vars], outs.reshape(-1, 1)), dim=1)
             print("Corr Train Data Generated: ", train_samples.shape)
             return train_samples
-        res = self.continuous_xor_vectorized(inp_vars)
+        res = self.continuous_xor_vectorized(XY_vars)
         # print("res", res.shape)
         data = []
         for i in range(res.shape[0]):
             if res[i] > threshold:
-                t1 = torch.cat([inp_vars[:,i], 1-res[i].unsqueeze(-1)], dim=0)
+                t1 = torch.cat([XY_vars[:,i], 1-res[i].unsqueeze(-1)], dim=0)
                 data.append(t1)
-                t2 = torch.cat([inp_vars[:,i], res[i].unsqueeze(-1)], dim=0)
+                t2 = torch.cat([XY_vars[:,i], res[i].unsqueeze(-1)], dim=0)
                 data.append(t2)
         train_samples = torch.stack(data)
         print(train_samples.shape)

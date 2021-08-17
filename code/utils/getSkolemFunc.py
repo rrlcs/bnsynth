@@ -1,11 +1,17 @@
 import io
 import numpy as np
 
-def get_skolem_function(cln, no_of_input_var, input_var_idx, output_var_pos, io_dict, threshold, K):
-	G1 = cln.G1.cpu().detach().numpy()
-	G2 = cln.G2.cpu().detach().numpy()
-	b1 = cln.b1.cpu().detach().numpy()
-	b2 = cln.b2.cpu().detach().numpy()
+def get_skolem_function(gcln, no_of_input_var, input_var_idx, output_var_pos, io_dict, threshold, K):
+	'''
+	Input: Learned model parameters
+	Output: Skolem Functions
+	Functionality: Reads the model weights (G1, G2) and builds the skolem function based on it.
+	'''
+
+	G1 = gcln.G1.cpu().detach().numpy()
+	G2 = gcln.G2.cpu().detach().numpy()
+	b1 = gcln.b1.cpu().detach().numpy()
+	b2 = gcln.b2.cpu().detach().numpy()
 
 	literals = []
 	neg_literals = []
@@ -13,7 +19,6 @@ def get_skolem_function(cln, no_of_input_var, input_var_idx, output_var_pos, io_
 		literals.append(io_dict.get(i.item()))
 		neg_literals.append("~"+io_dict.get(i.item()))
 	clause = np.array(literals + neg_literals)
-	print("clause: ", clause)
 	clauses = []
 	for i in range(K):
 		mask = G1[:, i] > threshold
