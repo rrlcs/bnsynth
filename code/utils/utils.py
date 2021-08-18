@@ -105,8 +105,8 @@ class utils():
 
     # Fractional Sampling
     def fractional_sampling(self, no_of_samples, util, threshold, num_of_vars):
-        first_interval = np.array([0, 0.3])
-        second_interval = np.array([0.7, 1])
+        first_interval = np.array([0, 0.01])
+        second_interval = np.array([0.99, 1])
         
         total_length = np.ptp(first_interval)+np.ptp(second_interval)
         n = (num_of_vars, no_of_samples)
