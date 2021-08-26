@@ -1,7 +1,4 @@
-import os
 import antlr4
-import argparse
-from rectify_spec_file import replace_preref
 from data_preparation_and_result_checking.verilogToPythonVisitor import verilogVisitor
 from data_preparation_and_result_checking.Verilog2001Lexer import Verilog2001Lexer
 from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Parser
@@ -25,7 +22,7 @@ def build_spec(verilog_spec, verilog_spec_location):
 	tree = parser.module_declaration()
 	visitor = verilogVisitor(verilog_spec, verilog_spec_location)
 	F, num_out_vars, num_of_vars, output_var_idx, io_dict = visitor.visit(tree)
-	F = replace_preref(F)
+	# f = open("data_preparation_and_result_checking/"+verilog_spec_location+"/"+filename+".py", "w")
 	f = open("func_spec.py", "w")
 	f.write(F)
 	f.close()

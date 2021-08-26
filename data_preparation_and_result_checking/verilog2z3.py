@@ -1,6 +1,7 @@
 import os
 import antlr4
 import argparse
+from rectify_spec_file import replace_preref
 from data_preparation_and_result_checking.verilogToZ3Visitor import verilogVisitor
 from data_preparation_and_result_checking.Verilog2001Lexer import Verilog2001Lexer
 from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Parser
@@ -44,6 +45,7 @@ def preparez3(verilog_spec, verilog_spec_location):
 		with open('data_preparation_and_result_checking/z3ValidityChecker.py', 'r') as file :
 			filedata = file.read()
 		filedata = filedata.replace('$$'+str(i), nnOut)
+		# filedata = replace_preref(filedata)
 		with open('data_preparation_and_result_checking/z3ValidityChecker.py', 'w') as file:
 			file.write(filedata)
 	

@@ -1,6 +1,5 @@
 import numpy as np
 import torch
-# from func_spec import F
 import func_spec
 
 # Utilities class
@@ -31,11 +30,9 @@ class utils():
         if self.name == "luka":
             return torch.max(torch.tensor(0), torch.sum(inp) - 1)
         elif self.name == "godel":
-            # print(inp)
-            out, inds = torch.min(inp, dim=-2)
+            out, _ = torch.min(inp, dim=-2)
             return out
         elif self.name == "product":
-            # print("inp: ", inp.shape)
             return torch.prod(inp, -2)
         else:
             print("Wrong Name!")
@@ -105,29 +102,16 @@ class utils():
 
     # Fractional Sampling
     def fractional_sampling(self, no_of_samples, util, threshold, num_of_vars):
-        first_interval = np.array([0, 0.01])
-        second_interval = np.array([0.99, 1])
-        
+        first_interval = np.array([0, 0.1])
+        second_interval = np.array([0.9, 1])
         total_length = np.ptp(first_interval)+np.ptp(second_interval)
         n = (num_of_vars, no_of_samples)
         numbers = np.random.random(n)*total_length
         numbers += first_interval.min()
         numbers[numbers > first_interval.max()] += second_interval.min()-first_interval.max()
-
         XY_vars = torch.from_numpy(numbers)
-
         res = func_spec.F(XY_vars, util)
         samples = XY_vars[:, res >= threshold].T
-        cov = torch.stack((samples[:, 0], samples[:, -1])).T
-        if torch.all(cov) > 0:
-            print("Positively Correlated")
-        x = samples[:, 0]
-        y = samples[:, -1]
-        vx = x - torch.mean(x)
-        vy = y - torch.mean(y)
-        correlation_coefficient = torch.sum(vx * vy) / (torch.sqrt(torch.sum(vx ** 2)) * torch.sqrt(torch.sum(vy ** 2)))
-        print("Correlation Coefficient: ", correlation_coefficient)
-        # samples = samples[samples[:, -1] < threshold, :]
         print("Train Data Generated: ", samples.shape)
 
         return samples
@@ -158,13 +142,11 @@ class utils():
     def correlated_fractional_sampling(self, no_of_samples, util, threshold, num_of_vars):
         first_interval = np.array([0, 0.3])
         second_interval = np.array([0.7, 1])
-        
         total_length = np.ptp(first_interval)+np.ptp(second_interval)
         n = (num_of_vars, no_of_samples)
         numbers = np.random.random(n)*total_length
         numbers += first_interval.min()
         numbers[numbers > first_interval.max()] += second_interval.min()-first_interval.max()
-
         XY_vars = torch.from_numpy(numbers)
         if num_of_vars == 1:
             data = []
@@ -177,12 +159,10 @@ class utils():
             train_samples = torch.stack(data)
             res = func_spec.F(XY_vars, util)
             outs = (res > threshold).double()
-            # print(outs)
             train_samples = torch.cat((train_samples[:, :num_of_vars], outs.reshape(-1, 1)), dim=1)
-            print("Corr Train Data Generated: ", train_samples.shape)
+            print("Train Data Generated: ", train_samples.shape)
             return train_samples
         res = self.continuous_xor_vectorized(XY_vars)
-        # print("res", res.shape)
         data = []
         for i in range(res.shape[0]):
             if res[i] > threshold:
@@ -191,9 +171,9 @@ class utils():
                 t2 = torch.cat([XY_vars[:,i], res[i].unsqueeze(-1)], dim=0)
                 data.append(t2)
         train_samples = torch.stack(data)
-        print(train_samples.shape)
         res = self.continuous_xor_vectorized(train_samples.T)
         outs = (res > threshold).double()
         train_samples = torch.cat((train_samples[:, :num_of_vars], outs.reshape(-1, 1)), dim=1)
-        print("Corr Train Data Generated: ", train_samples.shape)
+        print("Train Data Generated: ", train_samples.shape)
+        
         return train_samples

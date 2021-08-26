@@ -1,6 +1,6 @@
 // Verilog file written by procedure writeCombinationalCircuitInVerilog
 //Skolem functions to be generated for i_ variables
-module factorization16_simplified ( i2[15], i2[14], i2[13], i2[12], i2[11], i2[10], i2[9], i2[8], i1[15], i1[14], i1[13], i1[12], i1[11], i1[10], i1[9], i1[8], a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15], o_1 );
+module formula_simplified ( i2[15], i2[14], i2[13], i2[12], i2[11], i2[10], i2[9], i2[8], i1[15], i1[14], i1[13], i1[12], i1[11], i1[10], i1[9], i1[8], a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15], o_1 );
 input i2[15];
 input i2[14];
 input i2[13];

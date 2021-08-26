@@ -1,0 +1,21 @@
+Verilog File Name, Num of Vars, Epochs, Samples Enumerated, Validity of NN Output, Synthesis Time
+sample1_preprocessed.v,3,50,20000,Valid,12
+sample2_preprocessed.v,3,50,20000,Valid,11
+sample3_preprocessed.v,4,50,20000,Valid,15
+sample4_preprocessed.v,4,50,20000,Valid,12
+sample5_preprocessed.v,5,50,20000,Valid,12
+sample6_preprocessed.v,5,50,20000,Valid,12
+sample7_preprocessed.v,13,50,5000000,Valid,15
+sample2_preprocessed.v,3,50,20000,Not Valid,4
+sample2_preprocessed.v,3,50,20000,Not Valid,2
+sample2_preprocessed.v,3,50,20000,Valid,37
+sample2_preprocessed.v,3,50,20000,Not Valid,1
+sample2_preprocessed.v,3,50,20000,Not Valid,2
+sample2_preprocessed.v,3,50,20000,Valid,38
+sample1_preprocessed.v,3,50,20000,Not Valid,13
+sample1_preprocessed.v,3,50,20000,Valid,12
+sample1_preprocessed.v,3,50,20000,Valid,12
+sample1_preprocessed.v,3,50,20000,Not Valid,23
+sample1_preprocessed.v,3,50,100000,Valid,110
+sample1_preprocessed.v,3,50,100000,Valid,118
+sample1_preprocessed.v,3,50,100000,Not Valid,119

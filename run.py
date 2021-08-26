@@ -1,7 +1,7 @@
 import os
 import argparse
-
-from matplotlib.pyplot import pause
+import time
+import subprocess
 from data.dataLoader import dataLoader
 import torch
 import torch.nn as nn
@@ -17,6 +17,7 @@ from code.utils import getSkolemFunc as skf
 from data_preparation_and_result_checking.verilog2python import build_spec
 from data_preparation_and_result_checking.verilog2z3 import preparez3
 from data_preparation_and_result_checking.verilogPreprocess import verilog_preprocess
+from data_preparation_and_result_checking.verilog_dag import verilog_dag
 
 # Init utilities
 util = utils()
@@ -36,7 +37,7 @@ if __name__ == "__main__":
 	parser.add_argument("--train", type=int, default=0, help="1/0; 0 loads the saved model")
 	parser.add_argument("--correlated_sampling", type=int, default=0, help="1/0")
 	parser.add_argument("--verilog_spec", type=str, default="sample1", help="Enter file name")
-	parser.add_argument("--verilog_spec_location", type=str, default="sample_examples", help="Enter file location")
+	parser.add_argument("--verilog_spec_location", type=str, default="verilog", help="Enter file location")
 	args = parser.parse_args()
 
 	util.name = args.tnorm_name
@@ -44,12 +45,19 @@ if __name__ == "__main__":
 	training_size = args.no_of_samples
 
 	device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-	# verilog_preprocess(args.verilog_spec, args.verilog_spec_location)
-	# exit()
+	start_time = time.time()
+	verilog_preprocess(args.verilog_spec, args.verilog_spec_location)
+	verilog_dag(args.verilog_spec, args.verilog_spec_location)
+	
 	F, num_of_vars, num_out_vars, output_var_idx, io_dict = build_spec(args.verilog_spec, args.verilog_spec_location)
 	var_indices = [i for i in range(num_of_vars)]
 	input_var_idx = torch.tensor([x for x in var_indices if x not in output_var_idx])
+	end_time = time.time()
+	total_time = end_time - start_time
+	line = args.verilog_spec+","+str(num_of_vars)+","+str(args.epochs)+","+str(args.no_of_samples)+","+str(total_time)+"\n"
+	f = open("preprocess.csv", "a")
+	f.write(line)
+	f.close()
 
 	skolem_functions = ""
 	if args.run_for_all_outputs:
@@ -61,7 +69,6 @@ if __name__ == "__main__":
 		output_var_pos = output_var_idx[i]
 		var_idx_except_one_out = torch.tensor([x for x in var_indices if x != output_var_pos])
 		input_size = 2*len(input_var_idx)
-		# exit()
 
 		# generate training data
 		training_samples = generateTrainData(args.P, util, args.no_of_samples, args.threshold, num_of_vars, input_var_idx, args.correlated_sampling)
@@ -69,7 +76,6 @@ if __name__ == "__main__":
 		# load data
 		train_loader = dataLoader(training_samples, training_size, args.P, input_var_idx, output_var_pos, args.threshold, args.batch_size, TensorDataset, DataLoader)
 
-		# exit()
 		'''
 		Select Problem:
 		0: Regression
@@ -124,7 +130,20 @@ if __name__ == "__main__":
 	f = open("nn_output", "w")
 	f.write(skolem_functions[:-1])
 	f.close()
-	# Check Validity
+
 	preparez3(args.verilog_spec, args.verilog_spec_location)
+
 	# Run the Validity Checker
-	os.system("python3 data_preparation_and_result_checking/z3ValidityChecker.py")
+	proc = subprocess.Popen("python3 data_preparation_and_result_checking/z3ValidityChecker.py", stdout=subprocess.PIPE, shell=True)
+	result = proc.communicate()[0]
+	result = str(result).replace("\n", "")
+	result = result[2:-3]
+	proc.terminate()
+	end_time = time.time()
+	total_time = int(end_time - start_time)
+	print("Time = ", end_time - start_time)
+	print("Result: ", result)
+	line = args.verilog_spec+","+str(num_of_vars)+","+str(args.epochs)+","+str(args.no_of_samples)+","+result+","+str(total_time)+"\n"
+	f = open("results.csv", "a")
+	f.write(line)
+	f.close()

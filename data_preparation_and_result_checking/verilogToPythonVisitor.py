@@ -1,10 +1,7 @@
 from typing import OrderedDict
-
-from matplotlib.pyplot import axes, flag
 from antlr4 import *
 from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Parser
 from data_preparation_and_result_checking.Verilog2001Visitor import Verilog2001Visitor
-import json
 
 class verilogVisitor(Verilog2001Visitor):
 	def __init__(self, verilog_spec, verilog_spec_location) -> None:

@@ -1,6 +1,6 @@
 // skolem function for order file variables
 // Generated using findDep.cpp 
-module small-bug1-fixpoint-4 (v_1, v_2, v_3, v_4, v_5, v_6, v_7, v_8, v_9, v_10, v_11, v_12, v_13, v_14, v_15, v_16, v_17, v_18, v_19, v_20, v_21, v_22, v_23, v_24, v_25, o_1);
+module formula (v_1, v_2, v_3, v_4, v_5, v_6, v_7, v_8, v_9, v_10, v_11, v_12, v_13, v_14, v_15, v_16, v_17, v_18, v_19, v_20, v_21, v_22, v_23, v_24, v_25, o_1);
 input v_1;
 input v_2;
 input v_3;

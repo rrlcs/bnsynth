@@ -1,0 +1,70 @@
+x_0
+i_1
+i_2
+i_3
+x_4
+x_5
+x_6
+i_7
+i_8
+i_9
+i_10
+i_11
+i_12
+c1
+carry1
+c2
+carry2
+a1
+a2
+a3
+c3
+a4
+c4
+a5
+c5
+a6
+c6
+a7
+out
+
+carry1,x_0,[assign carry1 = (x_0 & x_5)]
+carry1,x_5,[assign carry1 = (x_0 & x_5)]
+c6,x_5,[assign c6 = (x_5 | i_11)]
+c6,i_11,[assign c6 = (x_5 | i_11)]
+c5,x_4,[assign c5 = (x_4 & i_10)]
+c5,i_10,[assign c5 = (x_4 & i_10)]
+c4,x_0,[assign c4 = (x_0 | i_12)]
+c4,i_12,[assign c4 = (x_0 | i_12)]
+c3,i_9,[assign c3 = ~i_9]
+carry2,x_4,[assign carry2 = (((x_4 & x_6)) | ((carry1 & ((x_4 ^ x_6)))))]
+carry2,x_6,[assign carry2 = (((x_4 & x_6)) | ((carry1 & ((x_4 ^ x_6)))))]
+carry2,carry1,[assign carry2 = (((x_4 & x_6)) | ((carry1 & ((x_4 ^ x_6)))))]
+carry2,x_4,[assign carry2 = (((x_4 & x_6)) | ((carry1 & ((x_4 ^ x_6)))))]
+carry2,x_6,[assign carry2 = (((x_4 & x_6)) | ((carry1 & ((x_4 ^ x_6)))))]
+c2,carry1,[assign c2 = (((carry1 ^ x_4)) ^ x_6)]
+c2,x_4,[assign c2 = (((carry1 ^ x_4)) ^ x_6)]
+c2,x_6,[assign c2 = (((carry1 ^ x_4)) ^ x_6)]
+c1,x_0,[assign c1 = (x_0 ^ x_5)]
+c1,x_5,[assign c1 = (x_0 ^ x_5)]
+a7,i_12,[assign a7 = ~((i_12 ^ c6))]
+a7,c6,[assign a7 = ~((i_12 ^ c6))]
+a6,i_11,[assign a6 = ~((i_11 ^ c5))]
+a6,c5,[assign a6 = ~((i_11 ^ c5))]
+a5,i_10,[assign a5 = ~((i_10 ^ c4))]
+a5,c4,[assign a5 = ~((i_10 ^ c4))]
+a4,c3,[assign a4 = ~((c3 ^ i_1))]
+a4,i_1,[assign a4 = ~((c3 ^ i_1))]
+a3,carry2,[assign a3 = ~((carry2 ^ i_3))]
+a3,i_3,[assign a3 = ~((carry2 ^ i_3))]
+a2,c2,[assign a2 = ~((c2 ^ i_8))]
+a2,i_8,[assign a2 = ~((c2 ^ i_8))]
+a1,c1,[assign a1 = ~((c1 ^ i_7))]
+a1,i_7,[assign a1 = ~((c1 ^ i_7))]
+out,a1,[assign out = (((((((((((a1 & a2)) & a3)) & a4)) & a5)) & a6)) & a7)]
+out,a2,[assign out = (((((((((((a1 & a2)) & a3)) & a4)) & a5)) & a6)) & a7)]
+out,a3,[assign out = (((((((((((a1 & a2)) & a3)) & a4)) & a5)) & a6)) & a7)]
+out,a4,[assign out = (((((((((((a1 & a2)) & a3)) & a4)) & a5)) & a6)) & a7)]
+out,a5,[assign out = (((((((((((a1 & a2)) & a3)) & a4)) & a5)) & a6)) & a7)]
+out,a6,[assign out = (((((((((((a1 & a2)) & a3)) & a4)) & a5)) & a6)) & a7)]
+out,a7,[assign out = (((((((((((a1 & a2)) & a3)) & a4)) & a5)) & a6)) & a7)]

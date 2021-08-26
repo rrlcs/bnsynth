@@ -8,7 +8,7 @@ class verilogVisitor(Verilog2001Visitor):
 		super().__init__()
 	def visitModule_declaration(self, ctx: Verilog2001Parser.Module_declarationContext):
 		module = "module "
-		module += self.visit(ctx.module_identifier())
+		module += "formula"
 		io = self.visit(ctx.list_of_ports())+";"
 		z3filecontent = ""
 		inp = aux = var_out = ""
