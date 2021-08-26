@@ -1,4 +1,3 @@
-from matplotlib.pyplot import axes, flag
 from antlr4 import *
 from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Parser
 from data_preparation_and_result_checking.Verilog2001Visitor import Verilog2001Visitor

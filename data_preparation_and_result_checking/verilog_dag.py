@@ -1,5 +1,4 @@
 import antlr4
-from rectify_spec_file import replace_preref
 from data_preparation_and_result_checking.verilogDagVisitor import verilogVisitor
 from data_preparation_and_result_checking.Verilog2001Lexer import Verilog2001Lexer
 from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Parser
