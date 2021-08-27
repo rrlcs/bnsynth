@@ -1,7 +1,4 @@
-import os
 import antlr4
-import argparse
-from rectify_spec_file import replace_preref
 from data_preparation_and_result_checking.verilogToZ3Visitor import verilogVisitor
 from data_preparation_and_result_checking.Verilog2001Lexer import Verilog2001Lexer
 from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Parser

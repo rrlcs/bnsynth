@@ -58,21 +58,22 @@ if __name__ == "__main__":
 	f = open("preprocess.csv", "a")
 	f.write(line)
 	f.close()
+	# exit()
 
 	skolem_functions = ""
 	if args.run_for_all_outputs:
 		num_of_outputs = len(output_var_idx)
 	else:
 		num_of_outputs = 1
+
+	# generate training data
+	training_samples = generateTrainData(args.P, util, args.no_of_samples, args.threshold, num_of_vars, input_var_idx, args.correlated_sampling)
+
 	for i in range(num_of_outputs):
 		from code.model import gcln as gcln
 		output_var_pos = output_var_idx[i]
-		var_idx_except_one_out = torch.tensor([x for x in var_indices if x != output_var_pos])
+		# var_idx_except_one_out = torch.tensor([x for x in var_indices if x != output_var_pos])
 		input_size = 2*len(input_var_idx)
-
-		# generate training data
-		training_samples = generateTrainData(args.P, util, args.no_of_samples, args.threshold, num_of_vars, input_var_idx, args.correlated_sampling)
-
 		# load data
 		train_loader = dataLoader(training_samples, training_size, args.P, input_var_idx, output_var_pos, args.threshold, args.batch_size, TensorDataset, DataLoader)
 
