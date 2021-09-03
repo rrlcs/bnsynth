@@ -1,10 +1,18 @@
 i_0
 i_1
 i_2
+i_3
+i_4
 w1
+w2
+w3
 out
 
-w1,i_0,[assign w1 = (i_0 ^ i_1)]
-w1,i_1,[assign w1 = (i_0 ^ i_1)]
-out,w1,[assign out = (w1 ^ i_2)]
-out,i_2,[assign out = (w1 ^ i_2)]
+w1,i_0,[assign w1 = (i_0 | i_1)]
+w1,i_1,[assign w1 = (i_0 | i_1)]
+w2,i_2,[assign w2 = (i_2 & i_3)]
+w2,i_3,[assign w2 = (i_2 & i_3)]
+w3,w1,[assign w3 = (w1 | w2)]
+w3,w2,[assign w3 = (w1 | w2)]
+out,w3,[assign out = (w3 ^ i_4)]
+out,i_4,[assign out = (w3 ^ i_4)]

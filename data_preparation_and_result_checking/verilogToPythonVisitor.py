@@ -9,7 +9,10 @@ class verilogVisitor(Verilog2001Visitor):
 		self.verilog_spec = verilog_spec
 		self.verilog_spec_location = verilog_spec_location
 	def visitModule_declaration(self, ctx: Verilog2001Parser.Module_declarationContext):
-		filename = self.verilog_spec.split("_preprocessed.v")[0]+"_varstoelim.txt"
+		if "preprocessed" in self.verilog_spec:
+			filename = self.verilog_spec.split("_preprocessed.v")[0]+"_varstoelim.txt"
+		else:
+			filename = self.verilog_spec.split(".v")[0]+"_varstoelim.txt"
 		f = open("data_preparation_and_result_checking/"+self.verilog_spec_location+"/Yvarlist/"+filename, "r")
 		output = f.read()
 		output_vars = output.split("\n")[:-1]
@@ -53,7 +56,7 @@ class verilogVisitor(Verilog2001Visitor):
 
 		var_defs = "\n".join(var_defs)
 		io_dict = OrderedDict(io_dict)
-		output_var_idx = [list(io_dict.values()).index(output_vars[i]) for i in range(len(output_vars))]
+		output_var_idx = [list(io_dict.values()).index(output_vars[i]) for i in range(len(output_vars)) if output_vars[i] in io_dict.values()]
 		comb_eqns = ["	"+i[:-2] for i in comb_eqns]
 		eq = '\n'.join(comb_eqns)
 		func_def = "def F(XY_vars, util):\n"

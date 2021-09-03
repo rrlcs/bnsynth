@@ -53,7 +53,7 @@ class verilogVisitor(Verilog2001Visitor):
 		f.close()
 		reverse_topological_sort = resolve_dependency()
 		lvalues = [x for x in reverse_topological_sort if x not in self.input_vars]
-		ordered_eqns = [eqn_dict[lv] for lv in lvalues]
+		ordered_eqns = [eqn_dict[lv] for lv in lvalues if lv in eqn_dict]
 		ordered_eqns = '\n'.join(["	"+"assign "+i[:-1]+";" for i in ordered_eqns])
 		inps = ["	"+i+";" for i in inps]
 		inps = "\n".join(inps)

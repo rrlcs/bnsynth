@@ -5,11 +5,12 @@ from run import util
 # Gated CLN
 class GCLN(torch.nn.Module):
     literal_pairs = []
-    def __init__(self, input_size, K, device, P, p=0):
+    def __init__(self, input_size, num_of_output_var, K, device, P, p=0):
         super(GCLN, self).__init__()
         self.device = device
         self.P = P
         self.input_size = input_size
+        self.output_size = num_of_output_var
         self.dropout = nn.Dropout(p)
         self.sigmoid = nn.Sigmoid()
         self.softmax = nn.Softmax()
@@ -18,11 +19,11 @@ class GCLN(torch.nn.Module):
         # Weights and Biases
         # self.G1.shape: 2 * no_input_var x K
         self.G1 = torch.nn.Parameter(
-            torch.Tensor(self.input_size, K).uniform_(0, 1).to(dtype=torch.double).to(self.device)
+            torch.Tensor(self.input_size, num_of_output_var * K).uniform_(0, 1).to(dtype=torch.double).to(self.device)
             )
         # self.G2.shape: K x 1
         self.G2 = torch.nn.Parameter(
-            torch.Tensor(K, 1).uniform_(0, 1).to(dtype=torch.double).to(self.device)
+            torch.Tensor(num_of_output_var * K, num_of_output_var).uniform_(0, 1).to(dtype=torch.double).to(self.device)
             )
         # self.b1.shape: 2 * no_input_var x K
         self.b1 = torch.nn.Parameter(torch.randn((self.input_size, K)).to(self.device))
@@ -43,11 +44,11 @@ class GCLN(torch.nn.Module):
         # inputs.shape: batch_size x 2*no_input_vars x 1
         inputs = torch.cat((x, neg_x), dim=1).unsqueeze(-1)
 
-        with torch.no_grad():
-            self.G1.data.clamp_(0.0, 1.0)
-            self.b1.data.clamp_(0.0, 1.0)
-            self.G2.data.clamp_(0.0, 1.0)
-            self.b2.data.clamp_(0.0, 1.0)
+        # with torch.no_grad():
+        #     self.G1.data.clamp_(0.0, 1.0)
+        #     self.b1.data.clamp_(0.0, 1.0)
+        #     self.G2.data.clamp_(0.0, 1.0)
+        #     self.b2.data.clamp_(0.0, 1.0)
 
         # gated_inputs.shape: batch_size x 2*no_input_vars x K
         gated_inputs = self.apply_gates(self.G1, inputs)
