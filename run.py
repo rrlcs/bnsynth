@@ -50,6 +50,7 @@ if __name__ == "__main__":
 	verilog_dag(args.verilog_spec, args.verilog_spec_location)
 	
 	F, num_of_vars, num_out_vars, output_var_idx, io_dict = build_spec(args.verilog_spec, args.verilog_spec_location)
+	print("out vars: ", num_out_vars)
 	var_indices = [i for i in range(num_of_vars)]
 	input_var_idx = torch.tensor([x for x in var_indices if x not in output_var_idx])
 	end_time = time.time()

@@ -37,15 +37,16 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
 	masks = []
 
 	for i in range(num_of_outputs):
-		mask = G2[i*K:(i+1)*K,i] > threshold
+		# mask = G2[i*K:(i+1)*K,i] > threshold
+		mask = G2[:,i] > threshold
 		# print(mask.shape)
 		masks.append(mask.reshape((-1, 1)))
 	# mask = G2 > threshold
 	# print(masks[0])
 	gated_ored_clauses = []
 	for i in range(num_of_outputs):
-		ored = ored_clauses[i*K:(i+1)*K]
-		gated_ored_clauses.append(np.unique(ored[masks[i][:,0].flatten()]))
+		# ored = ored_clauses[i*K:(i+1)*K]
+		gated_ored_clauses.append(np.unique(ored_clauses[masks[i][:,0].flatten()]))
 	# gated_ored_clauses = np.unique(ored_clauses[mask.flatten()])
 	# print("len of gated or: ", gated_ored_clauses)
 	anded_clauses = []

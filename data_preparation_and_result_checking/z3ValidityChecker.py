@@ -26,7 +26,7 @@ i_0 ,i_1 ,i_2 ,i_3 ,i_4 = Bools('i_0 i_1 i_2 i_3 i_4')
 w1,w2,w3 = Bools('w1 w2 w3')
 
 out = Bool('out')
-nn_out0 = And((Or((i_0),(i_1),(i_2),(i_3),Not(i_0),Not(i_1),Not(i_2),Not(i_3),)),(Or((i_0),(i_1),(i_2),(i_3),Not(i_0),Not(i_1),Not(i_3),)),(Or((i_0),(i_1),(i_2),Not(i_0),Not(i_1),Not(i_2),Not(i_3),)),(Or((i_0),(i_1),(i_2),Not(i_0),Not(i_1),Not(i_3),)),(Or((i_0),(i_2),(i_3),Not(i_0),Not(i_1),Not(i_2),Not(i_3),)),)
+nn_out0 = And((Or((i_0),(i_1),(i_2),(i_3),Not(i_0),Not(i_1),Not(i_2),Not(i_3),)),(Or((i_0),(i_1),Not(i_2),Not(i_3),)),(Or((i_0),(i_3),Not(i_1),Not(i_3),)),(Or((i_0),(i_3),Not(i_1),)),(Or((i_1),(i_2),(i_3),Not(i_0),Not(i_1),Not(i_2),Not(i_3),)),(Or((i_1),(i_2),Not(i_0),Not(i_1),Not(i_2),)),(Or((i_1),(i_2),Not(i_0),Not(i_1),)),(Or((i_2),Not(i_1),Not(i_3),)),)
 
 w2 = (And((i_2),(i_3),))
 w1 = (Or((i_0),(i_1),))
