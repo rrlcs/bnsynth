@@ -97,3 +97,65 @@ sample6_preprocessed.v,5,50,100000,Not Valid,59
 sample6_preprocessed.v,5,50,100000,Not Valid,61
 sample6_preprocessed.v,5,50,100000,Not Valid,62
 sample6_preprocessed.v,5,100,100000,Not Valid,122
+sample6_preprocessed.v,5,5,100000,Not Valid,7
+sample6_preprocessed.v,5,50,100000,Not Valid,60
+sample6_preprocessed.v,5,50,100000,Not Valid,59
+sample6_preprocessed.v,5,50,100000,Not Valid,56
+sample6_preprocessed.v,5,50,100000,Not Valid,58
+sample6_preprocessed.v,5,50,100000,Not Valid,62
+sample1_preprocessed.v,3,50,100000,Valid,59
+sample2_preprocessed.v,3,50,100000,Not Valid,64
+sample2_preprocessed.v,3,50,100000,Valid,58
+sample2_preprocessed.v,3,50,100000,Valid,61
+sample3_preprocessed.v,4,50,100000,Not Valid,60
+sample3_preprocessed.v,4,50,100000,Valid,80
+sample4_preprocessed.v,4,50,100000,Not Valid,81
+sample4_preprocessed.v,4,50,100000,Not Valid,56
+sample4_preprocessed.v,4,60,100000,Valid,69
+sample4_preprocessed.v,4,50,100000,Not Valid,56
+sample4_preprocessed.v,4,60,100000,Valid,73
+sample5_preprocessed.v,5,60,100000,Not Valid,67
+sample5_preprocessed.v,5,60,100000,Not Valid,70
+sample5_preprocessed.v,5,60,100000,Not Valid,70
+sample5_preprocessed.v,5,80,100000,Not Valid,93
+sample5_preprocessed.v,5,60,100000,Not Valid,74
+sample5_preprocessed.v,5,100,100000,Not Valid,123
+sample5_preprocessed.v,5,100,200000,Valid,256
+sample6_preprocessed.v,5,50,100000,Not Valid,62
+sample6_preprocessed.v,5,100,100000,Not Valid,124
+sample6_preprocessed.v,5,100,200000,Valid,257
+sample6_preprocessed.v,5,100,200000,Valid,255
+sample1_preprocessed.v,3,50,100000,Not Valid,70
+sample2_preprocessed.v,3,50,100000,Valid,62
+sample2_preprocessed.v,3,50,100000,Valid,62
+sample1_preprocessed.v,3,100,200000,Not Valid,317
+sample2_preprocessed.v,3,50,100000,Valid,62
+sample3_preprocessed.v,4,50,100000,Valid,78
+sample4_preprocessed.v,4,50,100000,Not Valid,80
+sample4_preprocessed.v,4,50,100000,Not Valid,62
+sample4_preprocessed.v,4,60,100000,Not Valid,69
+sample4_preprocessed.v,4,70,100000,Valid,82
+sample1_preprocessed.v,3,50,10000,Not Valid,30
+sample1_preprocessed.v,3,50,10000,,23
+sample1_preprocessed.v,3,50,10000,,8
+sample1_preprocessed.v,3,5,10000,,1
+sample1_preprocessed.v,3,5,10000,,2
+sample1_preprocessed.v,3,5,10000,,1
+sample1_preprocessed.v,3,5,10000,Not Valid,1
+sample1_preprocessed.v,3,5,10000,Not Valid,2
+sample1_preprocessed.v,3,5,10000,Not Valid,1
+sample1_preprocessed.v,3,5,10000,Not Valid,1
+sample2_preprocessed.v,3,5,10000,Not Valid,1
+sample2_preprocessed.v,3,50,10000,Valid,6
+sample2_preprocessed.v,3,5,10000,Not Valid,1
+sample7_preprocessed.v,13,5,10000,Not Valid,0
+sample7_preprocessed.v,13,5,10000,Not Valid,0
+sample7_preprocessed.v,13,5,10000,Not Valid,0
+sample1_preprocessed.v,3,5,10000,Not Valid,1
+sample1_preprocessed.v,3,200,10000,Not Valid,28
+sample1_preprocessed.v,3,5,10000,Not Valid,1
+sample1_preprocessed.v,3,50,10000,Not Valid,7
+sample1_preprocessed.v,3,50,10000,Not Valid,8
+sample1_preprocessed.v,3,5,10000,Not Valid,1
+sample1_preprocessed.v,3,5,10000,Not Valid,4
+sample1_preprocessed.v,3,5,10000,Not Valid,2

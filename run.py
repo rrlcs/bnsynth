@@ -1,11 +1,13 @@
 import os
 import argparse
+import python_specs
 import time
 import subprocess
 from data.dataLoader import dataLoader
 import torch
 import torch.nn as nn
 import numpy as np
+from pathlib import Path
 from torch.utils.data import TensorDataset, DataLoader
 from data.generateTrainData import generateTrainData
 from code.algorithms import trainRegression as tr
@@ -46,17 +48,21 @@ if __name__ == "__main__":
 
 	device = 'cuda' if torch.cuda.is_available() else 'cpu'
 	start_time = time.time()
-	verilog_preprocess(args.verilog_spec, args.verilog_spec_location)
+	# my_file = Path("/path/to/file")
+	# if my_file.is_file():
+	# verilog_preprocess(args.verilog_spec, args.verilog_spec_location)
 	verilog_dag(args.verilog_spec, args.verilog_spec_location)
 	
-	F, num_of_vars, num_out_vars, output_var_idx, io_dict = build_spec(args.verilog_spec, args.verilog_spec_location)
+	F, num_of_vars, num_out_vars, output_var_idx, io_dict, num_of_eqns, filename = build_spec(args.verilog_spec, args.verilog_spec_location)
 	print("out vars: ", num_out_vars)
+	mod = __import__('python_specs', fromlist=[filename])
+	py_spec = getattr(mod, filename)
 	var_indices = [i for i in range(num_of_vars)]
 	input_var_idx = torch.tensor([x for x in var_indices if x not in output_var_idx])
-	end_time = time.time()
-	total_time = end_time - start_time
-	line = args.verilog_spec+","+str(num_of_vars)+","+str(args.epochs)+","+str(args.no_of_samples)+","+str(total_time)+"\n"
-	f = open("preprocess.csv", "a")
+	preprocess_end_time = time.time()
+	preprocess_time = preprocess_end_time - start_time
+	line = args.verilog_spec+","+str(num_of_vars)+","+str(num_out_vars)+","+str(num_of_eqns)+","+str(args.epochs)+","+str(args.no_of_samples)+","+str(preprocess_time)+"\n"
+	f = open("preprocess_data.csv", "a")
 	f.write(line)
 	f.close()
 	# exit()
@@ -68,7 +74,7 @@ if __name__ == "__main__":
 		num_of_outputs = 1
 
 	# generate training data
-	training_samples = generateTrainData(args.P, util, args.no_of_samples, args.threshold, num_of_vars, input_var_idx, args.correlated_sampling)
+	training_samples = generateTrainData(args.P, util, py_spec, args.no_of_samples, args.threshold, num_of_vars, input_var_idx, args.correlated_sampling)
 
 	# for i in range(num_of_outputs):
 	from code.model import gcln as gcln
@@ -94,7 +100,7 @@ if __name__ == "__main__":
 			torch.save(gcln.state_dict(), "regressor")
 		else:
 			print("no train")
-			gcln = gcln.GCLN(input_size, args.K, device, args.P, p=0).to(device)
+			gcln = gcln.GCLN(input_size, len(output_var_idx), args.K, device, args.P, p=0).to(device)
 			gcln.load_state_dict(torch.load("regressor"))
 			gcln.eval()
 		skfunc = skf.get_skolem_function(gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
@@ -141,11 +147,13 @@ if __name__ == "__main__":
 	preparez3(args.verilog_spec, args.verilog_spec_location)
 
 	# Run the Validity Checker
-	proc = subprocess.Popen("python3 data_preparation_and_result_checking/z3ValidityChecker.py", stdout=subprocess.PIPE, shell=True)
-	result = proc.communicate()[0]
-	result = str(result).replace("\n", "")
-	result = result[2:-3]
-	proc.terminate()
+	# proc = subprocess.Popen("python3 data_preparation_and_result_checking/z3ValidityChecker.py", stdout=subprocess.PIPE, shell=True)
+	from data_preparation_and_result_checking.z3ValidityChecker import check_validity
+	# result = proc.communicate()[0]
+	result = check_validity()
+	# result = str(result).replace("\n", "")
+	# result = result[2:-3]
+	# proc.terminate()
 	end_time = time.time()
 	total_time = int(end_time - start_time)
 	print("Time = ", end_time - start_time)

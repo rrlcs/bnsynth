@@ -60,8 +60,8 @@ class verilogVisitor(Verilog2001Visitor):
 		comb_eqns = ["	"+i[:-2] for i in comb_eqns]
 		eq = '\n'.join(comb_eqns)
 		func_def = "def F(XY_vars, util):\n"
-		z3filecontent = func_def+var_defs+"\n"+eq+"\n"+"	return "+var_out.split(" = ")[0]
-		return z3filecontent, num_out_vars, num_of_vars, output_var_idx, io_dict
+		pyfilecontent = func_def+var_defs+"\n"+eq+"\n"+"	return "+var_out.split(" = ")[0]
+		return pyfilecontent, num_out_vars, num_of_vars, output_var_idx, io_dict, len(comb_eqns)
 
 	def visitModule_identifier(self, ctx: Verilog2001Parser.Module_identifierContext):
 		return

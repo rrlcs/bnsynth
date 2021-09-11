@@ -9,6 +9,7 @@ class GCLN(torch.nn.Module):
         super(GCLN, self).__init__()
         self.device = device
         self.P = P
+        self.K = K
         self.input_size = input_size
         self.output_size = num_of_output_var
         self.dropout = nn.Dropout(p)
@@ -43,12 +44,7 @@ class GCLN(torch.nn.Module):
 
         # inputs.shape: batch_size x 2*no_input_vars x 1
         inputs = torch.cat((x, neg_x), dim=1).unsqueeze(-1)
-
-        # with torch.no_grad():
-        #     self.G1.data.clamp_(0.0, 1.0)
-        #     self.b1.data.clamp_(0.0, 1.0)
-        #     self.G2.data.clamp_(0.0, 1.0)
-        #     self.b2.data.clamp_(0.0, 1.0)
+        # print(inputs.shape)
 
         # gated_inputs.shape: batch_size x 2*no_input_vars x K
         gated_inputs = self.apply_gates(self.G1, inputs)
@@ -59,10 +55,6 @@ class GCLN(torch.nn.Module):
         or_res = 1 - util.tnorm_n_inputs(1 - gated_inputs)
         or_res = or_res.unsqueeze(-1)
         # print(or_res.shape)
-        # neg_or_res = 1 - or_res
-
-        '''# or_res_stacked.shape: batch_size x 2K
-        # or_res_stacked = torch.stack((or_res, neg_or_res)).permute(1, 2, 0).reshape((x.shape[0], -1))'''
 
         # gated_or_res.shape: batch_size x K
         gated_or_res = self.apply_gates(self.G2, or_res)
@@ -72,5 +64,10 @@ class GCLN(torch.nn.Module):
 
         # out.shape: batch_size x 1
         out = util.tnorm_n_inputs(gated_or_res).to(self.device)
+        # out1 = util.tnorm_n_inputs(gated_or_res[:,:self.K,:]).to(self.device)
+        # out2 = util.tnorm_n_inputs(gated_or_res[:,self.K:,:]).to(self.device)
+        # print(out1.shape, out2.shape)
+        # out = torch.cat((out1, out2), dim=-1)
+        # print(out.shape)
 
         return out

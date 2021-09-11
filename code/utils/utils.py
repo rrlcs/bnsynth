@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-import func_spec
+# import func_spec
 
 # Utilities class
 class utils():
@@ -101,7 +101,7 @@ class utils():
         return c.squeeze()
 
     # Fractional Sampling
-    def fractional_sampling(self, no_of_samples, util, threshold, num_of_vars):
+    def fractional_sampling(self, no_of_samples, util, py_spec, threshold, num_of_vars):
         first_interval = np.array([0, 0.3])
         second_interval = np.array([0.7, 1])
         total_length = np.ptp(first_interval)+np.ptp(second_interval)
@@ -110,7 +110,7 @@ class utils():
         numbers += first_interval.min()
         numbers[numbers > first_interval.max()] += second_interval.min()-first_interval.max()
         XY_vars = torch.from_numpy(numbers)
-        res = func_spec.F(XY_vars, util)
+        res = py_spec.F(XY_vars, util)
         samples = XY_vars[:, res >= threshold].T
         print("Train Data Generated: ", samples.shape)
 

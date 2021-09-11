@@ -8,7 +8,10 @@ class verilogVisitor(Verilog2001Visitor):
 		self.verilog_spec = verilog_spec
 		self.verilog_spec_location = verilog_spec_location
 	def visitModule_declaration(self, ctx: Verilog2001Parser.Module_declarationContext):
-		filename = self.verilog_spec.split("_preprocessed.v")[0]+"_varstoelim.txt"
+		if "preprocessed" in self.verilog_spec:
+			filename = self.verilog_spec.split("_preprocessed.v")[0]+"_varstoelim.txt"
+		else:
+			filename = self.verilog_spec.split(".v")[0]+"_varstoelim.txt"
 		f = open("data_preparation_and_result_checking/"+self.verilog_spec_location+"/Yvarlist/"+filename, "r")
 		output = f.read()
 		output_vars = output.split("\n")[:-1]
@@ -29,34 +32,35 @@ class verilogVisitor(Verilog2001Visitor):
 					var_out += self.visit(ctx.module_item()[i])
 			if ctx.module_item()[i].module_or_generate_item():
 				if ctx.module_item()[i].module_or_generate_item().module_or_generate_item_declaration():
-					aux += self.visit(ctx.module_item()[i]) +"\n"
+					aux += self.visit(ctx.module_item()[i]) +"\n	"
 			if inp and var_out:
 				rinp = inp.split(",")
 				rinp = " ".join(rinp)
 				rinp = rinp.replace("  ", " ")
 				input_dec = inp[:-2] + " = Bools('" + (rinp[:-1]) + "')"
-				var_dec = input_dec+"\n"+aux+"\n"+var_out
+				var_dec = "	"+input_dec+"\n	"+aux+"\n	"+var_out
 			if ctx.module_item()[i].module_or_generate_item():
 				if ctx.module_item()[i].module_or_generate_item().continuous_assign():
 					const = self.visit(ctx.module_item()[i])[1:-2]+"\n"
 					eqn.append(const)
 
 		eqn = [i[:-3]+")" for i in eqn]
-		eq = '\n'.join(eqn)
+		eq = '\n	'.join(eqn)
 		inp = inp[:-2]
-		z3constraint1 = ""
-		assign = ""
+		z3constraint1 = "	"
+		assign = "	"
 		for i in range(len(output_vars)):
-			z3constraint1 += "nn_out"+str(i)+" = $$"+str(i)+"\n"
-			assign += output_vars[i]+" = nn_out"+str(i)+"\n"
-		z3constraint2 = eq
+			z3constraint1 += "nn_out"+str(i)+" = $$"+str(i)+"\n	"
+			assign += output_vars[i]+" = nn_out"+str(i)+"\n	"
+		z3constraint2 = "	"+eq
 		exists_constraint = "z1 = Exists("+output_vars[0]+", out)"
 		
-		quant_free_constraint = "z2 = out"
-		z3filecontent = var_dec+"\n"+z3constraint1+"\n"+z3constraint2+"\n"+exists_constraint+"\n"
+		quant_free_constraint = "	z2 = out"
+		func_def = "def check_validity():\n"
+		z3filecontent = func_def+var_dec+"\n"+z3constraint1+"\n"+z3constraint2+"\n	"+exists_constraint+"\n"
 		z3filecontent += assign+"\n"+z3constraint2+"\n"+quant_free_constraint
-		formula = "formula = z1==z2"
-		z3filecontent += "\n"+formula+"\nvalid(formula)"
+		formula = "	formula = z1==z2"
+		z3filecontent += "\n"+formula+"\n	if valid(formula):\n		return 'Valid'\n	else:\n		return 'Not Valid'"
 		return z3filecontent
 
 	def visitModule_identifier(self, ctx: Verilog2001Parser.Module_identifierContext):

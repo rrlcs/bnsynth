@@ -5220,6 +5220,6 @@ module formula(v_402,v_397,v_462,v_460,v_917,v_796,v_464,v_79,v_36,v_10,v_12,v_1
 	assign v_1566 = (((v_2114 & v_2115)) & v_2116) ;
 	assign v_393 = (((v_2204 | v_2205)) | v_2206) ;
 	assign x_1 = (v_393 | v_1566) ;
-	assign v_1567 = 1 ;
 	assign o_1 = x_1 ;
+	assign v_1567 = 1 ;
 endmodule

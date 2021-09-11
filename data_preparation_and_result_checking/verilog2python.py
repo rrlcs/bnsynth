@@ -21,10 +21,11 @@ def build_spec(verilog_spec, verilog_spec_location):
 	parser = Verilog2001Parser(tokenStream)
 	tree = parser.module_declaration()
 	visitor = verilogVisitor(verilog_spec, verilog_spec_location)
-	F, num_out_vars, num_of_vars, output_var_idx, io_dict = visitor.visit(tree)
+	F, num_out_vars, num_of_vars, output_var_idx, io_dict, num_of_eqns = visitor.visit(tree)
 	# f = open("data_preparation_and_result_checking/"+verilog_spec_location+"/"+filename+".py", "w")
-	f = open("func_spec.py", "w")
+	filename = filename.replace(".", "")
+	f = open("python_specs/"+filename+".py", "w")
 	f.write(F)
 	f.close()
 
-	return F, num_of_vars, num_out_vars, output_var_idx, io_dict
+	return F, num_of_vars, num_out_vars, output_var_idx, io_dict, num_of_eqns, filename
