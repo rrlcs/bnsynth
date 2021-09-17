@@ -34,7 +34,7 @@ pip3 install argparse
 
 ## Train GCLN and get Skolem Function:
 ```
-python3 run.py --th=0.5 --P=0 --correlated_sampling=0 --train=1 --no_of_samples=100000 --tnorm_name=product --no_of_input_var=2 --epochs=100 --spec=1 --learning_rate=0.0001
+python3 run.py --th=0.5 --P=0 --train=1 --tnorm_name=godel --learning_rate=0.0001 --run_for_all_outputs=1 --verilog_spec_location=sample_examples --verilog_spec=sample8.v --no_of_samples=100000 --epochs=50
 ```
 - th is threshold for boolean output (0.5)
 - P value states which Problem Formulation to run (0, 1, 2):
