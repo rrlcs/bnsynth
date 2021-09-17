@@ -121,7 +121,7 @@ if __name__ == "__main__":
 	elif args.P == 2:
 		if args.train:
 			loss_fn = nn.BCEWithLogitsLoss()
-			gcln, lossess = tc2.train_classifier(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, args.K, device, args.P, torch, gcln.GCLN, util, args.verilog_spec)
+			gcln, lossess = tc2.train_classifier(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, args.K, device, args.P, torch, gcln.GCLN, util, py_spec)
 			torch.save(gcln.state_dict(), "classifier2")
 		else:
 			gcln = gcln.GCLN(input_size, args.K, device, args.P, p=0).to(device)

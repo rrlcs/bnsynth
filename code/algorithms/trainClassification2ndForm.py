@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import func_spec
+# import func_spec
 
 # weight init
 def init_weights(m):
@@ -8,7 +8,7 @@ def init_weights(m):
         torch.nn.init.xavier_uniform_(m.weight)
         m.bias.data.fill_(0.01)
 
-def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, P, torch, GCLN, util, spec):
+def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, P, torch, GCLN, util, func_spec):
     lossess = []
     lambda1 = 1e-9
     lambda2 = 1e-9

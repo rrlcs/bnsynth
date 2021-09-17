@@ -30,7 +30,7 @@ for i in range(len(file_names)):
 		f.write(content)
 		f.close()
 file_left = [x for x in file_names if x not in list(files)]
-f1 = open('largefiles.txt', 'a')
+f1 = open('./scripts/output/largefiles.txt', 'a')
 for i in range(len(file_left)):
 	if os.path.isfile(folder_path+file_left[i]):
 		print(file_left[i], i)
