@@ -3,10 +3,11 @@ from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Pa
 from data_preparation_and_result_checking.Verilog2001Visitor import Verilog2001Visitor
 
 class verilogVisitor(Verilog2001Visitor):
-	def __init__(self, verilog_spec, verilog_spec_location) -> None:
+	def __init__(self, verilog_spec, verilog_spec_location, num_of_outputs) -> None:
 		super().__init__()
 		self.verilog_spec = verilog_spec
 		self.verilog_spec_location = verilog_spec_location
+		self.num_of_outputs = num_of_outputs
 	def visitModule_declaration(self, ctx: Verilog2001Parser.Module_declarationContext):
 		if "preprocessed" in self.verilog_spec:
 			filename = self.verilog_spec.split("_preprocessed.v")[0]+"_varstoelim.txt"
@@ -49,7 +50,7 @@ class verilogVisitor(Verilog2001Visitor):
 		inp = inp[:-2]
 		z3constraint1 = "	"
 		assign = "	"
-		for i in range(len(output_vars)):
+		for i in range(self.num_of_outputs):
 			z3constraint1 += "nn_out"+str(i)+" = $$"+str(i)+"\n	"
 			assign += output_vars[i]+" = nn_out"+str(i)+"\n	"
 		z3constraint2 = "	"+eq

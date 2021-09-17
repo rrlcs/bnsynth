@@ -3,7 +3,7 @@ from data_preparation_and_result_checking.verilogToZ3Visitor import verilogVisit
 from data_preparation_and_result_checking.Verilog2001Lexer import Verilog2001Lexer
 from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Parser
 
-def preparez3(verilog_spec, verilog_spec_location):
+def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
 	'''
 	Input: verilog file
 	Output: z3py equivalent of verilog file
@@ -19,7 +19,7 @@ def preparez3(verilog_spec, verilog_spec_location):
 	tokenStream = antlr4.CommonTokenStream(lexer)
 	parser = Verilog2001Parser(tokenStream)
 	tree = parser.module_declaration()
-	visitor = verilogVisitor(verilog_spec, verilog_spec_location)
+	visitor = verilogVisitor(verilog_spec, verilog_spec_location, num_of_ouputs)
 	z3filecontent = visitor.visit(tree)
 	with open('data_preparation_and_result_checking/templateZ3Checker.py', 'r') as file :
 		filedata = file.read()
@@ -37,7 +37,7 @@ def preparez3(verilog_spec, verilog_spec_location):
 		tokenStream = antlr4.CommonTokenStream(lexer)
 		parser = Verilog2001Parser(tokenStream)
 		tree = parser.expression()
-		visitor = verilogVisitor(verilog_spec, verilog_spec_location)
+		visitor = verilogVisitor(verilog_spec, verilog_spec_location, num_of_ouputs)
 		nnOut = visitor.visit(tree)
 		with open('data_preparation_and_result_checking/z3ValidityChecker.py', 'r') as file :
 			filedata = file.read()

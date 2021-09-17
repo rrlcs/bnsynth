@@ -159,3 +159,29 @@ sample1_preprocessed.v,3,50,10000,Not Valid,8
 sample1_preprocessed.v,3,5,10000,Not Valid,1
 sample1_preprocessed.v,3,5,10000,Not Valid,4
 sample1_preprocessed.v,3,5,10000,Not Valid,2
+sample1_preprocessed.v,3,5,10000,Not Valid,1
+sample1_preprocessed.v,3,50,100000,Not Valid,97
+sample1_preprocessed.v,3,5,10000,Not Valid,1
+sample6_preprocessed.v,5,5,10000,Not Valid,1
+sample1_preprocessed.v,3,5,10000,Not Valid,1
+sample7_preprocessed.v,13,5,10000,Not Valid,0
+sample7_preprocessed.v,13,5,10000,Not Valid,0
+sample6.v,5,5,10000,Not Valid,1
+sample6.v,5,50,10000,Not Valid,7
+sample6.v,5,50,100000,Not Valid,69
+sample6.v,5,50,100000,Valid,64
+sample1.v,3,50,100000,Not Valid,80
+sample1.v,3,5,100000,Not Valid,7
+sample1.v,3,50,100000,Not Valid,68
+sample2.v,3,50,100000,Not Valid,69
+sample2.v,3,50,100000,Valid,68
+sample1.v,3,50,100000,Not Valid,80
+sample1.v,3,100,200000,Not Valid,317
+sample1.v,3,50,100000,Not Valid,75
+sample7.v,13,50,100000,Not Valid,4
+sample7.v,13,50,100000,Not Valid,3
+sample7.v,13,50,1000000,Not Valid,26
+sample7.v,13,50,5000000,Not Valid,137
+sample7.v,13,50,5000000,Not Valid,137
+sample1.v,3,50,100000,Not Valid,81
+sample1.v,3,50,100000,Not Valid,103

@@ -27,5 +27,5 @@ def build_spec(verilog_spec, verilog_spec_location):
 	f = open("python_specs/"+filename+".py", "w")
 	f.write(F)
 	f.close()
-
+	print("out: ", num_out_vars)
 	return F, num_of_vars, num_out_vars, output_var_idx, io_dict, num_of_eqns, filename

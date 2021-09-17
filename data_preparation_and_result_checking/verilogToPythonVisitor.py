@@ -16,6 +16,7 @@ class verilogVisitor(Verilog2001Visitor):
 		f = open("data_preparation_and_result_checking/"+self.verilog_spec_location+"/Yvarlist/"+filename, "r")
 		output = f.read()
 		output_vars = output.split("\n")[:-1]
+		print("visitor: output vars ", output_vars)
 		num_out_vars = len(output_vars)
 		self.visit(ctx.module_identifier())
 		self.visit(ctx.list_of_ports())

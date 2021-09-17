@@ -3,7 +3,7 @@ def train_regressor(train_loader, loss_fn, learning_rate, max_epochs, input_size
     lossess = []
     lambda1 = 1e-5
     lambda2 = 5e-4
-    gcln = GCLN(input_size, len(output_var_idx), K, device, P, p=0).to(device)
+    gcln = GCLN(input_size, num_of_outputs, K, device, P, p=0).to(device)
     optimizer = torch.optim.Adam(list(gcln.parameters()), lr=learning_rate)
     criterion = loss_fn
     gcln.train()
@@ -12,9 +12,9 @@ def train_regressor(train_loader, loss_fn, learning_rate, max_epochs, input_size
     for epoch in range(max_epochs):
         total_epoch_loss = 0
         for batch_idx, (inps, tgts) in enumerate(train_loader):
-            tgts = tgts.reshape((-1, len(output_var_idx))).to(device)
+            tgts = tgts.reshape((-1, num_of_outputs)).to(device)
             out = gcln(inps)
-            # print(out.shape)
+            # print(tgts.shape)
             losses = []
             for i in range(num_of_outputs):
                 losses.append(criterion(out[:,i], tgts[:,i]))

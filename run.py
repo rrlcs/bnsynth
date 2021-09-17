@@ -16,6 +16,7 @@ from code.algorithms import trainClassification2ndForm as tc2
 from code.utils.utils import utils
 from code.utils import plot as pt
 from code.utils import getSkolemFunc as skf
+# from code.utils import getSkolemFunc1 as skf
 from data_preparation_and_result_checking.verilog2python import build_spec
 from data_preparation_and_result_checking.verilog2z3 import preparez3
 from data_preparation_and_result_checking.verilogPreprocess import verilog_preprocess
@@ -55,6 +56,7 @@ if __name__ == "__main__":
 	
 	F, num_of_vars, num_out_vars, output_var_idx, io_dict, num_of_eqns, filename = build_spec(args.verilog_spec, args.verilog_spec_location)
 	print("out vars: ", num_out_vars)
+	print("out var idx: ", output_var_idx)
 	mod = __import__('python_specs', fromlist=[filename])
 	py_spec = getattr(mod, filename)
 	var_indices = [i for i in range(num_of_vars)]
@@ -68,7 +70,7 @@ if __name__ == "__main__":
 	# exit()
 
 	skolem_functions = ""
-	if args.run_for_all_outputs:
+	if args.run_for_all_outputs == 1:
 		num_of_outputs = len(output_var_idx)
 	else:
 		num_of_outputs = 1
@@ -82,7 +84,7 @@ if __name__ == "__main__":
 	# var_idx_except_one_out = torch.tensor([x for x in var_indices if x != output_var_pos])
 	input_size = 2*len(input_var_idx)
 	# load data
-	train_loader = dataLoader(training_samples, training_size, args.P, input_var_idx, output_var_idx, args.threshold, args.batch_size, TensorDataset, DataLoader)
+	train_loader = dataLoader(training_samples, training_size, args.P, input_var_idx, output_var_idx, num_of_outputs, args.threshold, args.batch_size, TensorDataset, DataLoader)
 
 	'''
 	Select Problem:
@@ -137,6 +139,7 @@ if __name__ == "__main__":
 
 	open('nn_output', 'w').close()
 	f = open("nn_output", "a")
+	print(num_of_outputs)
 	for i in range(num_of_outputs):
 		if i < num_of_outputs-1:
 			f.write(skfunc[i][:-1]+"\n")
@@ -144,7 +147,7 @@ if __name__ == "__main__":
 			f.write(skfunc[i][:-1])
 	f.close()
 
-	preparez3(args.verilog_spec, args.verilog_spec_location)
+	preparez3(args.verilog_spec, args.verilog_spec_location, num_of_outputs)
 
 	# Run the Validity Checker
 	# proc = subprocess.Popen("python3 data_preparation_and_result_checking/z3ValidityChecker.py", stdout=subprocess.PIPE, shell=True)

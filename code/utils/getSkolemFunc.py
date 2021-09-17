@@ -52,7 +52,7 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
 	# print("len of gated or: ", gated_ored_clauses)
 	anded_clauses = []
 	# anded_clauses2 = []
-	for i in range(len(output_var_idx)):
+	for i in range(num_of_outputs):
 		anded_clauses.append(str(io_dict.get(output_var_idx[i]))+" = "+"("+" & ".join(gated_ored_clauses[i])+")")
 	# anded_clauses = str(io_dict.get(output_var_pos))+" = "+"("+" & ".join(gated_ored_clauses)+")"
 	skfs = []
