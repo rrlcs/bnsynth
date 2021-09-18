@@ -17,10 +17,8 @@ from code.utils.utils import utils
 from code.utils import plot as pt
 from code.utils import getSkolemFunc as skf
 # from code.utils import getSkolemFunc1 as skf
-from data_preparation_and_result_checking.verilog2python import build_spec
 from data_preparation_and_result_checking.verilog2z3 import preparez3
-from data_preparation_and_result_checking.verilogPreprocess import verilog_preprocess
-from data_preparation_and_result_checking.verilog_dag import verilog_dag
+from data_preparation_and_result_checking.preprocess import preprocess
 
 # Init utilities
 util = utils()
@@ -49,14 +47,10 @@ if __name__ == "__main__":
 
 	device = 'cuda' if torch.cuda.is_available() else 'cpu'
 	start_time = time.time()
-	# my_file = Path("/path/to/file")
-	# if my_file.is_file():
-	# verilog_preprocess(args.verilog_spec, args.verilog_spec_location)
-	verilog_dag(args.verilog_spec, args.verilog_spec_location)
-	
-	F, num_of_vars, num_out_vars, output_var_idx, io_dict, num_of_eqns, filename = build_spec(args.verilog_spec, args.verilog_spec_location)
-	print("out vars: ", num_out_vars)
-	print("out var idx: ", output_var_idx)
+
+	F, num_of_vars, num_out_vars, output_var_idx, io_dict, num_of_eqns, filename = preprocess(args.verilog_spec, args.verilog_spec_location)
+	# exit()	
+
 	mod = __import__('python_specs', fromlist=[filename])
 	py_spec = getattr(mod, filename)
 	var_indices = [i for i in range(num_of_vars)]
@@ -67,7 +61,7 @@ if __name__ == "__main__":
 	f = open("preprocess_data.csv", "a")
 	f.write(line)
 	f.close()
-	# exit()
+	exit()
 
 	skolem_functions = ""
 	if args.run_for_all_outputs == 1:

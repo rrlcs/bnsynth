@@ -4,7 +4,7 @@ nn_output
 lossess
 lossess.png 
 regressor
-graph.png
+dag.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

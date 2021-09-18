@@ -20,7 +20,6 @@ class verilogVisitor(Verilog2001Visitor):
 		num_out_vars = len(output_vars)
 		self.visit(ctx.module_identifier())
 		self.visit(ctx.list_of_ports())
-		z3filecontent = ""
 		inp = aux = var_out = ""
 		eq = ""
 		eqn = []
@@ -44,7 +43,7 @@ class verilogVisitor(Verilog2001Visitor):
 				if ctx.module_item()[i].module_or_generate_item().continuous_assign():
 					constr = self.visit(ctx.module_item()[i])[:]+"\n"
 					eqn.append(constr)
-		aux = aux.split("\n")[:-1]
+		# aux = aux.split("\n")[:-1]
 		comb_eqns = eqn
 		io_vars = [s.lstrip() for s in io_vars]
 		io_vars = [s.rstrip() for s in io_vars]

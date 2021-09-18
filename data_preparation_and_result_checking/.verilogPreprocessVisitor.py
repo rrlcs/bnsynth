@@ -1,17 +1,13 @@
 from antlr4 import *
-import numpy as np
-from data_preparation_and_result_checking.dag import resolve_dependency
 from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Parser
 from data_preparation_and_result_checking.Verilog2001Visitor import Verilog2001Visitor
 
 class verilogVisitor(Verilog2001Visitor):
-	def __init__(self):
-		self.f = open("dag.txt", "w")
-		self.source = ""
-		self.input_vars = []
+	def __init__(self) -> None:
+		super().__init__()
 	def visitModule_declaration(self, ctx: Verilog2001Parser.Module_declarationContext):
 		module = "module "
-		module += self.visit(ctx.module_identifier())
+		module += "formula"
 		io = self.visit(ctx.list_of_ports())+";"
 		z3filecontent = ""
 		inp = aux = var_out = ""
@@ -35,29 +31,15 @@ class verilogVisitor(Verilog2001Visitor):
 				if ctx.module_item()[i].module_or_generate_item().continuous_assign():
 					constr = self.visit(ctx.module_item()[i])[:]+"\n"
 					eqn.append(constr)
-		self.f.close()
 		aux = aux.split("\n")[:-1]
-		self.input_vars = list(np.array(self.input_vars).flatten())
-		self.input_vars = list(filter(''.__ne__, self.input_vars))
 		aux = ["	wire "+a+";" for a in aux]
 		aux = "\n".join(aux)
-		f = open("dag.txt", "r")
-		dag_data = f.read()
-		f.close()
-		eqn_dict = {}
-		for e in eqn:
-			eqn_dict[e.split(" = ")[0]] = e
-			dag_data = dag_data.replace("["+e.split(" = ")[0]+"]", "[assign "+e[:-2]+"]")
-		f = open("dag.txt", "w")
-		f.write(dag_data)
-		f.close()
-		reverse_topological_sort = resolve_dependency()
-		lvalues = [x for x in reverse_topological_sort if x not in self.input_vars]
-		ordered_eqns = [eqn_dict[lv] for lv in lvalues if lv in eqn_dict]
-		ordered_eqns = '\n'.join(["	"+"assign "+i[:-1]+";" for i in ordered_eqns])
+		comb_eqns = eqn
+		comb_eqns = ["	"+"assign "+i[:-1]+";" for i in comb_eqns]
+		eq = '\n'.join(comb_eqns)
 		inps = ["	"+i+";" for i in inps]
 		inps = "\n".join(inps)
-		z3filecontent = module+io+"\n"+inps+"\n"+aux+"\n"+"	"+var_out+";\n"+ordered_eqns+"\n"+"endmodule"+"\n"
+		z3filecontent = module+io+"\n"+inps+"\n"+aux+"\n"+"	"+var_out+";\n"+eq+"\n"+"endmodule"+"\n"
 		return z3filecontent
 
 	def visitModule_identifier(self, ctx: Verilog2001Parser.Module_identifierContext):
@@ -92,7 +74,6 @@ class verilogVisitor(Verilog2001Visitor):
 
 	def visitNet_assignment(self, ctx: Verilog2001Parser.Net_assignmentContext):
 		lv = self.visit(ctx.net_lvalue())
-		self.source = lv
 		rv = self.visit(ctx.expression())
 		if rv[0] == "(":
 			rv = rv[1:-1]
@@ -109,8 +90,7 @@ class verilogVisitor(Verilog2001Visitor):
 				left_par += "("
 			exp += left_par
 			for i in range(len(ctx.term())):
-				exp1 = self.visit(ctx.term()[i])
-				exp += exp1
+				exp += self.visit(ctx.term()[i])
 				if i >= 1:
 					exp += ")"
 				if i < len(ctx.term()) - 1:
@@ -118,15 +98,13 @@ class verilogVisitor(Verilog2001Visitor):
 			exp += ")"
 		if len(ctx.term()) == 1:
 			exp = self.visit(ctx.term()[0])
-		
 		return exp
 	
 	def visitTerm(self, ctx: Verilog2001Parser.TermContext):
 		term = ""
 		if ctx.unary_operator():
 			term = self.visit(ctx.unary_operator())
-		term1 = self.visit(ctx.primary())
-		term += term1
+		term += self.visit(ctx.primary())
 		return term
 	
 	def visitMintypmax_expression(self, ctx: Verilog2001Parser.Mintypmax_expressionContext):
@@ -140,9 +118,7 @@ class verilogVisitor(Verilog2001Visitor):
 			return self.visit(ctx.mintypmax_expression())
 		elif ctx.number():
 			return ctx.getText()
-		else:
-			self.f.write("\n"+self.source+","+str(ctx.getText())+","+"["+self.source+"]")
-			return str(ctx.getText())
+		return str(ctx.getText())
 	
 	def visitUnary_operator(self, ctx: Verilog2001Parser.Unary_operatorContext):
 		return str(ctx.getText())
@@ -154,17 +130,18 @@ class verilogVisitor(Verilog2001Visitor):
 		return self.visit(ctx.net_declaration())
 
 	def visitNet_declaration(self, ctx: Verilog2001Parser.Net_declarationContext):
+		# print("net dec: ", ctx.getText())
 		return self.visit(ctx.list_of_net_identifiers())
 	
 	def visitList_of_net_identifiers(self, ctx: Verilog2001Parser.List_of_net_identifiersContext):
-		wires = str(ctx.getText()).split(",")
-		wires = '\n'.join(wires)
-		self.f.write(wires+"\n")
-		return str(ctx.getText())
+		lst = str(ctx.getText()).split(",")
+		if len(lst) > 1:
+			return str(ctx.getText())
+		else:
+			return str(ctx.getText())
 
 	def visitInput_declaration(self, ctx: Verilog2001Parser.Input_declarationContext):
 		inps = self.visit(ctx.list_of_port_identifiers())
-		self.input_vars.append(inps.split(" "))
 		lv = ""
 		for i in inps:
 			lv += i
@@ -188,5 +165,4 @@ class verilogVisitor(Verilog2001Visitor):
 		return ids
 		
 	def visitPort_identifier(self, ctx: Verilog2001Parser.Port_identifierContext):
-		self.f.write(str(ctx.getText())+"\n")
 		return str(ctx.getText())

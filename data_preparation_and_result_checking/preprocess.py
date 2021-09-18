@@ -1,9 +1,9 @@
 import antlr4
-from data_preparation_and_result_checking.verilogDagVisitor import verilogVisitor
+from data_preparation_and_result_checking.verilogPreprocessVisitor import verilogVisitor
 from data_preparation_and_result_checking.Verilog2001Lexer import Verilog2001Lexer
 from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Parser
 
-def verilog_dag(verilog_spec, verilog_spec_location):
+def preprocess(verilog_spec, verilog_spec_location):
 	'''
 	Input: verilog file
 	Output: verilog file with resolved dependencies
@@ -20,8 +20,15 @@ def verilog_dag(verilog_spec, verilog_spec_location):
 	tokenStream = antlr4.CommonTokenStream(lexer)
 	parser = Verilog2001Parser(tokenStream)
 	tree = parser.module_declaration()
-	visitor = verilogVisitor()
-	preprocessed_verilog = visitor.visit(tree)
+	visitor = verilogVisitor(verilog_spec, verilog_spec_location)
+	orderedVerilog, pyfilecontent, num_out_vars, num_of_vars, output_var_idx, io_dict, num_of_eqns = visitor.visit(tree)
 	f = open("data_preparation_and_result_checking/"+verilog_spec_location+"/"+verilog_spec, "w")
-	f.write(preprocessed_verilog)
+	f.write(orderedVerilog)
 	f.close()
+
+	filename = filename.replace(".", "")
+	f = open("python_specs/"+filename+".py", "w")
+	f.write(pyfilecontent)
+	f.close()
+
+	return pyfilecontent, num_of_vars, num_out_vars, output_var_idx, io_dict, num_of_eqns, filename

@@ -1,17 +1,37 @@
 from antlr4 import *
+import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
+from typing import OrderedDict
 from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Parser
 from data_preparation_and_result_checking.Verilog2001Visitor import Verilog2001Visitor
 
 class verilogVisitor(Verilog2001Visitor):
-	def __init__(self) -> None:
-		super().__init__()
+	def __init__(self, verilog_spec, verilog_spec_location):
+		self.verilog_spec = verilog_spec
+		self.verilog_spec_location = verilog_spec_location
+		self.G = nx.DiGraph()
+		self.eqn_dict = {}
+		self.source = ""
+		self.input_vars = []
 	def visitModule_declaration(self, ctx: Verilog2001Parser.Module_declarationContext):
+		
+		# For Python Spec
+		if "preprocessed" in self.verilog_spec:
+			filename = self.verilog_spec.split("_preprocessed.v")[0]+"_varstoelim.txt"
+		else:
+			filename = self.verilog_spec.split(".v")[0]+"_varstoelim.txt"
+		f = open("data_preparation_and_result_checking/"+self.verilog_spec_location+"/Yvarlist/"+filename, "r")
+		output = f.read()
+		output_vars = output.split("\n")[:-1]
+		num_out_vars = len(output_vars)
+
+		# For ordered verilog
 		module = "module "
-		module += "formula"
+		module += self.visit(ctx.module_identifier())
 		io = self.visit(ctx.list_of_ports())+";"
-		z3filecontent = ""
-		inp = aux = var_out = ""
-		eq = ""
+
+		inp = wires = var_out = ""
 		eqn = []
 		for i in range(len(ctx.module_item())):
 			if ctx.module_item()[i].port_declaration():
@@ -21,26 +41,59 @@ class verilogVisitor(Verilog2001Visitor):
 						inp += ", "
 			if ctx.module_item()[i].port_declaration():
 				if ctx.module_item()[i].port_declaration().output_declaration():
-					var_out += self.visit(ctx.module_item()[i])
+					var_out = self.visit(ctx.module_item()[i])
 			if ctx.module_item()[i].module_or_generate_item():
 				if ctx.module_item()[i].module_or_generate_item().module_or_generate_item_declaration():
-					aux += self.visit(ctx.module_item()[i]) +"\n"
-			if inp and var_out:
-				inps = inp.split(", ")[:-1]
+					wires += self.visit(ctx.module_item()[i]) +"\n"
+			if inp:
+				inps = "input "+inp
+				inps = inps.split(", ")[:-1]
+				rinp = inp.split(",")[:-1]
+				io_vars = rinp
+				num_of_vars = len(rinp)
 			if ctx.module_item()[i].module_or_generate_item():
 				if ctx.module_item()[i].module_or_generate_item().continuous_assign():
 					constr = self.visit(ctx.module_item()[i])[:]+"\n"
 					eqn.append(constr)
-		aux = aux.split("\n")[:-1]
-		aux = ["	wire "+a+";" for a in aux]
-		aux = "\n".join(aux)
-		comb_eqns = eqn
-		comb_eqns = ["	"+"assign "+i[:-1]+";" for i in comb_eqns]
-		eq = '\n'.join(comb_eqns)
-		inps = ["	"+i+";" for i in inps]
-		inps = "\n".join(inps)
-		z3filecontent = module+io+"\n"+inps+"\n"+aux+"\n"+"	"+var_out+";\n"+eq+"\n"+"endmodule"+"\n"
-		return z3filecontent
+
+		# Plot the DAG
+		nx.draw(self.G, with_labels=True, node_size=700)
+		plt.savefig("dag.png")
+		plt.show()
+		plt.close()
+
+		# Constructing Ordered Verilog
+		wires = wires.split("\n")[:-1]
+		out = "output "+var_out
+		self.input_vars = list(np.array(self.input_vars).flatten())
+		self.input_vars = list(filter(''.__ne__, self.input_vars))
+		wires = ["	wire "+a+";" for a in wires]
+		wires = "\n".join(wires)
+		topological_sort = list(nx.topological_sort(self.G))
+		lvalues = [x for x in topological_sort if x not in self.input_vars]
+		ordered_eqns = [self.eqn_dict[lv] for lv in lvalues if lv in self.eqn_dict]
+		ordered_eqns1 = '\n'.join(["	"+"assign "+i[:-1]+");" for i in ordered_eqns])
+		inps = "\n".join(["	"+i+";" for i in inps])
+		orderedVerilog = module+io+"\n"+inps+"\n"+wires+"\n"+"	"+out+";\n"+ordered_eqns1+"\n"+"endmodule"+"\n"
+		
+		# Constructing Python Spec
+		io_vars = [s.lstrip() for s in io_vars]
+		io_vars = [s.rstrip() for s in io_vars]
+		io_dict = {}
+		var_defs = []
+		for index, value in enumerate(io_vars):
+			io_dict[index] = value
+			value  = "	"+str(value)+" = "+"XY_vars["+str(index)+", :]"
+			var_defs.append(value)
+		var_defs = "\n".join(var_defs)
+		io_dict = OrderedDict(io_dict)
+		output_var_idx = [list(io_dict.values()).index(output_vars[i]) for i in range(len(output_vars)) if output_vars[i] in io_dict.values()]
+		ordered_eqns = ["	"+i for i in ordered_eqns]
+		eq = '\n'.join(ordered_eqns)
+		func_def = "def F(XY_vars, util):\n"
+		pyfilecontent = func_def+var_defs+"\n"+eq+"\n"+"	return "+var_out.split(" = ")[0]
+
+		return orderedVerilog, pyfilecontent, num_out_vars, num_of_vars, output_var_idx, io_dict, len(ordered_eqns)
 
 	def visitModule_identifier(self, ctx: Verilog2001Parser.Module_identifierContext):
 		return str(ctx.getText())
@@ -74,9 +127,11 @@ class verilogVisitor(Verilog2001Visitor):
 
 	def visitNet_assignment(self, ctx: Verilog2001Parser.Net_assignmentContext):
 		lv = self.visit(ctx.net_lvalue())
+		self.source = lv
 		rv = self.visit(ctx.expression())
 		if rv[0] == "(":
 			rv = rv[1:-1]
+		self.eqn_dict[lv] = lv + " = " + rv
 		return lv + " = " + rv + " "
 
 	def visitNet_lvalue(self, ctx: Verilog2001Parser.Net_lvalueContext):
@@ -90,7 +145,8 @@ class verilogVisitor(Verilog2001Visitor):
 				left_par += "("
 			exp += left_par
 			for i in range(len(ctx.term())):
-				exp += self.visit(ctx.term()[i])
+				exp1 = self.visit(ctx.term()[i])
+				exp += exp1
 				if i >= 1:
 					exp += ")"
 				if i < len(ctx.term()) - 1:
@@ -98,13 +154,15 @@ class verilogVisitor(Verilog2001Visitor):
 			exp += ")"
 		if len(ctx.term()) == 1:
 			exp = self.visit(ctx.term()[0])
+		
 		return exp
 	
 	def visitTerm(self, ctx: Verilog2001Parser.TermContext):
 		term = ""
 		if ctx.unary_operator():
 			term = self.visit(ctx.unary_operator())
-		term += self.visit(ctx.primary())
+		term1 = self.visit(ctx.primary())
+		term += term1
 		return term
 	
 	def visitMintypmax_expression(self, ctx: Verilog2001Parser.Mintypmax_expressionContext):
@@ -118,7 +176,9 @@ class verilogVisitor(Verilog2001Visitor):
 			return self.visit(ctx.mintypmax_expression())
 		elif ctx.number():
 			return ctx.getText()
-		return str(ctx.getText())
+		else:
+			self.G.add_edge(str(ctx.getText()), self.source)
+			return str(ctx.getText())
 	
 	def visitUnary_operator(self, ctx: Verilog2001Parser.Unary_operatorContext):
 		return str(ctx.getText())
@@ -130,24 +190,23 @@ class verilogVisitor(Verilog2001Visitor):
 		return self.visit(ctx.net_declaration())
 
 	def visitNet_declaration(self, ctx: Verilog2001Parser.Net_declarationContext):
-		# print("net dec: ", ctx.getText())
 		return self.visit(ctx.list_of_net_identifiers())
 	
 	def visitList_of_net_identifiers(self, ctx: Verilog2001Parser.List_of_net_identifiersContext):
-		lst = str(ctx.getText()).split(",")
-		if len(lst) > 1:
-			return str(ctx.getText())
-		else:
-			return str(ctx.getText())
+		wires = str(ctx.getText()).split(",")
+		wires = '\n'.join(wires)
+		# self.f.write(wires+"\n")
+		return str(ctx.getText())
 
 	def visitInput_declaration(self, ctx: Verilog2001Parser.Input_declarationContext):
 		inps = self.visit(ctx.list_of_port_identifiers())
+		self.input_vars.append(inps.split(" "))
 		lv = ""
 		for i in inps:
 			lv += i
 			if i == " ":
 				lv += ","
-		return "input "+lv[:-2]
+		return lv[:-2]
 	
 	def visitOutput_declaration(self, ctx: Verilog2001Parser.Output_declarationContext):
 		outs = self.visit(ctx.list_of_port_identifiers())
@@ -156,7 +215,7 @@ class verilogVisitor(Verilog2001Visitor):
 			lv += i
 			if i == " ":
 				lv += ","
-		return "output "+lv[:-2]
+		return lv[:-2]
 
 	def visitList_of_port_identifiers(self, ctx: Verilog2001Parser.List_of_port_identifiersContext):
 		ids = ""
@@ -165,4 +224,5 @@ class verilogVisitor(Verilog2001Visitor):
 		return ids
 		
 	def visitPort_identifier(self, ctx: Verilog2001Parser.Port_identifierContext):
+		self.G.add_node(str(ctx.getText()))
 		return str(ctx.getText())
