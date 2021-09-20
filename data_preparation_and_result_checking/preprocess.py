@@ -27,8 +27,8 @@ def preprocess(verilog_spec, verilog_spec_location):
 	f.close()
 
 	filename = filename.replace(".", "")
-	f = open("python_specs/"+filename+".py", "w")
-	f.write(pyfilecontent)
-	f.close()
+	# f = open("python_specs/"+filename+".py", "w")
+	# f.write(pyfilecontent)
+	# f.close()
 
-	return pyfilecontent, num_of_vars, num_out_vars, output_var_idx, io_dict, num_of_eqns, filename
+	return num_of_vars, num_out_vars, output_var_idx, io_dict, num_of_eqns, filename

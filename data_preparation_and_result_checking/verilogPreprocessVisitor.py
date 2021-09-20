@@ -3,6 +3,7 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 from typing import OrderedDict
+from typing import OrderedDict
 from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Parser
 from data_preparation_and_result_checking.Verilog2001Visitor import Verilog2001Visitor
 
@@ -46,8 +47,7 @@ class verilogVisitor(Verilog2001Visitor):
 				if ctx.module_item()[i].module_or_generate_item().module_or_generate_item_declaration():
 					wires += self.visit(ctx.module_item()[i]) +"\n"
 			if inp:
-				inps = "input "+inp
-				inps = inps.split(", ")[:-1]
+				inps = inp.split(", ")[:-1]
 				rinp = inp.split(",")[:-1]
 				io_vars = rinp
 				num_of_vars = len(rinp)
@@ -73,7 +73,7 @@ class verilogVisitor(Verilog2001Visitor):
 		lvalues = [x for x in topological_sort if x not in self.input_vars]
 		ordered_eqns = [self.eqn_dict[lv] for lv in lvalues if lv in self.eqn_dict]
 		ordered_eqns1 = '\n'.join(["	"+"assign "+i[:-1]+");" for i in ordered_eqns])
-		inps = "\n".join(["	"+i+";" for i in inps])
+		inps = "\n".join(["	input "+i+";" for i in inps])
 		orderedVerilog = module+io+"\n"+inps+"\n"+wires+"\n"+"	"+out+";\n"+ordered_eqns1+"\n"+"endmodule"+"\n"
 		
 		# Constructing Python Spec
@@ -175,7 +175,7 @@ class verilogVisitor(Verilog2001Visitor):
 		if ctx.mintypmax_expression():
 			return self.visit(ctx.mintypmax_expression())
 		elif ctx.number():
-			return ctx.getText()
+			return "("+ctx.getText()+")"
 		else:
 			self.G.add_edge(str(ctx.getText()), self.source)
 			return str(ctx.getText())

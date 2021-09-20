@@ -1,2 +1,8 @@
 sample3.v,4,50,100000,Not Valid,83
 sample4.v,4,50,100000,Not Valid,58
+sample2.v,3,50,100000,Valid,68
+sample1.v,3,50,100000,Valid,73
+sample1.v,3,50,100000,Not Valid,69
+sample1.v,3,50,100000,Not Valid,68
+sample1.v,3,50,100000,Valid,71
+sample1.v,3,50,100000,Valid,0
