@@ -12,10 +12,6 @@ class GCLN(torch.nn.Module):
         self.K = K
         self.input_size = input_size
         self.output_size = num_of_output_var
-        self.dropout = nn.Dropout(p)
-        self.sigmoid = nn.Sigmoid()
-        self.softmax = nn.Softmax()
-        self.linear = nn.Linear(1, 2)
 
         # Weights and Biases
         # self.G1.shape: 2 * no_input_var x K

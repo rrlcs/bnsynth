@@ -704,10 +704,12 @@ module add20ysat(v_14,v_9,v_40,v_67,v_94,v_121,v_148,v_175,v_202,v_229,v_256,v_2
 	assign v_473 = (v_471 | ~v_472);
 	assign v_610 = (~v_1 | ~v_607);
 	assign v_608 = (v_1 & v_607);
-	assign v_2 = v);
-	assign v_4 = v);
-	assign v_612 = ~v);
-	assign o_1 = x);
+	assign v_2 = );
+	assign v_4 = );
+	assign v_612 = ~);
+	assign o_1 = );
+	assign v_613 = ~v_);
+	assign v_618 = v_);
 	assign v_31 = (v_15 | v_30);
 	assign v_35 = (v_20 & v_34);
 	assign v_53 = (v_15 & v_52);
@@ -751,6 +753,7 @@ module add20ysat(v_14,v_9,v_40,v_67,v_94,v_121,v_148,v_175,v_202,v_229,v_256,v_2
 	assign v_611 = (v_606 | v_610);
 	assign v_609 = (~v_606 | v_608);
 	assign v_5 = (v_2 | v_4);
+	assign v_614 = (v_612 & v_613);
 	assign v_530 = (v_31 | v_32);
 	assign v_33 = (v_31 & v_32);
 	assign v_529 = (~v_32 | v_35);
@@ -772,10 +775,8 @@ module add20ysat(v_14,v_9,v_40,v_67,v_94,v_121,v_148,v_175,v_202,v_229,v_256,v_2
 	assign v_22 = (v_16 & v_21);
 	assign v_27 = (v_25 | v_26);
 	assign v_82 = (v_80 | v_81);
-	assign v_613 = ~v_6);
 	assign v_74 = (v_72 & v_73);
 	assign v_57 = (v_48 | v_56);
-	assign v_618 = v_6);
 	assign v_62 = (v_60 & v_61);
 	assign v_527 = (v_22 | v_23);
 	assign v_24 = (v_22 & v_23);
@@ -784,7 +785,6 @@ module add20ysat(v_14,v_9,v_40,v_67,v_94,v_121,v_148,v_175,v_202,v_229,v_256,v_2
 	assign v_107 = (v_82 & v_106);
 	assign v_83 = (v_78 & v_82);
 	assign v_87 = (v_78 | v_82);
-	assign v_614 = (v_612 & v_613);
 	assign v_99 = (v_74 | v_98);
 	assign v_75 = (v_70 & v_74);
 	assign v_88 = (v_70 | v_74);

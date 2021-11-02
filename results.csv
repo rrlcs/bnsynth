@@ -6,3 +6,123 @@ sample1.v,3,50,100000,Not Valid,69
 sample1.v,3,50,100000,Not Valid,68
 sample1.v,3,50,100000,Valid,71
 sample1.v,3,50,100000,Valid,0
+sample1.v,3,50,100000,Not Valid,70
+sample1.v,3,50,100000,Not Valid,67
+sample1.v,3,50,100000,Not Valid,70
+sample1.v,3,50,100000,Not Valid,67
+sample1.v,3,50,100000,Not Valid,67
+sample1.v,3,50,100000,Not Valid,68
+sample1.v,3,50,100000,Not Valid,68
+sample1.v,3,50,100000,Not Valid,68
+sample1.v,3,50,200000,Not Valid,134
+sample1.v,3,10,200000,Not Valid,27
+sample1.v,3,10,50000,Not Valid,7
+sample1.v,3,10,5000,Not Valid,1
+sample1.v,3,1,5000,Not Valid,0
+sample1.v,3,1,50,Not Valid,0
+sample1.v,3,1,5,Not Valid,0
+sample1.v,3,1,5,Not Valid,0
+sample1.v,3,1,5,Not Valid,0
+sample1.v,3,1,5,Not Valid,0
+sample1.v,3,1,5,Not Valid,0
+sample1.v,3,10,5000,Not Valid,1
+sample1.v,3,10,5000,Not Valid,1
+sample1.v,3,50,10000,Not Valid,7
+sample1.v,3,50,10000,Valid,0
+sample1.v,3,50,10000,Not Valid,7
+sample1.v,3,50,100000,Not Valid,66
+sample1.v,3,50,50000,Not Valid,32
+sample1.v,3,50,50000,Not Valid,32
+sample1.v,3,50,50000,Not Valid,50
+sample1.v,3,50,50000,Not Valid,33
+sample1.v,3,50,100000,Not Valid,68
+sample1.v,3,50,100000,Not Valid,69
+sample1.v,3,50,10000,Valid,0
+sample1.v,3,50,100000,Not Valid,76
+sample1.v,3,50,100000,Not Valid,78
+sample1.v,3,50,100000,Not Valid,70
+sample1.v,3,50,100000,Not Valid,66
+sample1.v,3,50,10000,Valid,0
+sample1.v,3,50,10000,Valid,0
+sample1.v,3,50,100000,Not Valid,67
+sample1.v,3,50,100000,Not Valid,71
+sample1.v,3,50,100000,Not Valid,67
+sample1.v,3,50,100000,Not Valid,67
+sample1.v,3,50,100000,Valid,67
+sample1.v,3,50,100000,Not Valid,67
+sample1.v,3,50,100000,Not Valid,67
+sample1.v,3,50,100000,Not Valid,66
+sample1.v,3,50,100000,Not Valid,67
+sample1.v,3,50,100000,Not Valid,67
+sample1.v,3,50,100000,Not Valid,80
+sample1.v,3,50,100000,Not Valid,80
+sample1.v,3,50,100000,Not Valid,82
+sample1.v,3,50,100000,Not Valid,93
+sample1.v,3,50,100000,Not Valid,101
+sample1.v,3,10,100000,Not Valid,17
+sample1.v,3,10,100000,Not Valid,16
+sample2.v,3,10,100000,Not Valid,15
+sample2.v,3,50,100000,Valid,75
+sample2.v,3,50,100000,Valid,80
+sample1.v,3,50,100000,Not Valid,82
+sample1.v,3,50,100000,Not Valid,1
+sample2.v,3,50,100000,Not Valid,0
+sample2.v,3,50,100000,Not Valid,0
+sample2.v,3,50,100000,Not Valid,2
+sample2.v,3,50,10000,Not Valid,25
+sample2.v,3,50,50000,Valid,124
+sample1.v,3,50,50000,Not Valid,138
+sample1.v,3,50,50000,Not Valid,1
+sample1.v,3,50,50000,Not Valid,25
+sample1.v,3,50,50000,Not Valid,26
+sample1.v,3,50,50000,Not Valid,37
+sample1.v,3,50,50000,Not Valid,39
+sample2.v,3,50,50000,Not Valid,23
+sample2.v,3,50,50000,Not Valid,23
+sample2.v,3,50,50000,Not Valid,28
+sample2.v,3,50,50000,Not Valid,33
+sample2.v,3,50,50000,Not Valid,46
+sample2.v,3,50,50000,Not Valid,31
+sample2.v,3,50,50000,Not Valid,61
+sample2.v,3,50,50000,Valid,38
+sample2.v,3,50,50000,Not Valid,68
+sample2.v,3,50,50000,Not Valid,61
+sample2.v,3,50,100000,Not Valid,63
+sample2.v,3,50,100000,Not Valid,48
+sample1.v,3,50,100000,Not Valid,35
+sample1.v,3,50,100000,Valid,73
+sample1.v,3,50,100000,Not Valid,71
+sample1.v,3,50,100000,Not Valid,71
+sample2.v,3,50,100000,Not Valid,67
+sample2.v,3,50,100000,Not Valid,63
+sample1.v,3,50,100000,Not Valid,74
+sample1.v,3,50,100000,Not Valid,71
+sample1.v,3,50,100000,Not Valid,67
+sample1.v,3,50,100000,Not Valid,68
+sample1.v,3,50,100000,Not Valid,68
+sample1.v,3,50,100000,Not Valid,68
+sample1.v,3,50,100000,Not Valid,69
+sample1.v,3,50,100000,Not Valid,70
+sample1.v,3,50,100000,Not Valid,65
+sample1.v,3,50,100000,Not Valid,64
+sample1.v,3,50,100000,Not Valid,132
+sample2.v,3,50,100000,Not Valid,59
+sample2.v,3,50,100000,Not Valid,76
+sample2.v,3,50,100000,Not Valid,74
+sample2.v,3,50,100000,Not Valid,94
+sample2.v,3,50,100000,Valid,98
+sample2.v,3,50,100000,Valid,98
+sample1.v,3,50,100000,Not Valid,118
+sample1.v,3,50,100000,Not Valid,115
+sample1.v,3,50,100000,Not Valid,137
+sample1.v,3,50,100000,Valid,89
+sample1.v,3,50,100000,Not Valid,87
+sample1.v,3,50,100000,Not Valid,87
+sample1.v,3,50,100000,Not Valid,84
+sample1.v,3,50,100000,Valid,88
+sample1.v,3,50,100000,Not Valid,86
+sample1.v,3,50,100000,Not Valid,88
+sample1.v,3,50,100000,Not Valid,84
+sample1.v,3,50,100000,Not Valid,83
+sample2.v,3,50,100000,Valid,77
+sample2.v,3,50,100000,Valid,78

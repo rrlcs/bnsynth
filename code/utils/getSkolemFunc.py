@@ -24,8 +24,9 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
 	clauses = []
 	for i in range(num_of_outputs * K):
 		mask = G1[:, i] > threshold
+		print("mask: ", mask)
 		clauses.append(clause[mask])
-	print(mask)
+	
 	# clauses = np.array(clauses)#.reshape(K, num_of_outputs)
 	# print("shape of clauses: ", clauses[:K])
 	ored_clauses = []

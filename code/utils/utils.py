@@ -1,11 +1,14 @@
 import numpy as np
+import pandas as pd
 import torch
+import copy
 # import func_spec
 
 # Utilities class
 class utils():
     def __init__(self):
         self.name = "product"
+        self.res = []
         super(utils, self).__init__()
 
     def negation(self, x):
@@ -100,20 +103,66 @@ class utils():
 
         return c.squeeze()
 
+    def generateAllBinaryStrings(self, n, arr, i):
+        if i == n:
+            a = copy.deepcopy(arr)
+            self.res.append(a)
+            return
+        arr[i] = 0.0
+        self.generateAllBinaryStrings(n, arr, i + 1)
+        arr[i] = 1.0
+        self.generateAllBinaryStrings(n, arr, i + 1)
+
+    def proc(self, dat,range):
+        return torch.where(
+            dat > 0.5, 
+            torch.rand(dat.shape)*range + (1 - range), 
+            torch.rand(dat.shape)*range
+            )
+
+    def add_noise(self, samples,range=0.1):
+        return self.proc(samples,range)
+
+    def seed_sampling(self, no_of_samples, util, py_spec, threshold, num_of_vars):
+        arr = [0 for i in range(num_of_vars)]
+        self.generateAllBinaryStrings(num_of_vars, arr, 0)
+        print(self.res)
+        XY_vars = torch.from_numpy(np.array(self.res).T)
+        print(XY_vars)
+        res = py_spec.F(XY_vars, util)
+        print(res)
+        samples = XY_vars[:, res >= threshold].T
+        df = pd.DataFrame(samples.numpy())
+        print(df.head())
+        # df = df.drop_duplicates(subset=[2])
+        print(df.head())
+        samples = torch.tensor(df.values)
+        samples.type(torch.DoubleTensor)
+        gen_new_data = torch.cat([(self.add_noise(samples)).T for _ in range(10000)])
+        gen_new_data = (gen_new_data * 10**2).round() / (10**2)
+        gen_new_data= gen_new_data.reshape((-1, num_of_vars))
+        # samples = torch.unique(samples, dim=0)
+        samples = gen_new_data.type(torch.DoubleTensor)
+        print("Train Data Generated: ", samples.shape, samples, samples.dtype)
+        return samples
+
     # Fractional Sampling
     def fractional_sampling(self, no_of_samples, util, py_spec, threshold, num_of_vars):
-        first_interval = np.array([0, 0.3])
-        second_interval = np.array([0.7, 1])
+        first_interval = np.array([0, 0.01])
+        second_interval = np.array([0.99, 1])
         total_length = np.ptp(first_interval)+np.ptp(second_interval)
         n = (num_of_vars, no_of_samples)
         numbers = np.random.random(n)*total_length
         numbers += first_interval.min()
         numbers[numbers > first_interval.max()] += second_interval.min()-first_interval.max()
         XY_vars = torch.from_numpy(numbers)
+        print(XY_vars)
         res = py_spec.F(XY_vars, util)
+        print(res)
         samples = XY_vars[:, res >= threshold].T
+        # samples = torch.unique(samples, dim=0)
         print("Train Data Generated: ", samples.shape)
-
+        # samples = torch.tensor([[0, 0, 1], [0, 1, 0]], dtype=torch.double)
         return samples
     
     # Fractional Sampling

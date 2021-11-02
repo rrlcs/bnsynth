@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
 	# generate training data
 	training_samples = generateTrainData(args.P, util, py_spec, args.no_of_samples, args.threshold, num_of_vars, input_var_idx, args.correlated_sampling)
-
+	# exit()
 	# for i in range(num_of_outputs):
 	from code.model import gcln as gcln
 	# output_var_pos = output_var_idx[i]
@@ -95,11 +95,14 @@ if __name__ == "__main__":
 			loss_fn = nn.MSELoss()
 			gcln, lossess = tr.train_regressor(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, num_of_outputs, output_var_idx, args.K, device, args.P, torch, gcln.GCLN)
 			torch.save(gcln.state_dict(), "regressor")
+			print(list(gcln.G1))
+			print(list(gcln.G2))
 		else:
 			print("no train")
 			gcln = gcln.GCLN(input_size, len(output_var_idx), args.K, device, args.P, p=0).to(device)
-			gcln.load_state_dict(torch.load("regressor"))
+			gcln.load_state_dict(torch.load("regressor_multi_output"))
 			gcln.eval()
+			print(list(gcln.G1))
 		skfunc = skf.get_skolem_function(gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
 		# skolem_functions += skfunc
 	elif args.P == 1:
