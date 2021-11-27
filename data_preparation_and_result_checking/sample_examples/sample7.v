@@ -30,7 +30,7 @@ module formula(x_0,i_1,i_2,i_3,x_4,x_5,x_6,i_7,i_8,i_9,i_10,i_11,i_12,out);
 	output out;
 	assign c1 = (x_0 ^ x_5);
 	assign carry1 = (x_0 & x_5);
-	assign c3 = ~i_);
+	assign c3 = ~i_9;
 	assign c5 = (x_4 & i_10);
 	assign c6 = (x_5 | i_11);
 	assign c4 = (x_0 | i_12);

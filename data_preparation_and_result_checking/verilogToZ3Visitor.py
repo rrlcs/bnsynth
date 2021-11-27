@@ -54,14 +54,25 @@ class verilogVisitor(Verilog2001Visitor):
 			z3constraint1 += "nn_out"+str(i)+" = $$"+str(i)+"\n	"
 			assign += output_vars[i]+" = nn_out"+str(i)+"\n	"
 		z3constraint2 = "	"+eq
-		exists_constraint = "z1 = Exists("+output_vars[0]+", out)"
+		# ov = " ".join(output_vars)
+		exists_constraint = ""
+		zi = ""
+		for i in range(len(output_vars)):
+			zi += "z"+str(i)+", "
+		exists_constraint = "z = Exists(["+', '.join(output_vars)+"], out)"+"\n	"
+		# exists_constraint2 = "z2 = Exists("+output_vars[1]+", out)"
+		# exists_constraint = exists_constraint1 + "\n	" + exists_constraint2
 		
-		quant_free_constraint = "	z2 = out"
+		quant_free_constraint = "	z"+str(len(output_vars))+" = out"
 		func_def = "def check_validity():\n"
 		z3filecontent = func_def+var_dec+"\n"+z3constraint1+"\n"+z3constraint2+"\n	"+exists_constraint+"\n"
 		z3filecontent += assign+"\n"+z3constraint2+"\n"+quant_free_constraint
-		formula = "	formula = z1==z2"
-		z3filecontent += "\n"+formula+"\n	if valid(formula):\n		return 'Valid'\n	else:\n		return 'Not Valid'"
+		# if len(output_vars) > 1:
+		# 	anded = "And("+zi[:-2]+")"
+		# else:
+		# 	anded = "And("+zi[:-2]+", True)"
+		formula = "	formula = z==z"+str(len(output_vars))
+		z3filecontent += "\n"+formula+"\n	flag, model = valid(formula)"+"\n	if flag:\n		return 'Valid', model\n	else:\n		return 'Not Valid', model"
 		return z3filecontent
 
 	def visitModule_identifier(self, ctx: Verilog2001Parser.Module_identifierContext):

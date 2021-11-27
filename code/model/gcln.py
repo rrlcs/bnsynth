@@ -5,7 +5,7 @@ from run import util
 # Gated CLN
 class GCLN(torch.nn.Module):
     literal_pairs = []
-    def __init__(self, input_size, num_of_output_var, K, device, P, p=0):
+    def __init__(self, input_size, num_of_output_var, K, device, P):
         super(GCLN, self).__init__()
         self.device = device
         self.P = P

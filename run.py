@@ -1,5 +1,8 @@
+from math import floor
 import os
 import argparse
+
+from matplotlib.pyplot import flag
 import python_specs
 import time
 import subprocess
@@ -20,9 +23,86 @@ from code.utils import getSkolemFunc as skf
 from data_preparation_and_result_checking.verilog2z3 import preparez3
 from data_preparation_and_result_checking.verilog2python import build_spec
 from data_preparation_and_result_checking.preprocess import preprocess
+from data_preparation_and_result_checking.z3ValidityChecker import check_validity
 
 # Init utilities
 util = utils()
+
+def generate_counter_examples(n, io_dict, model, py_spec, util):
+	ce1 = []
+	ce2 = []
+	for i in range(len(io_dict)):
+		if io_dict[i] in model:
+			ce1.append(model[io_dict[i]])
+			ce2.append(model[io_dict[i]])
+		else:
+			ce1.append([0 for _ in range(1)])
+			ce2.append([1 for _ in range(1)])
+	ce = [ce1, ce2]
+	print("------------ce------------: ", ce)
+	ce = torch.from_numpy(np.array(ce)).squeeze(-1)
+	res = py_spec.F(ce.T, util)
+	ce = (ce.T[:, res >= 0.5]).T
+	print("ce shape: ", ce.shape, ce)
+	ce = torch.cat([(util.add_noise(ce)) for _ in range(5000)])
+	ce = ce.double()
+	print("ce shape: ", ce.shape)
+	return ce
+
+def store_nn_output(num_of_outputs, skfunc):
+	open('nn_output', 'w').close()
+	f = open("nn_output", "a")
+	print(num_of_outputs)
+	for i in range(num_of_outputs):
+		if i < num_of_outputs-1:
+			f.write(skfunc[i][:-1]+"\n")
+		else:
+			f.write(skfunc[i][:-1])
+	f.close()
+
+def store_losses(train_loss, valid_loss):
+	if args.train:
+		f = open("train_loss", "w")
+		train_loss = np.array(train_loss)
+		train_loss.tofile(f, sep=",", format="%s")
+		f.close()
+		f = open("valid_loss", "w")
+		valid_loss = np.array(valid_loss)
+		valid_loss.tofile(f, sep=",", format="%s")
+		f.close()
+
+def ce_train_loop(training_samples, io_dict, result, model, gcln, saved_model):
+	loop = 0
+	data = training_samples
+	print("model", model)
+	while result == 'Not Valid' and loop < 50:
+		loop += 1
+		print(loop)
+		ce = generate_counter_examples(args.no_of_samples, io_dict, model, py_spec, util)
+		training_samples = torch.cat((data, ce))
+		# data = ce
+
+		data_size = training_samples.shape[0]
+		val_size = floor(data_size*0.2)
+		train_size = data_size - val_size
+		validation_set = training_samples[train_size:, :]
+		training_set = training_samples[:train_size, :]
+		print("Training Data: ", data.shape, training_set.shape, validation_set.shape)
+		train_loader = dataLoader(training_set, training_size, args.P, input_var_idx, output_var_idx, num_of_outputs, args.threshold, args.batch_size, TensorDataset, DataLoader)
+		validation_loader = dataLoader(validation_set, training_size, args.P, input_var_idx, output_var_idx, num_of_outputs, args.threshold, args.batch_size, TensorDataset, DataLoader)
+		# checkpoint = torch.load(saved_model)
+		# gcln.load_state_dict(checkpoint)
+		flag = 0
+		args.epochs += 5
+		gcln, train_loss, valid_loss = tr.train_regressor(train_loader, validation_loader, loss_fn, args.learning_rate, args.epochs, input_size, num_of_outputs, output_var_idx, args.K, device, args.P, flag, checkpoint=None)
+		# torch.save(gcln.state_dict(), saved_model)
+		skfunc = skf.get_skolem_function(gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
+		store_nn_output(num_of_outputs, skfunc)
+		store_losses(train_loss, valid_loss)
+		pt.plot()
+		preparez3(args.verilog_spec, args.verilog_spec_location, num_of_outputs)
+		# Run the Validity Checker
+		result, model = check_validity()
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
@@ -47,12 +127,13 @@ if __name__ == "__main__":
 	training_size = args.no_of_samples
 
 	device = 'cuda' if torch.cuda.is_available() else 'cpu'
+	device = 'cpu'
 	start_time = time.time()
 
 	num_of_vars, num_out_vars, output_var_idx, io_dict, num_of_eqns, filename = preprocess(args.verilog_spec, args.verilog_spec_location)
 	build_spec(args.verilog_spec, args.verilog_spec_location)
 	# exit()	
-
+	# print("io dict: ", io_dict)
 	mod = __import__('python_specs', fromlist=[filename])
 	py_spec = getattr(mod, filename)
 	var_indices = [i for i in range(num_of_vars)]
@@ -72,14 +153,19 @@ if __name__ == "__main__":
 
 	# generate training data
 	training_samples = generateTrainData(args.P, util, py_spec, args.no_of_samples, args.threshold, num_of_vars, input_var_idx, args.correlated_sampling)
-	# exit()
-	# for i in range(num_of_outputs):
 	from code.model import gcln as gcln
-	# output_var_pos = output_var_idx[i]
-	# var_idx_except_one_out = torch.tensor([x for x in var_indices if x != output_var_pos])
 	input_size = 2*len(input_var_idx)
+	
+	data_size = training_samples.shape[0]
+	val_size = floor(data_size*0.2)
+	train_size = data_size - val_size
+	validation_set = training_samples[train_size:, :]
+	training_set = training_samples[:train_size, :]
+	print("------shape----------", training_samples.shape, training_set.shape, validation_set.shape)
 	# load data
-	train_loader = dataLoader(training_samples, training_size, args.P, input_var_idx, output_var_idx, num_of_outputs, args.threshold, args.batch_size, TensorDataset, DataLoader)
+	train_loader = dataLoader(training_set, training_size, args.P, input_var_idx, output_var_idx, num_of_outputs, args.threshold, args.batch_size, TensorDataset, DataLoader)
+	validation_loader = dataLoader(validation_set, training_size, args.P, input_var_idx, output_var_idx, num_of_outputs, args.threshold, args.batch_size, TensorDataset, DataLoader)
+	# print(train_loader.data.shape, validation_loader.data.shape)
 
 	'''
 	Select Problem:
@@ -91,31 +177,47 @@ if __name__ == "__main__":
 
 	if args.P == 0:
 		if args.train:
-			print("train", args.train)
+			# print("train", args.train)
 			loss_fn = nn.MSELoss()
-			gcln, lossess = tr.train_regressor(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, num_of_outputs, output_var_idx, args.K, device, args.P, torch, gcln.GCLN)
+			flag = 1
+			gcln, train_loss, valid_loss = tr.train_regressor(train_loader, validation_loader, loss_fn, args.learning_rate, args.epochs, input_size, num_of_outputs, output_var_idx, args.K, device, args.P, flag, checkpoint=None)
 			torch.save(gcln.state_dict(), "regressor")
-			print(list(gcln.G1))
-			print(list(gcln.G2))
+			# print(list(gcln.G1))
+			# print(list(gcln.G2))
 		else:
 			print("no train")
 			gcln = gcln.GCLN(input_size, len(output_var_idx), args.K, device, args.P, p=0).to(device)
 			gcln.load_state_dict(torch.load("regressor_multi_output"))
 			gcln.eval()
 			print(list(gcln.G1))
+
 		skfunc = skf.get_skolem_function(gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
-		# skolem_functions += skfunc
+		store_nn_output(num_of_outputs, skfunc)
+		store_losses(train_loss, valid_loss)
+		pt.plot()
+		preparez3(args.verilog_spec, args.verilog_spec_location, num_of_outputs)
+		# Run the Validity Checker
+		result, model = check_validity()
+		print("\nCounter Example Guided Trainig Loop\n")
+		# saved_model = "regressor"
+		# ce_train_loop(training_samples, io_dict, result, model, gcln, saved_model)
 	elif args.P == 1:
 		if args.train:
 			loss_fn = nn.BCEWithLogitsLoss()
-			gcln, lossess = tc1.train_classifier(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, args.K, device, args.P, torch, gcln.GCLN)
+			gcln, lossess = tc1.train_classifier(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, num_of_outputs, args.K, device, args.P, torch, gcln.GCLN)
 			torch.save(gcln.state_dict(), "classifier1")
 		else:
 			gcln = gcln.GCLN(input_size, args.K, device, args.P, p=0).to(device)
 			gcln.load_state_dict(torch.load("classifier1"))
 			gcln.eval()
-		skfunc = skf.get_skolem_function(gcln, num_of_vars, input_var_idx, output_var_idx, io_dict, args.threshold, args.K)
-		skolem_functions += skfunc
+		skfunc = skf.get_skolem_function(gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
+		store_nn_output(num_of_outputs, skfunc)
+		preparez3(args.verilog_spec, args.verilog_spec_location, num_of_outputs)
+		# Run the Validity Checker
+		result, model = check_validity()
+		print("\nCounter Example Guided Trainig Loop\n")
+		# saved_model = "classifier1"
+		# ce_train_loop(training_samples, io_dict, result, model, gcln, saved_model)
 	elif args.P == 2:
 		if args.train:
 			loss_fn = nn.BCEWithLogitsLoss()
@@ -128,38 +230,12 @@ if __name__ == "__main__":
 		skfunc = skf.get_skolem_function(gcln, num_of_vars, input_var_idx, output_var_idx, io_dict, args.threshold, args.K)
 		skolem_functions += skfunc
 
-	if args.train:
-		f = open("lossess", "w")
-		lossess = np.array(lossess)
-		lossess.tofile(f, sep=",", format="%s")
-
-	pt.plot()
-
-	open('nn_output', 'w').close()
-	f = open("nn_output", "a")
-	print(num_of_outputs)
-	for i in range(num_of_outputs):
-		if i < num_of_outputs-1:
-			f.write(skfunc[i][:-1]+"\n")
-		else:
-			f.write(skfunc[i][:-1])
-	f.close()
-
-	preparez3(args.verilog_spec, args.verilog_spec_location, num_of_outputs)
-
-	# Run the Validity Checker
-	# proc = subprocess.Popen("python3 data_preparation_and_result_checking/z3ValidityChecker.py", stdout=subprocess.PIPE, shell=True)
-	from data_preparation_and_result_checking.z3ValidityChecker import check_validity
-	# result = proc.communicate()[0]
-	result = check_validity()
-	# result = str(result).replace("\n", "")
-	# result = result[2:-3]
-	# proc.terminate()
 	end_time = time.time()
 	total_time = int(end_time - start_time)
 	print("Time = ", end_time - start_time)
-	print("Result: ", result)
-	line = args.verilog_spec+","+str(num_of_vars)+","+str(args.epochs)+","+str(args.no_of_samples)+","+result+","+str(total_time)+"\n"
-	f = open("results.csv", "a")
-	f.write(line)
-	f.close()
+	print("Result:", result)
+	
+	# line = args.verilog_spec+","+str(num_of_vars)+","+str(args.epochs)+","+str(args.no_of_samples)+","+result+","+str(total_time)+"\n"
+	# f = open("results.csv", "a")
+	# f.write(line)
+	# f.close()

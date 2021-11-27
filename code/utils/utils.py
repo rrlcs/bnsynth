@@ -156,9 +156,9 @@ class utils():
         numbers += first_interval.min()
         numbers[numbers > first_interval.max()] += second_interval.min()-first_interval.max()
         XY_vars = torch.from_numpy(numbers)
-        print(XY_vars)
+        # print(XY_vars)
         res = py_spec.F(XY_vars, util)
-        print(res)
+        # print(res)
         samples = XY_vars[:, res >= threshold].T
         # samples = torch.unique(samples, dim=0)
         print("Train Data Generated: ", samples.shape)

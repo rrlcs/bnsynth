@@ -54,6 +54,7 @@ class verilogVisitor(Verilog2001Visitor):
 			if ctx.module_item()[i].module_or_generate_item():
 				if ctx.module_item()[i].module_or_generate_item().continuous_assign():
 					constr = self.visit(ctx.module_item()[i])[:]+"\n"
+					# print("constraints: ", constr)
 					eqn.append(constr)
 
 		# Plot the DAG
@@ -72,7 +73,8 @@ class verilogVisitor(Verilog2001Visitor):
 		topological_sort = list(nx.topological_sort(self.G))
 		lvalues = [x for x in topological_sort if x not in self.input_vars]
 		ordered_eqns = [self.eqn_dict[lv] for lv in lvalues if lv in self.eqn_dict]
-		ordered_eqns1 = '\n'.join(["	"+"assign "+i[:-1]+");" for i in ordered_eqns])
+		# print([i for i in ordered_eqns])
+		ordered_eqns1 = '\n'.join(["	"+"assign "+i+";" for i in ordered_eqns])
 		inps = "\n".join(["	input "+i+";" for i in inps])
 		orderedVerilog = module+io+"\n"+inps+"\n"+wires+"\n"+"	"+out+";\n"+ordered_eqns1+"\n"+"endmodule"+"\n"
 		
@@ -87,6 +89,7 @@ class verilogVisitor(Verilog2001Visitor):
 			var_defs.append(value)
 		var_defs = "\n".join(var_defs)
 		io_dict = OrderedDict(io_dict)
+		# print("eqn dict: ", self.eqn_dict)
 		output_var_idx = [list(io_dict.values()).index(output_vars[i]) for i in range(len(output_vars)) if output_vars[i] in io_dict.values()]
 		ordered_eqns = ["	"+i for i in ordered_eqns]
 		eq = '\n'.join(ordered_eqns)

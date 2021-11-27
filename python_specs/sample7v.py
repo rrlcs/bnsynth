@@ -14,7 +14,7 @@ def F(XY_vars, util):
 	i_12 = XY_vars[12, :]
 	c1 = util.continuous_xor((x_0),(x_5))
 	carry1 = util.tnorm_vectorized((x_0),(x_5))
-	c3 = util.negation(i_)
+	c3 = util.negation(i_9)
 	c5 = util.tnorm_vectorized((x_4),(i_10))
 	c6 = util.tconorm_vectorized((x_5),(i_11))
 	c4 = util.tconorm_vectorized((x_0),(i_12))

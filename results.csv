@@ -126,3 +126,271 @@ sample1.v,3,50,100000,Not Valid,84
 sample1.v,3,50,100000,Not Valid,83
 sample2.v,3,50,100000,Valid,77
 sample2.v,3,50,100000,Valid,78
+sample2.v,3,50,100000,Valid,79
+sample2.v,3,50,100000,Not Valid,70
+sample2.v,3,50,100000,Not Valid,79
+sample2.v,3,50,100000,Not Valid,78
+sample2.v,3,50,100000,Not Valid,78
+sample2.v,3,50,100000,Valid,79
+sample2.v,3,50,100000,Not Valid,78
+sample2.v,3,50,100000,Not Valid,80
+sample2.v,3,50,100000,Valid,79
+sample2.v,3,5,100000,Valid,8
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample6.v,5,1,1000,Not Valid,0
+sample6.v,5,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample1.v,3,50,100000,Not Valid,86
+sample1.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample6.v,5,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,0
+sample1.v,3,1,1000,Not Valid,1
+sample1.v,3,50,100000,Not Valid,85
+sample1.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,2
+sample2.v,3,1,1000,Not Valid,0
+sample2.v,3,1,1000,Not Valid,1
+sample1.v,3,1,1000,Not Valid,0
+sample3.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,1,1000,Not Valid,0
+sample4.v,4,20,100000,Not Valid,29
+sample4.v,4,20,100000,Not Valid,56
+sample4.v,4,20,100000,Not Valid,65
+sample4.v,4,20,100000,Not Valid,95
+sample4.v,4,50,100000,Valid,75
+sample4.v,4,20,100000,Not Valid,95
+sample4.v,4,1,1000,Not Valid,4
+sample4.v,4,20,100000,Not Valid,94
+sample4.v,4,1,1000,Not Valid,1
+sample4.v,4,1,1000,Not Valid,4
+sample4.v,4,1,1000,Not Valid,4
+sample4.v,4,1,1000,Not Valid,4
+sample4.v,4,10,100000,Not Valid,49
+sample4.v,4,1,1000,Not Valid,5
+sample4.v,4,10,100000,Not Valid,48
+sample4.v,4,10,100000,Not Valid,50
+sample4.v,4,10,100000,Not Valid,53
+sample4.v,4,10,100000,Not Valid,52
+sample4.v,4,10,100000,Not Valid,53
+sample4.v,4,20,100000,Not Valid,97
+sample4.v,4,30,100000,Not Valid,143
+sample4.v,4,40,100000,Valid,60
+sample4.v,4,10,100000,Not Valid,50
+sample4.v,4,10,100000,Not Valid,19
+sample4.v,4,10,100000,Not Valid,32
+sample4.v,4,10,100000,Not Valid,32
+sample4.v,4,30,100000,Not Valid,315
+sample4.v,4,40,100000,Valid,81
+sample4.v,4,30,100000,Valid,64
+sample4.v,4,20,100000,Not Valid,86
+sample4.v,4,25,100000,Not Valid,106
+sample4.v,4,40,50000,Valid,43
+sample4.v,4,40,10000,Not Valid,54
+sample1.v,3,40,10000,Not Valid,22
+sample1.v,3,40,100000,Not Valid,98
+sample1.v,3,40,50000,Not Valid,348
+sample2.v,3,40,50000,Valid,30
+sample2.v,3,20,50000,Valid,15
+sample2.v,3,20,10000,Not Valid,71
+sample4.v,4,10,100000,Not Valid,103
+sample4.v,4,10,100000,Not Valid,102
+sample4.v,4,10,100000,Not Valid,319
+sample4.v,4,20,100000,Not Valid,197
+sample4.v,4,20,100000,Valid,26
+sample4.v,4,10,100000,Not Valid,98
+sample4.v,4,20,10000,Not Valid,76
+sample4.v,4,10,10000,Not Valid,41
+sample4.v,4,10,10000,Not Valid,33
+sample4.v,4,10,10000,Not Valid,9
+sample4.v,4,10,10000,Not Valid,8
+sample4.v,4,10,100000,Not Valid,78
+sample4.v,4,10,100000,Not Valid,337
+sample4.v,4,10,10000,Not Valid,33
+sample4.v,4,10,10000,Not Valid,34
+sample4.v,4,10,100000,Not Valid,347
+sample4.v,4,20,100000,Valid,23
+sample4.v,4,20,100000,Valid,25
+sample4.v,4,20,10000,Valid,3
+sample4.v,4,10,10000,Not Valid,19
+sample4.v,4,10,100000,Not Valid,188
+sample4.v,4,10,100000,Valid,17
+sample4.v,4,10,100000,Not Valid,35
+sample4.v,4,10,100000,Not Valid,52
+sample4.v,4,10,100000,Not Valid,34
+sample4.v,4,10,100000,Not Valid,16
+sample4.v,4,10,100000,Not Valid,17
+sample4.v,4,10,100000,Not Valid,17
+sample4.v,4,10,100000,Not Valid,17
+sample4.v,4,10,10000,Not Valid,2
+sample4.v,4,10,100000,Not Valid,18
+sample4.v,4,10,100000,Not Valid,19
+sample4.v,4,10,100000,Not Valid,19
+sample4.v,4,10,100000,Not Valid,33
+sample1.v,3,10,100000,Not Valid,33
+sample1.v,3,40,100000,Not Valid,142
+sample1.v,3,50,100000,Valid,90
+sample1.v,3,10,10000,Valid,2
+sample1.v,3,10,10000,Not Valid,4
+sample1.v,3,10,10000,Not Valid,4
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,2
+sample1.v,3,10,10000,Not Valid,2
+sample1.v,3,10,10000,Not Valid,2
+sample1.v,3,10,10000,Not Valid,2
+sample1.v,3,10,10000,Not Valid,2
+sample1.v,3,10,10000,Not Valid,2
+sample1.v,3,10,10000,Not Valid,2
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,10000,Not Valid,3
+sample1.v,3,10,100000,Not Valid,17
+sample1.v,3,20,100000,Valid,34
+sample1.v,3,20,50000,Valid,15
+sample1.v,3,15,50000,Valid,12
+sample1.v,3,10,50000,Valid,8
+sample1.v,3,5,50000,Not Valid,4
+sample1.v,3,5,50000,Not Valid,5
+sample1.v,3,5,50000,Not Valid,11
+sample1.v,3,5,50000,Not Valid,20
+sample1.v,3,5,50000,Not Valid,23
+sample1.v,3,10,50000,Not Valid,44
+sample1.v,3,10,50000,Not Valid,41
+sample7.v,13,10,50000,Not Valid,9
+sample7.v,13,10,50000,Not Valid,3
+sample7.v,13,10,50000,Not Valid,3
+sample7.v,13,10,50000,Not Valid,3
+sample7.v,13,10,50000,Not Valid,3
+sample7.v,13,10,50000,Not Valid,3
+sample7.v,13,10,50000,Not Valid,2
+sample7.v,13,20,50000,Not Valid,4
+sample7.v,13,20,100000,Not Valid,7
+sample7.v,13,20,1000000,Not Valid,36
+sample7.v,13,50,1000000,Not Valid,80
+sample7.v,13,50,5000000,Not Valid,390
+sample7.v,13,50,5000000,Not Valid,138
+sample7.v,13,100,5000000,Not Valid,295
+sample7.v,13,100,5000000,Not Valid,308
+sample1.v,3,10,50000,Not Valid,19
+sample1.v,3,10,50000,Not Valid,17
+sample1.v,3,10,50000,Not Valid,40
+sample7.v,13,50,5000000,Not Valid,319
+sample7.v,13,50,3000000,Not Valid,191
+sample1.v,3,10,50000,Valid,8
+sample1.v,3,10,50000,Valid,8
+sample1.v,3,10,50000,Not Valid,41
+sample1.v,3,10,50000,Not Valid,829
+sample1.v,3,10,50000,Valid,8
+sample1.v,3,20,50000,Valid,16
+sample1.v,3,40,10000,Not Valid,712
+sample1.v,3,40,10000,Valid,7
+sample1.v,3,10,50000,Valid,7
+sample1.v,3,50,50000,Not Valid,37
+sample1.v,3,100,50000,Valid,73
+sample1.v,3,50,50000,Valid,37
+sample1.v,3,20,50000,Valid,14
+sample1.v,3,20,50000,Valid,15
+sample1.v,3,20,50000,Not Valid,738
+sample1.v,3,50,100000,Valid,75
+sample1.v,3,20,100000,Valid,32
+sample3.v,4,20,100000,Not Valid,40
+sample3.v,4,50,100000,Not Valid,98
+sample2.v,3,50,100000,Not Valid,75
+sample2.v,3,50,100000,Valid,76
+sample2.v,3,20,100000,Valid,32
+sample3.v,4,20,100000,Not Valid,39
+sample3.v,4,50,100000,Not Valid,103
+sample3.v,4,50,100000,Valid,98
+sample3.v,4,20,100000,Not Valid,39
+sample3.v,4,20,200000,Valid,63
+sample3.v,4,20,100000,Valid,32
+sample3.v,4,20,100000,Valid,31
+sample3.v,4,10,80000,Valid,13
+sample3.v,4,20,100000,Valid,31
+sample3.v,4,20,100000,Valid,32
+sample1.v,3,40,10000,Valid,5
+sample1.v,3,10,10000,Not Valid,1
+sample1.v,3,10,20000,Not Valid,2
+sample1.v,3,10,50000,Not Valid,6
+sample1.v,3,10,100000,Not Valid,12
+sample1.v,3,10,10000,Valid,1
+sample1.v,3,10,10000,Not Valid,1
+sample1.v,3,10,10000,Not Valid,1
+sample1.v,3,10,10000,Not Valid,1
