@@ -72,7 +72,7 @@ class verilogVisitor(Verilog2001Visitor):
 		# else:
 		# 	anded = "And("+zi[:-2]+", True)"
 		formula = "	formula = z==z"+str(len(output_vars))
-		z3filecontent += "\n"+formula+"\n	flag, model = valid(formula)"+"\n	if flag:\n		return 'Valid', model\n	else:\n		return 'Not Valid', model"
+		z3filecontent += "\n"+formula+"\n	all_counterexamples = generate_all_counterexamples(formula)"+"\n	print('all_counterexamples', all_counterexamples)\n	if len(all_counterexamples) == 0:\n		return True, all_counterexamples\n	else:\n		return False, all_counterexamples"
 		return z3filecontent
 
 	def visitModule_identifier(self, ctx: Verilog2001Parser.Module_identifierContext):

@@ -1,74 +1,77 @@
 from z3 import *
 
-#Function to check validity of a formula
-
-def valid(formula):
+def generate_all_counterexamples(input_formula):
+    
+    all_counterexamples = []
+    i = 0
 
     s = Solver()
-    s1 = Solver()
-    s.add(Not(formula))
-    # s1.add(formula)
-    # if s1.check() == unsat:
-    #     print("============= model =============", s1.model())
-    if s.check() == unsat:
+    s.add(Not(input_formula))
+    print(s.check())
 
-        # print("counter examples: ", s.model())
-        print("Valid")
-
-        return True, {}
-
-    else:
-        m = s.model()
+    model_dict = {}
+    while s.check() == sat:
+        model = s.model()
+        all_counterexamples.append(model)
+        print("Counterexample model generated in round:", i)
+        print(model)
         
-        model_dict = {}
-        for d in m.decls():
-            for i in range(1):
-                # print(s.check())
-                if s.check() == sat:
-                    m = s.model()
-                    # print(m)
-                s.add(Bool(d.name()) != m[d])
-                if i == 0:
-                    model_dict[d.name()] = [0] if str(m[d])=="False" else [1]
-                else:
-                    model_dict[d.name()].append(0) if str(m[d])=="False" else model_dict[d.name()].append(1)
-            # print("%s = %s" % (d.name(), str(m[d])))
-        print("model_dict: ", model_dict)
-        if m[0]() == False:
-            print("false")
-        else:
-            print("true")
-        print("counter examples: ", m)
+        #Do this for every variable in the model. decls(). Please note that we will use DISJUNCTION OF EACH VARIABLE notation. Hence, Or(i0!=False, i1!=True, ...)
+        additional_constraints = []
+        for j in range(len(model.decls())):
+            x = model.decls()[j]
+            d = x
+            if d.name() not in model_dict:
+                model_dict[d.name()] = [0] if str(model[d])=="False" else [1]
+            else:
+                model_dict[d.name()].append(0) if str(model[d])=="False" else model_dict[d.name()].append(1)
+            print(x)
+            additional_constraints.append(Bool(x.name()) != model[x])
+        s.add(Or(additional_constraints[:]))
+        i += 1
+    print("model_dict: ", model_dict)
+    return model_dict
 
-        print("Not Valid")
-
-        # for v, k in enumerate(model_dict):
-            # print("key value pair: ", type(k), v)
-            # vars()[k] = Bool((vars()[k]))
-            # globals()[k] = 1 #Bool(str(globals()[k]))
-        # i_0 = Bool(str(globals()[k]))
-        # print("******************************", i_0, i_1)
-        return False, model_dict
+# if __name__ == "__main__":
+#     i_0 ,i_1, i_2 = Bools('i_0 i_1 i_2')
+#     w1 = Bool('w1')
+#     w1 = Xor(i_0, i_1)
+#     lhs = Exists([i_2], Xor(w1, i_2))
+#     i_2 = And((Or(i_0, (i_1))), (Or((i_0), i_1)))
+#     rhs = Xor(w1, i_2)
+#     print(lhs, rhs)
+#     formula = lhs == rhs
+#     # formula = Xor(i_0, i_1, i_2) == Xor(w1, i_2)
+#     all_counterexamples = generate_all_counterexamples(formula)
+#     print("\n List of all counterexamples for the given formula: ")
+#     print(all_counterexamples)
 
 def check_validity():
 	i_0 ,i_1 ,i_2 = Bools('i_0 i_1 i_2')
-	w1 = Bool('w1')
+	w1,w2 = Bools('w1 w2')
 	
 	out = Bool('out')
-	nn_out0 = And((Or((i_0),(i_1),Not(i_0),Not(i_1),)),(Or((i_0),(i_1),Not(i_0),)),(Or((i_0),Not(i_0),Not(i_1),)),(Or((i_0),Not(i_1),)),(Or((i_1),Not(i_0),Not(i_1),)),(Or((i_1),Not(i_0),)),)
+	nn_out0 = And((Or((i_0),(i_1),Not(i_0),Not(i_1),)),(Or((i_0),(i_1),Not(i_0),)),(Or((i_0),(i_1),Not(i_1),)),(Or((i_0),Not(i_0),Not(i_1),)),(Or((i_0),Not(i_1),)),)
 	
 	w1 = (Xor((i_0),(i_1),))
-	out = (Xor((w1),(i_2),))
+	w2 = (And((i_1),(i_2),))
+	out = (Xor((w1),(w2),))
 	z = Exists([i_2], out)
 	
 	i_2 = nn_out0
 	
 	w1 = (Xor((i_0),(i_1),))
-	out = (Xor((w1),(i_2),))
+	w2 = (And((i_1),(i_2),))
+	out = (Xor((w1),(w2),))
 	z1 = out
 	formula = z==z1
-	flag, model = valid(formula)
-	if flag:
-		return 'Valid', model
+	all_counterexamples = generate_all_counterexamples(formula)
+	print('all_counterexamples', all_counterexamples)
+	if len(all_counterexamples) == 0:
+		return True, all_counterexamples
 	else:
-		return 'Not Valid', model
+		return False, all_counterexamples
+
+if __name__ == "__main__":
+    is_valid, ce = check_validity()
+    print(is_valid, ce)

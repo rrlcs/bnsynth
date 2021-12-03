@@ -23,9 +23,11 @@ def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
 	z3filecontent = visitor.visit(tree)
 	with open('data_preparation_and_result_checking/templateZ3Checker.py', 'r') as file :
 		filedata = file.read()
+		file.close()
 	filedata = filedata.replace('#*#', z3filecontent)
 	with open('data_preparation_and_result_checking/z3ValidityChecker.py', 'w') as file:
 		file.write(filedata)
+		file.close()
 
 	# Parse the NN output and Generate Z3Py Format
 	f = open("nn_output", "r")
@@ -41,8 +43,10 @@ def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
 		nnOut = visitor.visit(tree)
 		with open('data_preparation_and_result_checking/z3ValidityChecker.py', 'r') as file :
 			filedata = file.read()
+			file.close()
 		filedata = filedata.replace('$$'+str(i), nnOut)
 		# filedata = replace_preref(filedata)
 		with open('data_preparation_and_result_checking/z3ValidityChecker.py', 'w') as file:
 			file.write(filedata)
+			file.close()
 	
