@@ -4,6 +4,16 @@ lossess
 lossess.png 
 regressor
 dag.png
+log.txt
+optimizer
+regressor_multi_output_2
+regressor_multi_output
+results.csv
+saved_model
+train_loss
+train_valid_loss_plot.png
+valid_loss
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
