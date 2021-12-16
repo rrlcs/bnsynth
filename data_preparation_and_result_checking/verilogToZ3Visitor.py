@@ -1,13 +1,18 @@
 from antlr4 import *
-from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Parser
-from data_preparation_and_result_checking.Verilog2001Visitor import Verilog2001Visitor
+
+from data_preparation_and_result_checking.Verilog2001Parser import \
+    Verilog2001Parser
+from data_preparation_and_result_checking.Verilog2001Visitor import \
+    Verilog2001Visitor
+
 
 class verilogVisitor(Verilog2001Visitor):
 	def __init__(self, verilog_spec, verilog_spec_location, num_of_outputs) -> None:
-		super().__init__()
+		super(verilogVisitor, self).__init__()
 		self.verilog_spec = verilog_spec
 		self.verilog_spec_location = verilog_spec_location
 		self.num_of_outputs = num_of_outputs
+		self.output_var = ""
 	def visitModule_declaration(self, ctx: Verilog2001Parser.Module_declarationContext):
 		if "preprocessed" in self.verilog_spec:
 			filename = self.verilog_spec.split("_preprocessed.v")[0]+"_varstoelim.txt"
@@ -51,7 +56,7 @@ class verilogVisitor(Verilog2001Visitor):
 		z3constraint1 = "	"
 		assign = "	"
 		for i in range(self.num_of_outputs):
-			z3constraint1 += "nn_out"+str(i)+" = $$"+str(i)+"\n	"
+			z3constraint1 += "nn_out"+str(i)+" = simplify($$"+str(i)+")\n	"
 			assign += output_vars[i]+" = nn_out"+str(i)+"\n	"
 		z3constraint2 = "	"+eq
 		# ov = " ".join(output_vars)
@@ -59,11 +64,11 @@ class verilogVisitor(Verilog2001Visitor):
 		zi = ""
 		for i in range(len(output_vars)):
 			zi += "z"+str(i)+", "
-		exists_constraint = "z = Exists(["+', '.join(output_vars)+"], out)"+"\n	"
+		exists_constraint = "z = Exists(["+', '.join(output_vars)+"], "+self.output_var+")"+"\n	"
 		# exists_constraint2 = "z2 = Exists("+output_vars[1]+", out)"
 		# exists_constraint = exists_constraint1 + "\n	" + exists_constraint2
 		
-		quant_free_constraint = "	z"+str(len(output_vars))+" = out"
+		quant_free_constraint = "	z"+str(len(output_vars))+" = "+self.output_var
 		func_def = "def check_validity():\n"
 		z3filecontent = func_def+var_dec+"\n"+z3constraint1+"\n"+z3constraint2+"\n	"+exists_constraint+"\n"
 		z3filecontent += assign+"\n"+z3constraint2+"\n"+quant_free_constraint
@@ -188,6 +193,7 @@ class verilogVisitor(Verilog2001Visitor):
 	
 	def visitOutput_declaration(self, ctx: Verilog2001Parser.Output_declarationContext):
 		outs = self.visit(ctx.list_of_port_identifiers())
+		self.output_var = outs[:-1]
 		lv = ""
 		for i in outs:
 			lv += i

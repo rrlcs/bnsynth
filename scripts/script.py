@@ -1,6 +1,12 @@
-import os
 import argparse
+import os
+
 import pandas as pd
+
+'''
+This is a script for running all test files at once
+
+'''
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--verilog_spec_location", type=str, default="sample_examples", help="Enter file location")
@@ -15,10 +21,6 @@ for data_file in sorted(os.listdir(folder_path)):
 
 data = pd.read_csv('preprocess_data.csv')
 files = data['Benchmark']
-# print(len(files))
-# print(len(file_names))
-# print((file_left))
-# exit()
 
 for i in range(len(file_names)):
 	if os.path.isfile(folder_path+file_names[i]):
@@ -29,10 +31,8 @@ for i in range(len(file_names)):
 		f = open(folder_path+file_names[i], "w")
 		f.write(content)
 		f.close()
-# file_left = [x for x in file_names if x not in list(files)]
+
 file_left = file_names
-# print(file_left)
-# exit()
 f1 = open('./scripts/output/largefiles.txt', 'a')
 for i in range(len(file_left)):
 	if os.path.isfile(folder_path+file_left[i]):

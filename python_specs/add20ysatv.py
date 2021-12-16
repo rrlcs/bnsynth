@@ -154,6 +154,8 @@ def F(XY_vars, util):
 	v_4 = v
 	v_612 = util.negation(v)
 	o_1 = x
+	v_613 = util.negation(v_6)
+	v_618 = v_6
 	v_31 = util.tconorm_vectorized((v_15),(v_30))
 	v_35 = util.tnorm_vectorized((v_20),(v_34))
 	v_53 = util.tnorm_vectorized((v_15),(v_52))
@@ -197,6 +199,7 @@ def F(XY_vars, util):
 	v_611 = util.tconorm_vectorized((v_606),(v_610))
 	v_609 = util.tconorm_vectorized(util.negation(v_606),(v_608))
 	v_5 = util.tconorm_vectorized((v_2),(v_4))
+	v_614 = util.tnorm_vectorized((v_612),(v_613))
 	v_530 = util.tconorm_vectorized((v_31),(v_32))
 	v_33 = util.tnorm_vectorized((v_31),(v_32))
 	v_529 = util.tconorm_vectorized(util.negation(v_32),(v_35))
@@ -218,10 +221,8 @@ def F(XY_vars, util):
 	v_22 = util.tnorm_vectorized((v_16),(v_21))
 	v_27 = util.tconorm_vectorized((v_25),(v_26))
 	v_82 = util.tconorm_vectorized((v_80),(v_81))
-	v_613 = util.negation(v_6)
 	v_74 = util.tnorm_vectorized((v_72),(v_73))
 	v_57 = util.tconorm_vectorized((v_48),(v_56))
-	v_618 = v_6
 	v_62 = util.tnorm_vectorized((v_60),(v_61))
 	v_527 = util.tconorm_vectorized((v_22),(v_23))
 	v_24 = util.tnorm_vectorized((v_22),(v_23))
@@ -230,7 +231,6 @@ def F(XY_vars, util):
 	v_107 = util.tnorm_vectorized((v_82),(v_106))
 	v_83 = util.tnorm_vectorized((v_78),(v_82))
 	v_87 = util.tconorm_vectorized((v_78),(v_82))
-	v_614 = util.tnorm_vectorized((v_612),(v_613))
 	v_99 = util.tconorm_vectorized((v_74),(v_98))
 	v_75 = util.tnorm_vectorized((v_70),(v_74))
 	v_88 = util.tconorm_vectorized((v_70),(v_74))

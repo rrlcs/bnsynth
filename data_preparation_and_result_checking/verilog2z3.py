@@ -1,7 +1,14 @@
+import sys
+
 import antlr4
-from data_preparation_and_result_checking.verilogToZ3Visitor import verilogVisitor
-from data_preparation_and_result_checking.Verilog2001Lexer import Verilog2001Lexer
-from data_preparation_and_result_checking.Verilog2001Parser import Verilog2001Parser
+
+from data_preparation_and_result_checking.Verilog2001Lexer import \
+    Verilog2001Lexer
+from data_preparation_and_result_checking.Verilog2001Parser import \
+    Verilog2001Parser
+from data_preparation_and_result_checking.verilogToZ3Visitor import \
+    verilogVisitor
+
 
 def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
 	'''
@@ -33,18 +40,21 @@ def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
 	f = open("nn_output", "r")
 	data = f.read()
 	data = data.split("\n")
+	sys.setrecursionlimit(2000)
 	for i in range(len(data)):
 		inputStream = antlr4.InputStream(data[i])
 		lexer = Verilog2001Lexer(inputStream)
 		tokenStream = antlr4.CommonTokenStream(lexer)
 		parser = Verilog2001Parser(tokenStream)
-		tree = parser.expression()
+		tree = parser.mintypmax_expression()
 		visitor = verilogVisitor(verilog_spec, verilog_spec_location, num_of_ouputs)
 		nnOut = visitor.visit(tree)
 		with open('data_preparation_and_result_checking/z3ValidityChecker.py', 'r') as file :
 			filedata = file.read()
 			file.close()
-		filedata = filedata.replace('$$'+str(i), nnOut)
+		text = "$$"+str(i)
+		print("text {}, nnout {} ".format(text, nnOut))
+		filedata = filedata.replace(text, nnOut)
 		# filedata = replace_preref(filedata)
 		with open('data_preparation_and_result_checking/z3ValidityChecker.py', 'w') as file:
 			file.write(filedata)

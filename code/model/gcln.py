@@ -2,9 +2,11 @@ import torch
 import torch.nn as nn
 from run import util
 
+
 # Gated CLN
 class GCLN(torch.nn.Module):
     literal_pairs = []
+
     def __init__(self, input_size, num_of_output_var, K, device, P):
         super(GCLN, self).__init__()
         self.device = device
@@ -16,19 +18,25 @@ class GCLN(torch.nn.Module):
         # Weights and Biases
         # self.G1.shape: 2 * no_input_var x K
         self.G1 = torch.nn.Parameter(
-            torch.Tensor(self.input_size, num_of_output_var * K).uniform_(0, 1).to(dtype=torch.double).to(self.device)
-            )
+            torch.Tensor(
+                self.input_size, num_of_output_var * K
+            ).uniform_(0, 1).to(dtype=torch.double).to(self.device)
+        )
         # self.G2.shape: K x 1
         self.G2 = torch.nn.Parameter(
-            torch.Tensor(num_of_output_var * K, num_of_output_var).uniform_(0, 1).to(dtype=torch.double).to(self.device)
-            )
+            torch.Tensor(
+                num_of_output_var * K, num_of_output_var
+            ).uniform_(0, 1).to(dtype=torch.double).to(self.device)
+        )
         # self.b1.shape: 2 * no_input_var x K
-        self.b1 = torch.nn.Parameter(torch.randn((self.input_size, K)).to(self.device))
+        self.b1 = torch.nn.Parameter(torch.randn(
+            (self.input_size, K)).to(self.device))
         # self.b2.shape: K x 1
         self.b2 = torch.nn.Parameter(torch.randn((K, 1)).to(self.device))
 
     def apply_gates(self, x, y):
         return torch.mul(x, y)
+
     def apply_bias(self, x, bias):
         return x + bias
 
@@ -40,30 +48,21 @@ class GCLN(torch.nn.Module):
 
         # inputs.shape: batch_size x 2*no_input_vars x 1
         inputs = torch.cat((x, neg_x), dim=1).unsqueeze(-1)
-        # print(inputs.shape)
 
         # gated_inputs.shape: batch_size x 2*no_input_vars x K
         gated_inputs = self.apply_gates(self.G1, inputs)
         # gated_inputs = self.apply_bias(gated_inputs, self.b1)
-        # print(gated_inputs.shape)
 
         # or_res.shape: batch_size x K
         or_res = 1 - util.tnorm_n_inputs(1 - gated_inputs)
         or_res = or_res.unsqueeze(-1)
-        # print(or_res.shape)
 
         # gated_or_res.shape: batch_size x K
         gated_or_res = self.apply_gates(self.G2, or_res)
         gated_or_res = torch.add(gated_or_res, 1 - self.G2, alpha=1)
         # gated_or_res = self.apply_bias(gated_or_res, self.b2)
-        # print(gated_or_res.shape)
 
         # out.shape: batch_size x 1
         out = util.tnorm_n_inputs(gated_or_res).to(self.device)
-        # out1 = util.tnorm_n_inputs(gated_or_res[:,:self.K,:]).to(self.device)
-        # out2 = util.tnorm_n_inputs(gated_or_res[:,self.K:,:]).to(self.device)
-        # print(out1.shape, out2.shape)
-        # out = torch.cat((out1, out2), dim=-1)
-        # print(out.shape)
 
         return out

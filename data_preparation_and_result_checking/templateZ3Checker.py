@@ -1,5 +1,6 @@
 from z3 import *
 
+
 def generate_all_counterexamples(input_formula):
     
     all_counterexamples = []
@@ -7,14 +8,14 @@ def generate_all_counterexamples(input_formula):
 
     s = Solver()
     s.add(Not(input_formula))
-    print(s.check())
+    # print(s.check())
 
     model_dict = {}
-    while s.check() == sat:
+    if s.check() == sat:
         model = s.model()
         all_counterexamples.append(model)
-        print("Counterexample model generated in round:", i)
-        print(model)
+        # print("Counterexample model generated in round:", i)
+        # print(model)
         
         #Do this for every variable in the model. decls(). Please note that we will use DISJUNCTION OF EACH VARIABLE notation. Hence, Or(i0!=False, i1!=True, ...)
         additional_constraints = []
@@ -25,11 +26,11 @@ def generate_all_counterexamples(input_formula):
                 model_dict[d.name()] = [0] if str(model[d])=="False" else [1]
             else:
                 model_dict[d.name()].append(0) if str(model[d])=="False" else model_dict[d.name()].append(1)
-            print(x)
+            # print(x)
             additional_constraints.append(Bool(x.name()) != model[x])
         s.add(Or(additional_constraints[:]))
         i += 1
-    print("model_dict: ", model_dict)
+    # print("model_dict: ", model_dict)
     return model_dict
 
 # if __name__ == "__main__":
@@ -50,4 +51,4 @@ def generate_all_counterexamples(input_formula):
 
 if __name__ == "__main__":
     is_valid, ce = check_validity()
-    print(is_valid, ce)
+    # print(is_valid, ce)
