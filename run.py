@@ -164,7 +164,7 @@ def ce_train_loop(
     loop = 0
     ce_time = 0
     ce_data_time = 0
-    n = 1000
+    n = 5000
     while result == False and loop < 50:
         loop += 1
         print("Counter Example Loop: ", loop)
@@ -368,20 +368,33 @@ if __name__ == "__main__":
             torch.save(gcln.state_dict(), "classifier1")
         else:
             gcln = gcln.GCLN(input_size, args.K, device,
-                             args.P, p=0).to(device)
+                             args.P).to(device)
             gcln.load_state_dict(torch.load("classifier1"))
             gcln.eval()
-    # elif args.P == 2:
-    # 	if args.train:
-    # 		loss_fn = nn.BCEWithLogitsLoss()
-    # 		gcln, lossess = tc2.train_classifier(train_loader, loss_fn, args.learning_rate, args.epochs, input_size, args.K, device, args.P, torch, gcln.GCLN, util, py_spec)
-    # 		torch.save(gcln.state_dict(), "classifier2")
-    # 	else:
-    # 		gcln = gcln.GCLN(input_size, args.K, device, args.P, p=0).to(device)
-    # 		gcln.load_state_dict(torch.load("classifier2"))
-    # 		gcln.eval()
-    # 	skfunc = skf.get_skolem_function(gcln, num_of_vars, input_var_idx, output_var_idx, io_dict, args.threshold, args.K)
-    # 	skolem_functions += skfunc
+    elif args.P == 2:
+    	if args.train:
+            loss_fn = nn.BCEWithLogitsLoss()
+            gcln, train_loss, valid_loss = tc2.train_classifier(
+                train_loader,
+                validation_loader, 
+                loss_fn, 
+                args.learning_rate, 
+                args.epochs, 
+                input_size,
+                num_of_outputs, 
+                args.K, 
+                device, 
+                args.P, 
+                torch, 
+                gcln.GCLN, 
+                util, 
+                py_spec
+                )
+            torch.save(gcln.state_dict(), "classifier2")
+        # else:
+        #     gcln = gcln.GCLN(input_size, args.K, device, args.P, p=0).to(device)
+        #     gcln.load_state_dict(torch.load("classifier2"))
+        #     gcln.eval()
 
     skfunc = skf.get_skolem_function(
         gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)

@@ -7,7 +7,7 @@ python3 run.py \
 --run_for_all_outputs=1 \
 --verilog_spec_location=sample_examples \
 --verilog_spec=$2 \
---no_of_samples=5000 \
+--no_of_samples=100 \
 --epochs=$3 \
 --batch_size=32 \
 --K=$4

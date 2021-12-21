@@ -15,7 +15,7 @@ def generateTrainData(P, util, py_spec, no_of_samples, threshold, num_of_vars, i
             )
         else:
             training_samples = util.fractional_sampling_pos_and_neg(
-                no_of_samples, util, threshold, num_of_vars
+                no_of_samples, util, threshold, num_of_vars, py_spec
             )
 
     return training_samples

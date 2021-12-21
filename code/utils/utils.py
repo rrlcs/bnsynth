@@ -79,7 +79,15 @@ class utils():
         return self.proc(samples, range)
 
     # Seed based sampling from truth table
-    def seed_sampling(self, no_of_samples, util, py_spec, threshold, num_of_vars):
+    def seed_sampling(
+        self, 
+        no_of_samples, 
+        util, 
+        py_spec, 
+        threshold, 
+        num_of_vars
+        ):
+
         arr = [0 for i in range(num_of_vars)]
         self.generateAllBinaryStrings(num_of_vars, arr, 0)
         XY_vars = torch.from_numpy(np.array(self.res).T)
@@ -96,7 +104,15 @@ class utils():
         return samples
 
     # Fractional Sampling
-    def fractional_sampling(self, no_of_samples, util, py_spec, threshold, num_of_vars):
+    def fractional_sampling(
+        self, 
+        no_of_samples, 
+        util, 
+        py_spec, 
+        threshold, 
+        num_of_vars
+        ):
+
         first_interval = np.array([0, 0.01])
         second_interval = np.array([0.99, 1])
         total_length = np.ptp(first_interval)+np.ptp(second_interval)
@@ -113,7 +129,15 @@ class utils():
         return samples
 
     # Fractional Sampling
-    def fractional_sampling_pos_and_neg(self, no_of_samples, util, threshold, num_of_vars):
+    def fractional_sampling_pos_and_neg(
+        self, 
+        no_of_samples, 
+        util, 
+        threshold, 
+        num_of_vars,
+        py_spec
+        ):
+
         first_interval = np.array([0, 0.3])
         second_interval = np.array([0.7, 1])
 
@@ -125,7 +149,7 @@ class utils():
             first_interval.max()
 
         XY_vars = torch.from_numpy(numbers)
-        res = func_spec.F(XY_vars, util)
+        res = py_spec.F(XY_vars, util)
         samples = XY_vars[:num_of_vars, :]
         outs = (res > threshold).double()
         train_samples = torch.cat((samples.T, outs.reshape(-1, 1)), dim=1)
@@ -137,7 +161,14 @@ class utils():
         return train_samples
 
         # Fractional Sampling
-    def correlated_fractional_sampling(self, no_of_samples, util, threshold, num_of_vars):
+    def correlated_fractional_sampling(
+        self, 
+        no_of_samples, 
+        util, 
+        threshold, 
+        num_of_vars
+        ):
+        
         first_interval = np.array([0, 0.3])
         second_interval = np.array([0.7, 1])
         total_length = np.ptp(first_interval)+np.ptp(second_interval)

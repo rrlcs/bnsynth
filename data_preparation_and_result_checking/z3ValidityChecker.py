@@ -48,21 +48,18 @@ def generate_all_counterexamples(input_formula):
 #     print(all_counterexamples)
 
 def check_validity():
-	i_0 ,i_1 ,i_2 = Bools('i_0 i_1 i_2')
-	w1 = Bool('w1')
+	i_0 ,i_1 = Bools('i_0 i_1')
 	
-	o_1 = Bool('o_1')
-	nn_out0 = simplify(And((Or((i_0),(i_1),Not(i_0),Not(i_1),)),(Or((i_0),(i_1),Not(i_0),)),(Or((i_0),Not(i_1),)),(Or((i_1),Not(i_0),)),))
+	out = Bool('out')
+	nn_out0 = simplify((Or((i_0),Not(i_0),)))
 	
-	w1 = (Xor((i_0),(i_1),))
-	o_1 = (Xor((w1),(i_2),))
-	z = Exists([i_2], o_1)
+	out = (i_0)
+	z = Exists([i_1], out)
 	
-	i_2 = nn_out0
+	i_1 = nn_out0
 	
-	w1 = (Xor((i_0),(i_1),))
-	o_1 = (Xor((w1),(i_2),))
-	z1 = o_1
+	out = (i_0)
+	z1 = out
 	formula = z==z1
 	all_counterexamples = generate_all_counterexamples(formula)
 	print('all_counterexamples', all_counterexamples)

@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+
+
 def plot():
 	f = open("train_loss", "r")
 	train_loss = f.read().split(",")

@@ -27,6 +27,9 @@ def train_regressor(
     from run import preparez3, store_nn_output
     train_loss = []
     valid_loss = []
+    best_loss = float('inf')
+
+    early_stop = 0
 
     # Set regularizers
     lambda1 = 1e-2
@@ -84,6 +87,17 @@ def train_regressor(
 
             valid_epoch_loss += v_loss.item()*inps.size(0)
         valid_loss.append(valid_epoch_loss / len(validation_loader.sampler))
+        
+        # early_stopping needs the validation loss to check if it has decresed, 
+        # and if it has, it will make a checkpoint of the current model
+        # if best_loss - valid_epoch_loss > 0.01:
+        #     best_loss = valid_epoch_loss
+        #     early_stop = 0
+        # else:
+        #     early_stop += 1
+        #     if early_stop > 5:
+        #         print("Early Stopping!!")
+                # break
 
         if epoch % 5 == 0:
             print('epoch {}, train loss {}, valid loss {}'.format(
@@ -105,7 +119,7 @@ def train_regressor(
             importlib.reload(z3)  # Reload the package
             result, model = z3.check_validity()
             print("Result {}, Epoch {}".format(result, epoch))
-            if result == True:
-                return gcln, train_loss, valid_loss
+            # if result == True:
+                # return gcln, train_loss, valid_loss
 
     return gcln, train_loss, valid_loss
