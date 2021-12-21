@@ -13,6 +13,9 @@ saved_model
 train_loss
 train_valid_loss_plot.png
 valid_loss
+classifier1
+classifier2
+model.pth.tar
 
 
 # Byte-compiled / optimized / DLL files
