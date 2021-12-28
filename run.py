@@ -1,7 +1,4 @@
 import argparse
-import importlib
-import os
-import subprocess
 import time
 from code.algorithms import trainClassification2ndForm as tc2
 from code.algorithms.trainClassification import train_classifier
@@ -9,26 +6,15 @@ from code.algorithms.trainRegression import train_regressor
 from code.model import gcln as gcln
 from code.utils import getSkolemFunc as skf
 from code.utils import plot as pt
-from code.utils.utils import utils
+from code.utils.utils import util
 from math import floor
-from pathlib import Path
+from typing import OrderedDict
 
 import numpy as np
 import torch
 import torch.nn as nn
-from matplotlib.pyplot import flag
 
-import python_specs
 from data.dataLoader import dataLoader
-from data.generateTrainData import generateTrainData
-from data_preparation_and_result_checking import z3ValidityChecker as z3
-from data_preparation_and_result_checking.preprocess import preprocess
-from data_preparation_and_result_checking.verilog2python import build_spec
-# from code.utils import getSkolemFunc1 as skf
-from data_preparation_and_result_checking.verilog2z3 import preparez3
-
-# Init utilities
-util = utils()
 
 
 def prepare_ce(io_dict, counter_examples, num_of_vars, num_of_outputs):
@@ -82,6 +68,7 @@ def generate_counter_examples(
     ce = prepare_ce(io_dict, counter_examples, num_of_vars, num_of_outputs)
     # print("ce shape: ", ce.shape)
     res = py_spec.F(ce, util)
+    print("ce:: ", ce[:, res >= 0.5].T)
     ce = torch.cat(
         [
             util.add_noise((ce[:, res >= 0.5].T)) for _ in range(n)
@@ -157,26 +144,26 @@ def get_train_test_split(training_samples):
 
 
 def ce_train_loop(
-    training_samples, io_dict, result, model,
+    training_samples, io_dict, ret, model,
     num_of_vars, num_of_outputs, input_size,
-	start_time
+	start_time, pos_unate, neg_unate
 	):
     loop = 0
     ce_time = 0
     ce_data_time = 0
     n = 5000
-    while result == False and loop < 50:
+    while ret and loop < 50:
         loop += 1
         print("Counter Example Loop: ", loop)
         s = time.time()
-        ce = generate_counter_examples(
-            n, io_dict, model, py_spec,
-            util, num_of_vars, num_of_outputs
-        )
+        ce = model.repeat(200, 1)
+        ce = torch.cat([util.add_noise(ce) for _ in range(20)]).to(torch.double)
+        # print("ce shape: ", ce.shape)
         e = time.time()
         data_t = e - s
         ce_data_time += data_t
 		# Add counter examples to existing training data
+        # print(training_samples.shape, ce.shape, ce)
         training_samples = torch.cat((training_samples, ce))
 
 		# Re-Train only on counter-examples
@@ -216,7 +203,8 @@ def ce_train_loop(
                 args.P,
 				flag, num_of_vars, input_var_idx,
                 output_var_idx, io_dict, args.threshold,
-                args.verilog_spec, args.verilog_spec_location
+                args.verilog_spec, args.verilog_spec_location,
+                Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate
             )
         elif args.P == 1:
             gcln, train_loss, valid_loss = train_classifier(
@@ -232,33 +220,55 @@ def ce_train_loop(
             )
         
         # Extract and Check
+        s = time.time()
         skfunc = skf.get_skolem_function(
             gcln, num_of_vars,
             input_var_idx, num_of_outputs, output_var_idx, io_dict,
             args.threshold, args.K
         )
-        
-        store_nn_output(num_of_outputs, skfunc)
-        s = time.time()
-        preparez3(
-            args.verilog_spec, args.verilog_spec_location, num_of_outputs
-        )
         e = time.time()
         print("Formula Extraction Time: ", e-s)
 
+        candidateskf = util.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
+        util.create_skolem_function(
+            args.verilog_spec.split('.v')[0], candidateskf, Xvar, Yvar)
+        error_content, refine_var_log = util.create_error_formula(
+            Xvar, Yvar, verilog_formula)
+        util.add_skolem_to_errorformula(error_content, [], verilog)
+
+        # sat call to errorformula:
+        check, sigma, ret = util.verify(Xvar, Yvar, verilog)
+        print("check: {}, ret: {} ".format(check, ret))
+        
+        if check == 0:
+            print("error...ABC network read fail")
+            print("Skolem functions not generated")
+            print("not solved !!")
+            break
+        
+        if ret == 0:
+            print('error formula unsat.. skolem functions generated')
+            break
+        else:
+            print(check, sigma.modelx, sigma.modely, sigma.modelyp, ret)
+            ce = torch.from_numpy(
+                np.concatenate(
+                    (sigma.modelx, sigma.modely)
+                    ).reshape((1, num_of_vars))
+                ).to(torch.double)
 
         store_losses(train_loss, valid_loss)
         pt.plot()
         # Run the Validity Checker
-        importlib.reload(z3)  # Reload the package
+        # importlib.reload(z3)  # Reload the package
         s = time.time()
-        result, model = z3.check_validity()
+        # result, model = z3.check_validity()
         e = time.time()
         ce_time += e-s
         print("Time Elapsed = ", e - start_time)
         n += 1000
 
-    return result, ce_time, ce_data_time
+    return ret, ce_time, ce_data_time
 
 
 if __name__ == "__main__":
@@ -301,10 +311,67 @@ if __name__ == "__main__":
     start_time = time.time()
 
     # Start Preprocessing
-    num_of_vars, num_out_vars, output_var_idx, io_dict, num_of_eqns, filename = preprocess(
-        args.verilog_spec, args.verilog_spec_location)
-    build_spec(args.verilog_spec, args.verilog_spec_location)
-    py_spec = load_python_spec(filename)
+    pre_t_s = time.time()
+    verilog, varlistfile = util.prepare_file_names(args.verilog_spec, args.verilog_spec_location)
+    output_varlist = util.get_output_varlist(varlistfile)  # Y variable list
+    output_varlist = ["i"+e.split("_")[1] for e in output_varlist]
+    # print(output_varlist)
+    Xvar_tmp, Yvar_tmp, total_vars = util.get_temporary_variables(verilog, output_varlist)
+    # print(Xvar_tmp, Yvar_tmp)
+    verilog_formula = util.change_modulename(verilog)
+    pos_unate, neg_unate, Xvar, Yvar, Xvar_map, Yvar_map = util.preprocess_manthan(
+        varlistfile,verilog,Xvar_tmp,Yvar_tmp
+        )
+    pre_t_e = time.time()
+    print("Preprocessing Time: ", pre_t_e - pre_t_s)
+    total_vars = ["i"+e.split("_")[1] for e in total_vars]
+    # print("-------------", pos_unate, neg_unate, Xvar, Yvar, Xvar_map, Yvar_map, total_vars, output_varlist)
+
+    # TO DO:
+    # 1. USE THE UNATES TO CONSTRUCT UNATE_SKOLEMFORMULA
+    
+    # to sample, we need a cnf file and variable mapping coressponding to
+    # varilog variables
+    data_t_s = time.time()
+    cnf_content, allvar_map = util.prepare_cnf_content(
+        verilog, 
+        Xvar, 
+        Yvar, 
+        Xvar_map, 
+        Yvar_map, 
+        pos_unate, 
+        neg_unate
+        )
+    
+    # generate sample
+    samples = util.generate_samples(
+        cnf_content, 
+        Xvar, 
+        Yvar, 
+        Xvar_map, 
+        Yvar_map, 
+        allvar_map,
+        verilog,
+        max_samples=20000
+        )
+    data_t_e = time.time()
+    print("Data Sampling Time: ", data_t_e - data_t_s)
+    data = np.asarray(samples)
+    print(data.shape)
+    np.savetxt("sample.csv", data, delimiter=',')
+
+    num_of_vars, num_out_vars, num_of_eqns = util.get_counts(Xvar, Yvar, verilog)
+    
+    print("No. of vars: {}, No. of output vars: {}, No. of eqns: {}".format(num_of_vars, num_out_vars, num_of_eqns))
+    
+    io_dict = {}
+    for index, value in enumerate(total_vars):
+        # print("value: ", value.split("_"))
+        io_dict[index] = value
+    io_dict = OrderedDict(io_dict)
+    # print("io_dict: ", io_dict, io_dict.keys())
+
+    output_var_idx = [list(io_dict.values()).index(output_varlist[i]) for i in range(len(output_varlist)) if output_varlist[i] in io_dict.values()]
     var_indices, input_var_idx = get_indices(num_of_vars, output_var_idx)
     input_size = 2*len(input_var_idx)
 
@@ -322,15 +389,16 @@ if __name__ == "__main__":
         num_of_outputs = 1
 
     # Generate training data
-    s_d = time.time()
-    training_samples = generateTrainData(
-        args.P, util, py_spec, args.no_of_samples, args.threshold, num_of_vars, input_var_idx, args.correlated_sampling)
-    e_d = time.time()
-    data_time = e_d - s_d
-
+    training_samples = torch.from_numpy(samples)
+    training_samples = training_samples.repeat(2, 1)
+    training_samples = torch.cat([
+        util.add_noise((training_samples)) for _ in range(10)
+        ])
+    training_samples = training_samples.to(torch.double)
+    print(training_samples.shape)
     # Get train test split
     training_set, validation_set = get_train_test_split(training_samples)
-    print("Train, Test, and Valid shapes", training_samples.shape,
+    print("Total, Train, and Valid shapes", training_samples.shape,
           training_set.shape, validation_set.shape)
 
     # load data
@@ -346,13 +414,14 @@ if __name__ == "__main__":
 	2: Classification 2
 	3: Classification 3
 	'''
-
+    train_t_s = time.time()
     if args.P == 0:
         if args.train:
             gcln, train_loss, valid_loss = train_regressor(
                 train_loader, validation_loader, args.learning_rate, args.epochs, input_size, num_of_outputs, args.K, device, args.P, 0, num_of_vars, input_var_idx,
                 output_var_idx, io_dict, args.threshold,
-                args.verilog_spec, args.verilog_spec_location)
+                args.verilog_spec, args.verilog_spec_location,
+                Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate)
         else:
             print("no train")
             gcln = gcln.GCLN(input_size, len(output_var_idx),
@@ -395,37 +464,78 @@ if __name__ == "__main__":
         #     gcln = gcln.GCLN(input_size, args.K, device, args.P, p=0).to(device)
         #     gcln.load_state_dict(torch.load("classifier2"))
         #     gcln.eval()
+    train_t_e = time.time()
 
+    print("Training Time: ", train_t_e - train_t_s)
+
+    extract_t_s = time.time()
     skfunc = skf.get_skolem_function(
         gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
-    store_nn_output(num_of_outputs, skfunc)
+    extract_t_e = time.time()
+    print("Formula Extraction Time: ", extract_t_e - extract_t_s)
+    # store_nn_output(num_of_outputs, skfunc)
     store_losses(train_loss, valid_loss)
     pt.plot()
-    preparez3(args.verilog_spec, args.verilog_spec_location, num_of_outputs)
 
     print("-----------------------------------------------------------------------------")
-    print("skolem function: ", skfunc[0][:-1])
+    print("skolem function run: ", skfunc)
     print("-----------------------------------------------------------------------------")
+
+    verify_t_s = time.time()
+    candidateskf = util.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
+    util.create_skolem_function(
+        args.verilog_spec.split('.v')[0], candidateskf, Xvar, Yvar)
+    error_content, refine_var_log = util.create_error_formula(
+        Xvar, Yvar, verilog_formula)
+    util.add_skolem_to_errorformula(error_content, [], verilog)
 
     # Run the Validity Checker
-    importlib.reload(z3)
-    s = time.time()
-    result, counter_examples = z3.check_validity()
-    e = time.time()
-    ce_time1 = e - s
-    ce_time2 = 0
-    ce_data_time = 0
-    if not result:
+    # sat call to errorformula:
+    check, sigma, ret = util.verify(Xvar, Yvar, verilog)
+    verify_t_e = time.time()
+    print("Verification Time: ", verify_t_e - verify_t_s)
+    
+    if check == 0:
+        print("error...ABC network read fail")
+        print("Skolem functions not generated")
+        print("not solved !!")
+        exit()
+    
+    if ret == 0:
+        print('error formula unsat.. skolem functions generated')
+        print("success")
+    else:
+        # print(check, sigma.modelx, sigma.modely, sigma.modelyp, ret)
+        counter_examples = torch.from_numpy(
+            np.concatenate(
+                (sigma.modelx, sigma.modely)
+                ).reshape((1, num_of_vars))
+            )
+        
+        # print("counter examples from ABC network: ", counter_examples)
+        ce_time1 = 0
+        ce_time2 = 0
+        ce_data_time = 0
         print("\nCounter Example Guided Trainig Loop\n", counter_examples)
-        result, ce_time2, ce_data_time = ce_train_loop(training_samples, io_dict, result,
-                               counter_examples, num_of_vars, num_of_outputs, input_size, start_time)
+        ret, ce_time2, ce_data_time = ce_train_loop(
+            training_samples, 
+            io_dict, 
+            ret,
+            counter_examples, 
+            num_of_vars, 
+            num_of_outputs, 
+            input_size, 
+            start_time,
+            pos_unate,
+            neg_unate
+            )
 
     end_time = time.time()
     total_time = int(end_time - start_time)
-    print("Counter Example generation time: ", ce_time1+ce_time2)
-    print("Data Generation Time: ", data_time + ce_data_time)
+    # print("Counter Example generation time: ", ce_time1+ce_time2)
+    # print("Data Generation Time: ", data_time + ce_data_time)
     print("Time = ", end_time - start_time)
-    print("Result:", result)
+    print("Result:", ret==0)
 
     # line = args.verilog_spec+","+str(num_of_vars)+","+str(args.epochs)+","+str(args.no_of_samples)+","+result+","+str(total_time)+"\n"
     # f = open("results.csv", "a")

@@ -16,15 +16,15 @@ def train_regressor(
     max_epochs, input_size, num_of_outputs, K,
     device, P, flag, num_of_vars, input_var_idx,
     output_var_idx, io_dict, threshold,
-    verilog_spec, verilog_spec_location
+    verilog_spec, verilog_spec_location,
+    Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate
 ):
 
-    import importlib
     from code.model.gcln import GCLN
     from code.utils import getSkolemFunc as skf
+    from code.utils.utils import util
 
-    from data_preparation_and_result_checking import z3ValidityChecker as z3
-    from run import preparez3, store_nn_output
+    from run import store_nn_output
     train_loss = []
     valid_loss = []
     best_loss = float('inf')
@@ -113,13 +113,18 @@ def train_regressor(
                 threshold, K
             )
             store_nn_output(num_of_outputs, skfunc)
-            preparez3(
-                verilog_spec, verilog_spec_location, num_of_outputs
-            )
-            importlib.reload(z3)  # Reload the package
-            result, model = z3.check_validity()
-            print("Result {}, Epoch {}".format(result, epoch))
-            # if result == True:
-                # return gcln, train_loss, valid_loss
+            candidateskf = util.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
+            util.create_skolem_function(
+                verilog_spec.split('.v')[0], candidateskf, Xvar, Yvar)
+            error_content, refine_var_log = util.create_error_formula(
+                Xvar, Yvar, verilog_formula)
+            util.add_skolem_to_errorformula(error_content, [], verilog)
+
+            # Run the Validity Checker
+            # sat call to errorformula:
+            check, sigma, ret = util.verify(Xvar, Yvar, verilog)
+            print("Result {}, Epoch {}".format(ret==0, epoch))
+            if ret == 0:
+                return gcln, train_loss, valid_loss
 
     return gcln, train_loss, valid_loss

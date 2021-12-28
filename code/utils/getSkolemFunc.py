@@ -10,18 +10,19 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
     '''
 
     sigmoid = nn.Sigmoid()
-    G1 = sigmoid(gcln.G1.cpu().detach()).numpy()
-    G2 = sigmoid(gcln.G2.cpu().detach()).numpy()
+    G1 = sigmoid(gcln.G1.cpu().detach()).numpy() # input_size x K
+    G2 = sigmoid(gcln.G2.cpu().detach()).numpy() # K x num_of_outputs
 
     literals = []
     neg_literals = []
     for i in input_var_idx:
-        literals.append(io_dict.get(i.item()))
-        neg_literals.append("~"+io_dict.get(i.item()))
+        literals.append("i"+str(i.item()))
+        neg_literals.append("~i"+str(i.item()))
 
     clause = np.array(literals + neg_literals)
+
     clauses = []
-    for i in range(num_of_outputs * K):
+    for i in range(K):
         mask = G1[:, i] > threshold
         clauses.append(clause[mask])
 
@@ -30,27 +31,23 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
         ored_clauses.append("("+" | ".join(clauses[i])+")".replace("() &", ""))
     ored_clauses = np.array(ored_clauses)
 
-    masks = []
-    for i in range(num_of_outputs):
-        mask = G2[i*K:(i+1)*K, :] > threshold
-        masks.append(mask.reshape((-1, 1)))
-    
     gated_ored_clauses = []
     for i in range(num_of_outputs):
+        mask = G2[:, i] > threshold
         gated_ored_clauses.append(
-            np.unique(ored_clauses[masks[i][:, 0].flatten()]))
-
-    anded_clauses = []
-    for i in range(num_of_outputs):
-        anded_clauses.append(str(io_dict.get(
-            output_var_idx[i]))+" = "+"("+" & ".join(gated_ored_clauses[i])+")")
+            np.unique(ored_clauses[mask]))
 
     skfs = []
     for i in range(num_of_outputs):
-        skfs.append(" & ".join(gated_ored_clauses[i])+"\n")
+        skf = " & ".join(gated_ored_clauses[i])+"\n"
+        if " & ()" in skf:
+            skf = skf.replace(" & ()", "")
+        if "() & " in skf:
+            skf = skf.replace("() & ", "")
+        skfs.append(skf)
 
     print("-----------------------------------------------------------------------------")
-    print("skolem function: ", anded_clauses)
+    print("skolem function in getSkolemFunc.py: ", skfs)
     print("-----------------------------------------------------------------------------")
 
     return skfs
