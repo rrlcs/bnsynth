@@ -5,7 +5,7 @@ def dataLoader(training_samples, training_size, P, input_var_idx, output_var_idx
 	# Define training data loader
 	inps = training_samples[:, input_var_idx]
 	if num_of_outputs == 1:
-		tgts = training_samples[:, output_var_idx[0]]
+		tgts = training_samples[:, output_var_idx]
 	else:
 		tgts = training_samples[:, output_var_idx]
 	if P == 1:

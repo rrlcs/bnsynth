@@ -16,6 +16,7 @@ valid_loss
 classifier1
 classifier2
 model.pth.tar
+skfs
 
 
 # Byte-compiled / optimized / DLL files

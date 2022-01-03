@@ -1,10 +1,12 @@
 import argparse
+import importlib
 import time
 from code.algorithms import trainClassification2ndForm as tc2
 from code.algorithms.trainClassification import train_classifier
 from code.algorithms.trainRegression import train_regressor
 from code.model import gcln as gcln
 from code.utils import getSkolemFunc as skf
+from code.utils import getSkolemFunc4z3 as skfz3
 from code.utils import plot as pt
 from code.utils.utils import util
 from math import floor
@@ -14,7 +16,14 @@ import numpy as np
 import torch
 import torch.nn as nn
 
+import python_specs
+from benchmarks import z3ValidityChecker as z3
+from benchmarks.preprocess import preprocess
+from benchmarks.verilog2python import build_spec
+# from code.utils import getSkolemFunc1 as skf
+from benchmarks.verilog2z3 import preparez3
 from data.dataLoader import dataLoader
+from data.generateTrainData import generateTrainData
 
 
 def prepare_ce(io_dict, counter_examples, num_of_vars, num_of_outputs):
@@ -144,7 +153,7 @@ def get_train_test_split(training_samples):
 
 
 def ce_train_loop(
-    training_samples, io_dict, ret, model,
+    training_samples, io_dict, io_dictz3, ret, model,
     num_of_vars, num_of_outputs, input_size,
 	start_time, pos_unate, neg_unate
 	):
@@ -202,7 +211,7 @@ def ce_train_loop(
                 device,
                 args.P,
 				flag, num_of_vars, input_var_idx,
-                output_var_idx, io_dict, args.threshold,
+                output_var_idx, io_dict, io_dictz3, args.threshold,
                 args.verilog_spec, args.verilog_spec_location,
                 Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate
             )
@@ -221,14 +230,30 @@ def ce_train_loop(
         
         # Extract and Check
         s = time.time()
-        skfunc = skf.get_skolem_function(
+        skfunc = skfz3.get_skolem_function(
             gcln, num_of_vars,
-            input_var_idx, num_of_outputs, output_var_idx, io_dict,
+            input_var_idx, num_of_outputs, output_var_idx, io_dictz3,
             args.threshold, args.K
         )
         e = time.time()
         print("Formula Extraction Time: ", e-s)
 
+        # Run the Z3 Validity Checker
+        store_nn_output(num_of_outputs, skfunc)
+        preparez3(args.verilog_spec, args.verilog_spec_location, num_of_outputs)
+        importlib.reload(z3)
+        result, _ = z3.check_validity()
+        if result:
+            print("Z3: Valid")
+        else:
+            print("Z3: Not Valid")
+
+        # skfunc = [s.replace("_", "") for s in skfunc]
+        skfunc = skf.get_skolem_function(
+            gcln, num_of_vars,
+            input_var_idx, num_of_outputs, output_var_idx, io_dict,
+            args.threshold, args.K
+        )
         candidateskf = util.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
         util.create_skolem_function(
             args.verilog_spec.split('.v')[0], candidateskf, Xvar, Yvar)
@@ -314,9 +339,10 @@ if __name__ == "__main__":
     pre_t_s = time.time()
     verilog, varlistfile = util.prepare_file_names(args.verilog_spec, args.verilog_spec_location)
     output_varlist = util.get_output_varlist(varlistfile)  # Y variable list
-    output_varlist = ["i"+e.split("_")[1] for e in output_varlist]
+    
     # print(output_varlist)
     Xvar_tmp, Yvar_tmp, total_vars = util.get_temporary_variables(verilog, output_varlist)
+    output_varlist = ["i"+e.split("_")[1] for e in output_varlist]
     # print(Xvar_tmp, Yvar_tmp)
     verilog_formula = util.change_modulename(verilog)
     pos_unate, neg_unate, Xvar, Yvar, Xvar_map, Yvar_map = util.preprocess_manthan(
@@ -324,6 +350,12 @@ if __name__ == "__main__":
         )
     pre_t_e = time.time()
     print("Preprocessing Time: ", pre_t_e - pre_t_s)
+
+    # result = util.check_unates(pos_unate, neg_unate, Xvar, Yvar, args.verilog_spec[:-2])
+    # if result:
+    #     exit("All Unates!")
+    # print("total vars: ", total_vars)
+    total_varsz3 = total_vars
     total_vars = ["i"+e.split("_")[1] for e in total_vars]
     # print("-------------", pos_unate, neg_unate, Xvar, Yvar, Xvar_map, Yvar_map, total_vars, output_varlist)
 
@@ -352,7 +384,7 @@ if __name__ == "__main__":
         Yvar_map, 
         allvar_map,
         verilog,
-        max_samples=20000
+        max_samples=50000
         )
     data_t_e = time.time()
     print("Data Sampling Time: ", data_t_e - data_t_s)
@@ -369,7 +401,13 @@ if __name__ == "__main__":
         # print("value: ", value.split("_"))
         io_dict[index] = value
     io_dict = OrderedDict(io_dict)
-    # print("io_dict: ", io_dict, io_dict.keys())
+
+    io_dictz3 = {}
+    for index, value in enumerate(total_varsz3):
+        # print("value: ", value.split("_"))
+        io_dictz3[index] = value
+    io_dictz3 = OrderedDict(io_dictz3)
+    print("io_dict: ", io_dictz3)
 
     output_var_idx = [list(io_dict.values()).index(output_varlist[i]) for i in range(len(output_varlist)) if output_varlist[i] in io_dict.values()]
     var_indices, input_var_idx = get_indices(num_of_vars, output_var_idx)
@@ -392,7 +430,7 @@ if __name__ == "__main__":
     training_samples = torch.from_numpy(samples)
     training_samples = training_samples.repeat(2, 1)
     training_samples = torch.cat([
-        util.add_noise((training_samples)) for _ in range(10)
+        util.add_noise((training_samples)) for _ in range(20)
         ])
     training_samples = training_samples.to(torch.double)
     print(training_samples.shape)
@@ -419,7 +457,7 @@ if __name__ == "__main__":
         if args.train:
             gcln, train_loss, valid_loss = train_regressor(
                 train_loader, validation_loader, args.learning_rate, args.epochs, input_size, num_of_outputs, args.K, device, args.P, 0, num_of_vars, input_var_idx,
-                output_var_idx, io_dict, args.threshold,
+                output_var_idx, io_dict, io_dictz3, args.threshold,
                 args.verilog_spec, args.verilog_spec_location,
                 Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate)
         else:
@@ -469,11 +507,10 @@ if __name__ == "__main__":
     print("Training Time: ", train_t_e - train_t_s)
 
     extract_t_s = time.time()
-    skfunc = skf.get_skolem_function(
-        gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
+    skfunc = skfz3.get_skolem_function(
+        gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dictz3, args.threshold, args.K)
     extract_t_e = time.time()
     print("Formula Extraction Time: ", extract_t_e - extract_t_s)
-    # store_nn_output(num_of_outputs, skfunc)
     store_losses(train_loss, valid_loss)
     pt.plot()
 
@@ -481,6 +518,19 @@ if __name__ == "__main__":
     print("skolem function run: ", skfunc)
     print("-----------------------------------------------------------------------------")
 
+    # Run the Z3 Validity Checker
+    store_nn_output(num_of_outputs, skfunc)
+    preparez3(args.verilog_spec, args.verilog_spec_location, num_of_outputs)
+    importlib.reload(z3)
+    result, _ = z3.check_validity()
+    if result:
+        print("Z3: Valid")
+    else:
+        print("Z3: Not Valid")
+
+    # skfunc = [s.replace("_", "") for s in skfunc]
+    skfunc = skf.get_skolem_function(
+        gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
     verify_t_s = time.time()
     candidateskf = util.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
     util.create_skolem_function(
@@ -520,6 +570,7 @@ if __name__ == "__main__":
         ret, ce_time2, ce_data_time = ce_train_loop(
             training_samples, 
             io_dict, 
+            io_dictz3,
             ret,
             counter_examples, 
             num_of_vars, 

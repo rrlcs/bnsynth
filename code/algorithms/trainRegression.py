@@ -1,3 +1,5 @@
+import importlib
+
 import torch
 import torch.nn as nn
 
@@ -15,15 +17,18 @@ def train_regressor(
     train_loader, validation_loader, learning_rate,
     max_epochs, input_size, num_of_outputs, K,
     device, P, flag, num_of_vars, input_var_idx,
-    output_var_idx, io_dict, threshold,
+    output_var_idx, io_dict, io_dictz3, threshold,
     verilog_spec, verilog_spec_location,
     Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate
 ):
 
     from code.model.gcln import GCLN
     from code.utils import getSkolemFunc as skf
+    from code.utils import getSkolemFunc4z3 as skfz3
     from code.utils.utils import util
 
+    from benchmarks import z3ValidityChecker as z3
+    from benchmarks.verilog2z3 import preparez3
     from run import store_nn_output
     train_loss = []
     valid_loss = []
@@ -107,21 +112,36 @@ def train_regressor(
             save_checkpoint(checkpoint)
             
             # Extract and Check
+            skfunc = skfz3.get_skolem_function(
+                gcln, num_of_vars,
+                input_var_idx, num_of_outputs, output_var_idx, io_dictz3,
+                threshold, K
+            )
+            print("train: ", skfunc)
+            store_nn_output(num_of_outputs, skfunc)
+            # Run the Validity Checker
+            # Run the Z3 Validity Checker
+            store_nn_output(num_of_outputs, skfunc)
+            preparez3(verilog_spec, verilog_spec_location, num_of_outputs)
+            importlib.reload(z3)
+            result, _ = z3.check_validity()
+            if result:
+                print("Z3: Valid")
+            else:
+                print("Z3: Not Valid")
+            # sat call to errorformula:
+            skfunc = [s.replace("_", "") for s in skfunc]
             skfunc = skf.get_skolem_function(
                 gcln, num_of_vars,
                 input_var_idx, num_of_outputs, output_var_idx, io_dict,
                 threshold, K
             )
-            store_nn_output(num_of_outputs, skfunc)
             candidateskf = util.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
             util.create_skolem_function(
                 verilog_spec.split('.v')[0], candidateskf, Xvar, Yvar)
             error_content, refine_var_log = util.create_error_formula(
                 Xvar, Yvar, verilog_formula)
             util.add_skolem_to_errorformula(error_content, [], verilog)
-
-            # Run the Validity Checker
-            # sat call to errorformula:
             check, sigma, ret = util.verify(Xvar, Yvar, verilog)
             print("Result {}, Epoch {}".format(ret==0, epoch))
             if ret == 0:

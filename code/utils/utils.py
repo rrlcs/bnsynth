@@ -360,7 +360,7 @@ class utils():
             f.close()
             for line in lines:
                 allvar_map = line.strip(" \n").split(" ")
-            # os.unlink(inputfile_name + "_mapping.txt")
+            os.unlink(inputfile_name + "_mapping.txt")
             # print("all var map: ", allvar_map)
             allvar_map = np.array(allvar_map).astype(int)
             Xvar_map = dict(zip(Xvar_tmp, allvar_map[Xvar]))
@@ -377,10 +377,62 @@ class utils():
         
         return pos_unate_list, neg_unate_list, Xvar, Yvar, Xvar_map, Yvar_map
 
+    def unate_skolemfunction(self, Xvar, Yvar, pos_unate, neg_unate, inputfile_name):
+
+        skolemformula = tempfile.gettempdir() + \
+            '/' + inputfile_name + \
+            "_skolem.v"  # F(X,Y')
+        inputstr = 'module SKOLEMFORMULA ('
+        declarestr = ''
+        assignstr = ''
+        itr = 1
+        for var in range(len(Xvar) + len(Yvar)):
+            inputstr += "i%s, " % (var)
+            if var in Xvar:
+                declarestr += "input i%s;\n" % (var)
+            if var in Yvar:
+                declarestr += "output i%s;\n" % (var)
+                if var in neg_unate:
+                    assignstr += "assign i%s = 0;\n" % (var)
+                if var in pos_unate:
+                    assignstr += "assign i%s = 1;\n" % (var)
+        inputstr += ");\n"
+        f = open(skolemformula, "w")
+        f.write(inputstr)
+        f.write(declarestr)
+        f.write(assignstr)
+        f.write("endmodule")
+        f.close()
+        cmd = "./dependencies/file_write_verilog %s %s > /dev/null 2>&1  " % (
+            skolemformula, skolemformula)
+        os.system(cmd)
+
+    def check_unates(self, pos_unate, neg_unate, Xvar, Yvar, inputfile_name):
+        # if all Y variables are unate
+        if len(pos_unate) + len(neg_unate) == len(Yvar):
+            print(len(pos_unate) + len(neg_unate))
+            print("positive unate", len(pos_unate))
+            print("all Y variables are unates")
+            print("Solved !! done !")
+            util.unate_skolemfunction(Xvar, Yvar, pos_unate, neg_unate, inputfile_name)
+            skolemformula = tempfile.gettempdir() + \
+                '/' + inputfile_name + "_skolem.v"
+            exists = os.path.isfile(skolemformula)
+            if exists:
+                os.system("cp " + skolemformula +
+                        " ./skfs/" + inputfile_name + "_skolem.v")
+            exists = os.path.isfile("strash.txt")
+            if exists:
+                os.unlink("strash.txt")
+            exists = os.path.isfile("variable_mapping.txt")
+            if exists:
+                os.unlink("variable_mapping.txt")
+            return True
 
     def prepare_cnf_content(self, verilog, Xvar, Yvar, Xvar_map, Yvar_map, pos_unate, neg_unate):
 
         cnffile = verilog.split(".v")[0] + ".cnf"
+        print("prep cnf: ", Yvar, Yvar_map)
 
         # to add c ind and positive and negative unate in cnf
         unates = []
@@ -400,12 +452,12 @@ class utils():
         indStr += " 0\n"
         allvar_map = np.array(allvar_map)
         fixedvar = ''
-        for i in pos_unate:
-            fixedvar += "%s 0\n" % (Yvar_map[i])
-            unates.append(i)
-        for i in neg_unate:
-            fixedvar += "-%s 0\n" % (Yvar_map[i])
-            unates.append(i)
+        # for i in pos_unate:
+        #     fixedvar += "%s 0\n" % (Yvar_map[i])
+        #     # unates.append(i)
+        # for i in neg_unate:
+        #     fixedvar += "-%s 0\n" % (Yvar_map[i])
+        #     # unates.append(i)
         with open(cnffile, 'r') as f:
             lines = f.readlines()
         f.close()
@@ -425,6 +477,7 @@ class utils():
             cnf_content += line + "\n"
         cnf_content = cnf_content.strip("\n")
         cnf_content = indStr + cnf_content + "\n" + fixedvar.rstrip(' \n')
+        # os.unlink(cnffile)
 
         return cnf_content, allvar_map
     
@@ -576,14 +629,14 @@ class utils():
         candidateskf = {}
         j = 0
         for i in Yvar:
-            if i in neg_unate:
-                # print("i neg: ", i)
-                candidateskf[i] = ' 0 '
-                continue
-            if i in pos_unate:
-                # print("i pos: ", i)
-                candidateskf[i] = ' 1 '
-                continue
+            # if i in neg_unate:
+            #     # print("i neg: ", i)
+            #     candidateskf[i] = ' 0 '
+            #     continue
+            # if i in pos_unate:
+            #     # print("i pos: ", i)
+            #     candidateskf[i] = ' 1 '
+            #     continue
             candidateskf[i] = skfunc[j][:-1].replace("_", "")
             j += 1
         

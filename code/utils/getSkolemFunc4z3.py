@@ -16,8 +16,8 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
     literals = []
     neg_literals = []
     for i in input_var_idx:
-        literals.append("i_"+str(i.item()))
-        neg_literals.append("~i_"+str(i.item()))
+        literals.append(io_dict.get(i.item()))
+        neg_literals.append("~"+io_dict.get(i.item()))
 
     clause = np.array(literals + neg_literals)
 
@@ -47,7 +47,7 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
         skfs.append(skf)
 
     # print("-----------------------------------------------------------------------------")
-    # print("skolem function in getSkolemFunc.py: ", skfs)
+    # print("skolem function in getSkolemFunc4z3.py: ", skfs)
     # print("-----------------------------------------------------------------------------")
 
     return skfs
