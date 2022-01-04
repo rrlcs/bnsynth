@@ -29,7 +29,6 @@ def train_regressor(
 
     from benchmarks import z3ValidityChecker as z3
     from benchmarks.verilog2z3 import preparez3
-    from run import store_nn_output
     train_loss = []
     valid_loss = []
     best_loss = float('inf')
@@ -118,10 +117,10 @@ def train_regressor(
                 threshold, K
             )
             print("train: ", skfunc)
-            store_nn_output(num_of_outputs, skfunc)
+            # util.store_nn_output(num_of_outputs, skfunc)
             # Run the Validity Checker
             # Run the Z3 Validity Checker
-            store_nn_output(num_of_outputs, skfunc)
+            util.store_nn_output(num_of_outputs, skfunc)
             preparez3(verilog_spec, verilog_spec_location, num_of_outputs)
             importlib.reload(z3)
             result, _ = z3.check_validity()
