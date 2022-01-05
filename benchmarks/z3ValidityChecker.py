@@ -52,8 +52,8 @@ def check_validity():
 	w1 = Bool('w1')
 	
 	o_1 = Bool('o_1')
-	nn_out0 = simplify(And((Or((i_10),Not(i_10),)),((i_10)),(Not(i_10)),))
-	nn_out1 = simplify(And((Or((i_10),Not(i_10),)),(Not(i_10)),))
+	nn_out0 = simplify(And((Or((i_10),Not(i_10),)),((i_10)),))
+	nn_out1 = simplify((Or((i_10),Not(i_10),)))
 	
 	w1 = (Xor((i_10),(i_1),))
 	o_1 = (Xor((w1),(i_22),))

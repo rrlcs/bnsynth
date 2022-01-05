@@ -117,7 +117,6 @@ def train_regressor(
                 threshold, K
             )
             print("z3 skf: ", skfunc)
-            # util.store_nn_output(num_of_outputs, skfunc)
             # Run the Validity Checker
             # Run the Z3 Validity Checker
             util.store_nn_output(num_of_outputs, skfunc)
@@ -129,7 +128,6 @@ def train_regressor(
             else:
                 print("Z3: Not Valid")
             # sat call to errorformula:
-            skfunc = [s.replace("_", "") for s in skfunc]
             skfunc = skf.get_skolem_function(
                 gcln, num_of_vars,
                 input_var_idx, num_of_outputs, output_var_idx, io_dict,
