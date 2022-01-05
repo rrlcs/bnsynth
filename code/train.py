@@ -44,26 +44,26 @@ def train(P, train, train_loader, validation_loader, learning_rate, epochs,
                              P).to(device)
             gcln.load_state_dict(torch.load("classifier1"))
             gcln.eval()
-    elif P == 2:
-    	if train:
-            loss_fn = nn.BCEWithLogitsLoss()
-            gcln, train_loss, valid_loss = tc2.train_classifier(
-                train_loader,
-                validation_loader, 
-                loss_fn, 
-                learning_rate, 
-                epochs, 
-                input_size,
-                num_of_outputs, 
-                K, 
-                device, 
-                P, 
-                torch, 
-                gcln.GCLN, 
-                util, 
-                py_spec
-                )
-            torch.save(gcln.state_dict(), "classifier2")
+    # elif P == 2:
+    # 	if train:
+    #         loss_fn = nn.BCEWithLogitsLoss()
+    #         gcln, train_loss, valid_loss = tc2.train_classifier(
+    #             train_loader,
+    #             validation_loader, 
+    #             loss_fn, 
+    #             learning_rate, 
+    #             epochs, 
+    #             input_size,
+    #             num_of_outputs, 
+    #             K, 
+    #             device, 
+    #             P, 
+    #             torch, 
+    #             gcln.GCLN, 
+    #             util, 
+    #             py_spec
+    #             )
+    #         torch.save(gcln.state_dict(), "classifier2")
         # else:
         #     gcln = gcln.GCLN(input_size, K, device, P, p=0).to(device)
         #     gcln.load_state_dict(torch.load("classifier2"))

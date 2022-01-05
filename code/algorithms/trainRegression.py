@@ -116,7 +116,7 @@ def train_regressor(
                 input_var_idx, num_of_outputs, output_var_idx, io_dictz3,
                 threshold, K
             )
-            print("train: ", skfunc)
+            print("z3 skf: ", skfunc)
             # util.store_nn_output(num_of_outputs, skfunc)
             # Run the Validity Checker
             # Run the Z3 Validity Checker

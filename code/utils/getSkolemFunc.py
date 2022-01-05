@@ -16,8 +16,8 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
     literals = []
     neg_literals = []
     for i in input_var_idx:
-        literals.append("i_"+str(i.item()))
-        neg_literals.append("~i_"+str(i.item()))
+        literals.append("i"+str(i.item()))
+        neg_literals.append("~i"+str(i.item()))
 
     clause = np.array(literals + neg_literals)
 

@@ -5,7 +5,7 @@ def ce_train_loop(
 	input_var_idx, output_var_idx, P, threshold, batch_size,
 	verilog_spec, verilog_spec_location, Xvar, Yvar, 
     verilog_formula, verilog, learning_rate, epochs, 
-	K, device
+	K, device, 
 	):
 
     import importlib
