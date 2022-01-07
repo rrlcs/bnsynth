@@ -113,37 +113,51 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------------------------------------
     # TRAINING MODEL
     train_t_s = time.time()
-    gcln, train_loss, valid_loss = train(
-        args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs, 
-        input_size, num_of_outputs, args.K, device, num_of_vars, input_var_idx, output_var_idx, 
-        io_dict, io_dictz3, args.threshold, args.verilog_spec, args.verilog_spec_location, 
-        Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate
-        )
-    train_t_e = time.time()
-    print("Training Time: ", train_t_e - train_t_s)
-    # ----------------------------------------------------------------------------------------------------------
+    num_of_outputs = 1
+    skf_dict_z3 = {}
+    skf_dict_verilog = {}
+    for i in range(len(Yvar)):
+        current_output = i
+        gcln, train_loss, valid_loss = train(
+            args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs, 
+            input_size, num_of_outputs, current_output, args.K, device, num_of_vars, input_var_idx, output_var_idx, 
+            io_dict, io_dictz3, args.threshold, args.verilog_spec, args.verilog_spec_location, 
+            Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate
+            )
+        train_t_e = time.time()
+        # print("Training Time: ", train_t_e - train_t_s)
+        # ----------------------------------------------------------------------------------------------------------
 
 
-    # ----------------------------------------------------------------------------------------------------------
-    # Checking Skolem Function using Z3
-    extract_t_s = time.time()
-    # Skolem function in z3py format
-    skfunc = skfz3.get_skolem_function(
-        gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dictz3, args.threshold, args.K
-        )
-    extract_t_e = time.time()
-    print("Formula Extraction Time: ", extract_t_e - extract_t_s)
-    print("-----------------------------------------------------------------------------")
-    print("skolem function run: ", skfunc)
-    print("-----------------------------------------------------------------------------")
+        # ----------------------------------------------------------------------------------------------------------
+        # Checking Skolem Function using Z3
+        extract_t_s = time.time()
+        # Skolem function in z3py format
+        skfunc = skfz3.get_skolem_function(
+            gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dictz3, args.threshold, args.K
+            )
+        skf_dict_z3[Yvar[i]] = skfunc[0]
 
+        # Skolem function in verilog format
+        skfunc = skf.get_skolem_function(
+            gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
+        skf_dict_verilog[Yvar[i]] = skfunc[0]
+        
+        extract_t_e = time.time()
+        # print("Formula Extraction Time: ", extract_t_e - extract_t_s)
+        # print("-----------------------------------------------------------------------------")
+        # print("skolem function run: ", skfunc)
+        # print("-----------------------------------------------------------------------------")
+    print(skf_dict_z3)
+    # exit()
     # Store train and test losses in a file
     util.store_losses(train_loss, valid_loss)
     pt.plot()
 
     # Run the Z3 Validity Checker
-    util.store_nn_output(num_of_outputs, skfunc)
-    preparez3(args.verilog_spec, args.verilog_spec_location, num_of_outputs)
+    # num_of_outputs = len(skf_dict_z3)
+    util.store_nn_output(len(skf_dict_z3), list(skf_dict_z3.values()))
+    preparez3(args.verilog_spec, args.verilog_spec_location, len(skf_dict_z3))
     importlib.reload(z3)
     result, _ = z3.check_validity()
     if result:
@@ -154,12 +168,10 @@ if __name__ == "__main__":
 
 
     # ----------------------------------------------------------------------------------------------------------
-    # Skolem function in verilog format
-    skfunc = skf.get_skolem_function(
-        gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
+
 
     # Write the error formula in verilog
-    util.write_error_formula(args.verilog_spec, verilog, verilog_formula, skfunc, Xvar, Yvar, pos_unate, neg_unate)
+    util.write_error_formula(args.verilog_spec, verilog, verilog_formula, list(skf_dict_verilog.values()), Xvar, Yvar, pos_unate, neg_unate)
 
     # Run Manthan's Validity Checker
     # sat call to errorformula:

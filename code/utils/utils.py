@@ -8,6 +8,7 @@ from typing import OrderedDict
 import numpy as np
 import pandas as pd
 import torch
+from numpy.core.numeric import indices
 
 
 class cexmodels:
@@ -276,10 +277,10 @@ class utils():
         # tensor dataset
         training_samples = torch.from_numpy(samples)
         # repeat samples n=2 times
-        training_samples = training_samples.repeat(2, 1)
+        # training_samples = training_samples.repeat(2, 1)
         # add random noise to get fractional samples
         training_samples = torch.cat([
-            self.add_noise((training_samples)) for _ in range(5)
+            self.add_noise((training_samples)) for _ in range(2000)
             ])
         training_samples = training_samples.to(torch.double)
 
@@ -789,6 +790,8 @@ class utils():
                 sample_cnf_content = self.gen_weighted_cnf(
                     cnf_content, Xvar_map, Yvar_map, allvar_map)
             samples = self.get_sample_cms(allvar_map, sample_cnf_content, no_samples, verilog)
+        x_data, indices = np.unique(samples[:, Xvar], axis=0, return_index=True)
+        samples = samples[indices, :]
 
         return samples
     
@@ -813,7 +816,8 @@ class utils():
             # if i in pos_unate:
             #     candidateskf[i] = ' 1 '
             #     continue
-            candidateskf[i] = skfunc[j][:-1].replace("_", "")
+            if j < len(skfunc):
+                candidateskf[i] = skfunc[j][:-1]
             j += 1
         
         return candidateskf
@@ -843,8 +847,9 @@ class utils():
                 declarestr += "input i%s;\n" % (var)
                 wirestr += "wire wi%s;\n" % (var)
                 assignstr += 'assign wi%s = (' % (var)
-                temp = candidateskf[var].replace(
-                    " 1 ", " one ").replace(" 0 ", " zero ")
+                if var in candidateskf:
+                    temp = candidateskf[var].replace(
+                        " 1 ", " one ").replace(" 0 ", " zero ")
                 assignstr += temp + ");\n"
                 outstr += "(~(wi%s ^ i%s)) & " % (var, var)
                 if itr % 10 == 0:

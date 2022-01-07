@@ -6,7 +6,7 @@
 	3: Classification 3
 '''
 def train(P, train, train_loader, validation_loader, learning_rate, epochs, 
-				input_size, num_of_outputs, K, device, num_of_vars, input_var_idx,
+				input_size, num_of_outputs, current_output, K, device, num_of_vars, input_var_idx,
                 output_var_idx, io_dict, io_dictz3, threshold,
                 verilog_spec, verilog_spec_location,
                 Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate):
@@ -22,7 +22,7 @@ def train(P, train, train_loader, validation_loader, learning_rate, epochs,
     if P == 0:
         if train:
             gcln, train_loss, valid_loss = train_regressor(
-                train_loader, validation_loader, learning_rate, epochs, input_size, num_of_outputs, K, device, P, 0, num_of_vars, input_var_idx,
+                train_loader, validation_loader, learning_rate, epochs, input_size, num_of_outputs, current_output, K, device, P, 0, num_of_vars, input_var_idx,
                 output_var_idx, io_dict, io_dictz3, threshold,
                 verilog_spec, verilog_spec_location,
                 Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate)

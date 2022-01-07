@@ -15,7 +15,7 @@ def load_checkpoint(checkpoint, gcln, optimizer):
 
 def train_regressor(
     train_loader, validation_loader, learning_rate,
-    max_epochs, input_size, num_of_outputs, K,
+    max_epochs, input_size, num_of_outputs, current_output, K,
     device, P, flag, num_of_vars, input_var_idx,
     output_var_idx, io_dict, io_dictz3, threshold,
     verilog_spec, verilog_spec_location,
@@ -57,11 +57,11 @@ def train_regressor(
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
             out = gcln(inps).to(device)
             l = []
-            for i in range(num_of_outputs):
-                l.append(criterion(out[:, i], tgts[:, i]))
-            t_loss = sum(l)
-
-            t_loss = torch.sqrt(criterion(out, tgts))
+            # for i in range(num_of_outputs):
+            #     l.append(criterion(out[:, i], tgts[:, i]))
+            # t_loss = sum(l)
+            # print("target and input shapes: ", out.squeeze().shape, tgts[:, current_output].shape)
+            t_loss = torch.sqrt(criterion(out, tgts[:, current_output].unsqueeze(-1)))
             t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
                 lambda2*torch.linalg.norm(gcln.G2, 1)
             t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
@@ -79,11 +79,11 @@ def train_regressor(
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
             out = gcln(inps).to(device)
             l = []
-            for i in range(num_of_outputs):
-                l.append(criterion(out[:, i], tgts[:, i]))
-            v_loss = sum(l)
+            # for i in range(num_of_outputs):
+            #     l.append(criterion(out[:, i], tgts[:, i]))
+            # v_loss = sum(l)
 
-            v_loss = criterion(out, tgts)
+            v_loss = torch.sqrt(criterion(out, tgts[:, current_output].unsqueeze(-1)))
             v_loss = v_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
                 lambda2*torch.linalg.norm(gcln.G2, 1)
             v_loss = v_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
@@ -111,37 +111,37 @@ def train_regressor(
             save_checkpoint(checkpoint)
             
             # Extract and Check
-            skfunc = skfz3.get_skolem_function(
-                gcln, num_of_vars,
-                input_var_idx, num_of_outputs, output_var_idx, io_dictz3,
-                threshold, K
-            )
-            print("z3 skf: ", skfunc)
-            # Run the Validity Checker
-            # Run the Z3 Validity Checker
-            util.store_nn_output(num_of_outputs, skfunc)
-            preparez3(verilog_spec, verilog_spec_location, num_of_outputs)
-            importlib.reload(z3)
-            result, _ = z3.check_validity()
-            if result:
-                print("Z3: Valid")
-            else:
-                print("Z3: Not Valid")
-            # sat call to errorformula:
-            skfunc = skf.get_skolem_function(
-                gcln, num_of_vars,
-                input_var_idx, num_of_outputs, output_var_idx, io_dict,
-                threshold, K
-            )
-            candidateskf = util.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
-            util.create_skolem_function(
-                verilog_spec.split('.v')[0], candidateskf, Xvar, Yvar)
-            error_content, refine_var_log = util.create_error_formula(
-                Xvar, Yvar, verilog_formula)
-            util.add_skolem_to_errorformula(error_content, [], verilog)
-            check, sigma, ret = util.verify(Xvar, Yvar, verilog)
-            print("Result {}, Epoch {}".format(ret==0, epoch))
-            if ret == 0:
-                return gcln, train_loss, valid_loss
+            # skfunc = skfz3.get_skolem_function(
+            #     gcln, num_of_vars,
+            #     input_var_idx, num_of_outputs, output_var_idx, io_dictz3,
+            #     threshold, K
+            # )
+            # print("z3 skf: ", skfunc)
+            # # Run the Validity Checker
+            # # Run the Z3 Validity Checker
+            # util.store_nn_output(num_of_outputs, skfunc)
+            # preparez3(verilog_spec, verilog_spec_location, num_of_outputs)
+            # importlib.reload(z3)
+            # result, _ = z3.check_validity()
+            # if result:
+            #     print("Z3: Valid")
+            # else:
+            #     print("Z3: Not Valid")
+            # # sat call to errorformula:
+            # skfunc = skf.get_skolem_function(
+            #     gcln, num_of_vars,
+            #     input_var_idx, num_of_outputs, output_var_idx, io_dict,
+            #     threshold, K
+            # )
+            # candidateskf = util.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
+            # util.create_skolem_function(
+            #     verilog_spec.split('.v')[0], candidateskf, Xvar, Yvar)
+            # error_content, refine_var_log = util.create_error_formula(
+            #     Xvar, Yvar, verilog_formula)
+            # util.add_skolem_to_errorformula(error_content, [], verilog)
+            # check, sigma, ret = util.verify(Xvar, Yvar, verilog)
+            # print("Result {}, Epoch {}".format(ret==0, epoch))
+            # if ret == 0:
+            #     return gcln, train_loss, valid_loss
 
     return gcln, train_loss, valid_loss

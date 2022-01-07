@@ -66,46 +66,40 @@ def ce_train_loop(
 
         flag = 0
         # args.epochs += 5
-        gcln, train_loss, valid_loss = train(
-        P, 
-        train, 
-        train_loader, 
-        validation_loader, 
-        learning_rate, 
-        epochs, 
-        input_size, 
-        num_of_outputs, 
-        K, 
-        device, 
-        num_of_vars, 
-        input_var_idx, 
-        output_var_idx, 
-        io_dict, 
-        io_dictz3, 
-        threshold, 
-        verilog_spec, 
-        verilog_spec_location, 
-        Xvar, 
-        Yvar, 
-        verilog_formula, 
-        verilog, 
-        pos_unate, 
-        neg_unate
-        )
+        skf_dict_z3 = {}
+        skf_dict_verilog = {}
+        for i in range(len(Yvar)):
+            current_output = i
+            print("Current Output: ", current_output)
+            gcln, train_loss, valid_loss = train(
+            P, train, train_loader, validation_loader, learning_rate, epochs, 
+            input_size, num_of_outputs, current_output, K, device, num_of_vars, 
+            input_var_idx, output_var_idx, io_dict, io_dictz3, threshold, 
+            verilog_spec, verilog_spec_location, Xvar, Yvar, verilog_formula, 
+            verilog, pos_unate, neg_unate
+            )
         
-        # Extract and Check
-        s = time.time()
-        skfunc = skfz3.get_skolem_function(
-            gcln, num_of_vars,
-            input_var_idx, num_of_outputs, output_var_idx, io_dictz3,
-            threshold, K
-        )
-        e = time.time()
-        print("Formula Extraction Time: ", e-s)
+            # Extract and Check
+            s = time.time()
+            skfunc = skfz3.get_skolem_function(
+                gcln, num_of_vars,
+                input_var_idx, num_of_outputs, output_var_idx, io_dictz3,
+                threshold, K
+            )
+            skf_dict_z3[Yvar[i]] = skfunc[0]
+
+            skfunc = skf.get_skolem_function(
+                gcln, num_of_vars,
+                input_var_idx, num_of_outputs, output_var_idx, io_dict,
+                threshold, K
+            )
+            skf_dict_verilog[Yvar[i]] = skfunc[0]
+            e = time.time()
+            # print("Formula Extraction Time: ", e-s)
 
         # Run the Z3 Validity Checker
-        util.store_nn_output(num_of_outputs, skfunc)
-        preparez3(verilog_spec, verilog_spec_location, num_of_outputs)
+        util.store_nn_output(len(skf_dict_z3), list(skf_dict_z3.values()))
+        preparez3(verilog_spec, verilog_spec_location, len(skf_dict_z3))
         importlib.reload(z3)
         result, _ = z3.check_validity()
         if result:
@@ -113,18 +107,8 @@ def ce_train_loop(
         else:
             print("Z3: Not Valid")
 
-        # skfunc = [s.replace("_", "") for s in skfunc]
-        skfunc = skf.get_skolem_function(
-            gcln, num_of_vars,
-            input_var_idx, num_of_outputs, output_var_idx, io_dict,
-            threshold, K
-        )
-        candidateskf = util.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
-        util.create_skolem_function(
-            verilog_spec.split('.v')[0], candidateskf, Xvar, Yvar)
-        error_content, refine_var_log = util.create_error_formula(
-            Xvar, Yvar, verilog_formula)
-        util.add_skolem_to_errorformula(error_content, [], verilog)
+        # Write the error formula in verilog
+        util.write_error_formula(verilog_spec, verilog, verilog_formula, list(skf_dict_verilog.values()), Xvar, Yvar, pos_unate, neg_unate)
 
         # sat call to errorformula:
         check, sigma, ret = util.verify(Xvar, Yvar, verilog)
