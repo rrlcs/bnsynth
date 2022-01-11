@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2021.1.16)  3 AUG 2021 10:20
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2021.1.16)  11 JAN 2022 10:53
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1893,14 +1893,14 @@ t/10 x \OMS/cmsy/m/n/10 ^^C \OML/cmm/m/it/10 g[]\OT1/cmr/m/n/10 ) \OMS/cmsy/m/n
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.99         \begin{dmath}$(F(x) = True \wedge
-                                               F(x') = False) \implies \math...
+l.99         \begin{dmath*}$(F(x) = True \wedge
+                                                F(x') = False) \implies \mat...
 
 ? 
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.99 ...{S}(F)(x) > \mathcal{S}(F)(x')$\end{dmath}
+l.99 ...S}(F)(x) > \mathcal{S}(F)(x')$\end{dmath*}
                                                   
 ? 
 ! Undefined control sequence.
@@ -1940,20 +1940,57 @@ l.112 $$Negation: \script
 l.112 ...script{S}(\neg{F}) \triangleq 1 - \script
                                                   {S}(F)$$
 ? 
-) (./proposal.tex
-<workflow_bfs.png, id=116, 704.6325pt x 183.68625pt>
+! Missing $ inserted.
+<inserted text> 
+                $
+l.130 where p is either x or \neg
+                                  x.
+? 
+! Missing $ inserted.
+<inserted text> 
+                $
+l.131 
+      
+? 
+[2pdfTeX warning (ext4): destination with the same identifier (name{table.1}) h
+as been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.134 \noindent\paragraph
+                         {Atomic Case: } F is simply a proposition p. CLN co...
+]
+! Missing $ inserted.
+<inserted text> 
+                $
+l.163 ... from induction hypothesis, $M_2(x)$ \geq
+                                                   0
+? 
+! Missing $ inserted.
+<inserted text> 
+                $
+l.164 
+      
+? 
+! Missing $ inserted.
+<inserted text> 
+                $
+l.175 \iff
+           M_1(x) \oplus M_2(x) = 1 \\
+? 
+! Missing $ inserted.
+<inserted text> 
+                $
+l.178 
+      
+? 
+) (./workflow.tex
+<workflow_bfs.png, id=138, 704.6325pt x 183.68625pt>
 File: workflow_bfs.png Graphic file (type png)
 <use workflow_bfs.png>
 Package pdftex.def Info: workflow_bfs.png  used on input line 8.
 (pdftex.def)             Requested size: 352.3154pt x 91.84288pt.
- [2pdfTeX warning (ext4): destination with the same identifier (name{table.1}) 
-has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.23 
-     ]
-<sampling_bfs.png, id=132, 749.80125pt x 192.72pt>
+<sampling_bfs.png, id=141, 749.80125pt x 192.72pt>
 File: sampling_bfs.png Graphic file (type png)
 <use sampling_bfs.png>
 Package pdftex.def Info: sampling_bfs.png  used on input line 29.
@@ -1961,43 +1998,60 @@ Package pdftex.def Info: sampling_bfs.png  used on input line 29.
 
 
 Package nag Warning: `center' environment in table.
-(nag)                Maybe you want \centering instead on input line 49.
+(nag)                Maybe you want \centering instead on input line 53.
 
-<gcln.png, id=135, 559.08875pt x 249.93375pt>
+[3pdfTeX warning (ext4): destination with the same identifier (name{table.2}) h
+as been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.76 
+     ]
+<gcln.png, id=154, 559.08875pt x 249.93375pt>
 File: gcln.png Graphic file (type png)
 <use gcln.png>
-Package pdftex.def Info: gcln.png  used on input line 83.
+Package pdftex.def Info: gcln.png  used on input line 87.
 (pdftex.def)             Requested size: 223.63153pt x 99.97173pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 88--90
+Underfull \hbox (badness 10000) in paragraph at lines 92--94
 
  []
 
-<example.png, id=137, 805.0075pt x 865.2325pt>
+<example.png, id=156, 805.0075pt x 865.2325pt>
 File: example.png Graphic file (type png)
 <use example.png>
-Package pdftex.def Info: example.png  used on input line 96.
+Package pdftex.def Info: example.png  used on input line 100.
 (pdftex.def)             Requested size: 241.50412pt x 259.57175pt.
 ) (./nn.tex
+Underfull \vbox (badness 2478) has occurred while \output is active []
+
+
 ! Undefined control sequence.
 l.8 \tab
          $\psi$ = Skolem Function Vector (Target)
 ? 
-[3pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) 
+[4pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) 
 has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.26 A
-      s $\psi$ is not known to us, training a neural net over (F, $\psi$) is...
-pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has
- been already used, duplicate ignored
+l.32 S
+      ampling is done such that it captures the relation between X and Y. We...
+pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) ha
+s been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.26 A
-      s $\psi$ is not known to us, training a neural net over (F, $\psi$) is...
- <./workflow_bfs.png>]
+l.32 S
+      ampling is done such that it captures the relation between X and Y. We...
+pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) ha
+s been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.32 S
+      ampling is done such that it captures the relation between X and Y. We...
+ <./workflow_bfs.png> <./sampling_bfs.png> <./gcln.png>]
 ! Missing $ inserted.
 <inserted text> 
                 $
@@ -2010,66 +2064,52 @@ l.33 a function mapping $\psi$: X \rightarrow
 l.34 
      
 ? 
-<regression.png, id=150, 412.54124pt x 312.16624pt>
+<regression.png, id=169, 412.54124pt x 312.16624pt>
 File: regression.png Graphic file (type png)
 <use regression.png>
 Package pdftex.def Info: regression.png  used on input line 63.
 (pdftex.def)             Requested size: 165.01357pt x 124.86427pt.
-<class1.png, id=152, 412.54124pt x 312.16624pt>
-File: class1.png Graphic file (type png)
-<use class1.png>
-Package pdftex.def Info: class1.png  used on input line 83.
-(pdftex.def)             Requested size: 165.01357pt x 124.86427pt.
-<class2.png, id=154, 522.95375pt x 319.1925pt>
-File: class2.png Graphic file (type png)
-<use class2.png>
-Package pdftex.def Info: class2.png  used on input line 99.
-(pdftex.def)             Requested size: 209.1778pt x 127.67473pt.
-[4pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) 
+[5pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) 
 has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.109 
-      pdfTeX warning (ext4): destination with the same identifier (name{figure.
-3}) has been already used, duplicate ignored
+l.80 
+     pdfTeX warning (ext4): destination with the same identifier (name{figure.5
+}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.109 
-       <./sampling_bfs.png> <./gcln.png>] [5pdfTeX warning (ext4): destination 
-with the same identifier (name{figure.4}) has been already used, duplicate igno
-red
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.118 
-      pdfTeX warning (ext4): destination with the same identifier (name{figure.
-5}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.118 
-      pdfTeX warning (ext4): destination with the same identifier (name{figure.
-6}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.118 
-      pdfTeX warning (ext4): destination with the same identifier (name{figure.
-7}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.118 
-       <./example.png> <./regression.png> <./class1.png> <./class2.png>]
-<results.png, id=176, 865.43324pt x 384.2355pt>
+l.80 
+      <./example.png> <./regression.png>]
+<class1.png, id=180, 412.54124pt x 312.16624pt>
+File: class1.png Graphic file (type png)
+<use class1.png>
+Package pdftex.def Info: class1.png  used on input line 83.
+(pdftex.def)             Requested size: 165.01357pt x 124.86427pt.
+<class2.png, id=182, 522.95375pt x 319.1925pt>
+File: class2.png Graphic file (type png)
+<use class2.png>
+Package pdftex.def Info: class2.png  used on input line 99.
+(pdftex.def)             Requested size: 209.1778pt x 127.67473pt.
+<results.png, id=186, 865.43324pt x 384.2355pt>
 File: results.png Graphic file (type png)
 <use results.png>
-Package pdftex.def Info: results.png  used on input line 121.
+Package pdftex.def Info: results.png  used on input line 136.
 (pdftex.def)             Requested size: 432.71556pt x 192.11728pt.
-)
-(./future.tex) (./main.bbl)
+) (./future.tex [6pdfTeX warning (ext4): destination with the same identifier (
+name{figure.6}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.23 
+     pdfTeX warning (ext4): destination with the same identifier (name{figure.7
+}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.23 
+      <./class1.png> <./class2.png>]) (./main.bbl)
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -2084,29 +2124,28 @@ Before submitting the final camera ready copy, remember to:
 
 Package nag Warning: 2 complaints in total.
 
-[6]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 194.
- [7pdfTeX warning (ext4): destination with the same identifier (name{figure.8})
- has been already used, duplicate ignored
+[7pdfTeX warning (ext4): destination with the same identifier (name{figure.8}) 
+has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
 l.194 \end{document}
                      <./results.png>]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 194.
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 194.
  (./main.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 194.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 194.
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 87B043354DCC15329B135A92F86268BD;974.
+(rerunfilecheck)             Checksum: C4ABFA729FA93420BD010617FB5D25BC;1079.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 194.
  ) 
 Here is how much of TeX's memory you used:
- 43569 strings out of 494880
- 988592 string characters out of 6179601
- 1212316 words of memory out of 5000000
- 45935 multiletter control sequences out of 15000+600000
- 575118 words of font info for 209 fonts, out of 8000000 for 9000
+ 43583 strings out of 494880
+ 988757 string characters out of 6179601
+ 1212360 words of memory out of 5000000
+ 45938 multiletter control sequences out of 15000+600000
+ 575435 words of font info for 212 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
  62i,10n,96p,10375b,609s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
@@ -2123,10 +2162,10 @@ usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texli
 ve/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texlive/texmf-dist/
 fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw
 /times/utmri8a.pfb>
-Output written on main.pdf (7 pages, 283824 bytes).
+Output written on main.pdf (7 pages, 291546 bytes).
 PDF statistics:
- 259 PDF objects out of 1000 (max. 8388607)
- 201 compressed objects within 3 object streams
- 48 named destinations out of 1000 (max. 500000)
- 26397 words of extra memory for PDF output out of 29859 (max. 10000000)
+ 274 PDF objects out of 1000 (max. 8388607)
+ 216 compressed objects within 3 object streams
+ 55 named destinations out of 1000 (max. 500000)
+ 26413 words of extra memory for PDF output out of 29859 (max. 10000000)
 

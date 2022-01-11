@@ -111,6 +111,21 @@ for given X, it should represent the required skolem function.
 This is same as \ref{class2} except the sampling strategy used here is correlated sampling
 explained in \ref{sample3}.
 
+\section{Extraction Algorithm}
+\noindent\textbf{Number of input variables = n, Number of output variables = m, Maximum clauses = K
+Gates in Disjunction Layer - G1 ($2n \times mK$)
+Gates in Conjunction Layer - G2 ($mK \times m$)}
+\\
+1. Input Vector I = [input variables, ~(input variables)]\\
+if there are n input variables then Input Vector I, would be of size $2n \times 1$
+\\
+2. Apply gates G1 and construct mK clauses each of size 2n where m is the number of output variables.
+\\
+3. Apply gates G2 and select suitable clauses for each output variables. First K clauses corresponds to the first output variable, 
+second K clauses corresponds to the second output variable, and so on.
+\\
+4. Finally, we have boolean formula for each output variable in terms of input variables.
+
 \section{Results}
 The output variable in the specification is replaced with the extracted formula from the network and checked for validity using z3Py Solver.
 Figure \ref{fig:results} shows the preliminary results over 5 toy problems. The results are not very impressive at the moment but the hope 

@@ -96,7 +96,7 @@ logic, it must fulfill three conditions:
 
 \begin{enumerate}
     \item It must preserve the meaning of the logic, such that the continuous truth values of a valid assignment are always greater than the value of an invalid assignment:
-        \begin{dmath}$(F(x) = True \wedge F(x') = False) \implies \mathcal{S}(F)(x) > \mathcal{S}(F)(x')$\end{dmath}
+        \begin{dmath*}$(F(x) = True \wedge F(x') = False) \implies \mathcal{S}(F)(x) > \mathcal{S}(F)(x')$\end{dmath*}
     \item It must be must be continuous and smooth (i.e. differentiable almost everywhere) to facilitate training.
     \item It must be strictly increasing as an unsatisfying assignment of terms approach satisfying the mapped formula,
 and strictly decreasing as a satisfying assignment of
@@ -112,3 +112,76 @@ $$Disjunction: \script{S}(F_{1} \lor \F_{2}) \triangleq \script{S} (F_{1}) \otim
 $$Negation: \script{S}(\neg{F}) \triangleq 1 - \script{S}(F)$$
 
 For Gated CLN, we use gated t-norms and gated t-conorms.
+
+\section{Theorems}
+\noindent\textbf{Theorem 1: } For any Boolean Formula F, there exists a CLN model M, such that
+\begin{equation}
+    \forall x, 0 <= M(x) <= 1 \\
+\end{equation}
+\begin{equation}
+    \forall, F(x) = True \iff M(x) = 1 \\
+\end{equation}
+\begin{equation}
+    \forall, F(x) = False \iff M(x) = 0
+\end{equation}
+
+In Boolean Function Setting, formula F as defined as follows:
+$$F:\rightarrow p | F_1 \lor F_2 | F_1 \wedge F_2$$
+where p is either x or \neg x.
+
+We prove this theorem by structural induction on F assuming the model vanilla CLN.
+
+\noindent\paragraph{Atomic Case: } F is simply a proposition p. CLN constructed 
+for the atomic case would consist of only one neuron which would give us back the inputs.
+
+$\therefore$ By construction, $\forall x F(x) = True \iff M(x) = 1$
+
+Since M(x) is identity and p is either 0 or 1, $0 \leq M(x) \geq 1$
+
+\noindent\paragraph{Disjunction Case: } $F = F_1 \lor F_2$. 
+Assume that $F_1$ and $F_2$ hold the induction hypothesis.
+
+$\therefore$ $F_1$ can be represented by $M_1$ and $F_2$ can be represented by $M_2$
+
+s.t. ($F_1$, $M_1$) and ($F_2$, $M_2$) satisfies equations 1, 2, and 3.
+
+Now let $p_1$ and $p_2$ are the ouput nodes of $M_1$ and $M_2$. We add a final output node $p = p_1 \oplus p_2$.
+So, $M(x) = M_1(x) \oplus M_2(x)$
+
+since $\oplus$ is continuous and $M_1$, $M_2$ follows induction hypothesis,
+M(x) is continuous as well.
+
+$\therefore 0 \leq M(x) \geq 1$
+
+\noindent\textbf{Forward Implication: } If F(x) is True then either $F_1(x)$ or $F_2(x)$
+is true. Without loss of generality let's assume $F_1(x) = True$.
+
+So, from induction hypothesis we know that $M_1(x) = 1$.
+
+Using property of tconorm $t \oplus u \leq t^{'} \oplus u$ for $t \geq 0$ and $t \leq t^{'}$ 
+
+Also, from induction hypothesis, $M_2(x)$ \geq 0
+
+we get, $0 \oplus M_1(x) \leq M_2(x) \oplus M_1(x)$
+
+$0 \oplus M_1(x) = M_1(x)$ [By definition of tconorm]
+
+$\therefore M_1(x) \leq M(x) \leq 1$
+
+and we know that M_1(x) = 1 by induction hypothesis
+$$\therefore M(x) = 1$$
+
+\noindent\textbf{Backward Implication: } We have M(x) = 1 \\
+\iff M_1(x) \oplus M_2(x) = 1 \\
+\iff 1 - (1 - p_1) \otimes (1 - p_2) = 1 \\
+\iff (1 - p_1) \otimes (1 - p_2) = 0
+
+from induction hypothesis, we know that either M_1 = 1 or M_2 = 1. Without loss of generality, 
+let $M_1 = 1$ \\
+$\iff p_1 = 1$ \\
+$\iff F_1(x) = True$
+
+as $F(x) = F_1(x) \lor F_2(x)$, we get
+$F(x) = True$
+
+Similarly, we can also prove for the Conjunction case.

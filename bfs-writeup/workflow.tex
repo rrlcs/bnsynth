@@ -36,6 +36,10 @@ In this strategy, we first sample the input variables. Output variables are cond
 This may help to capture the correlation betweenn input and output variables. we keep both positive and 
 negative samples.
 
+\noindent\textbf{Bias Sampling (Manthan): }\label{sample4}
+Takes $F(X, Y)$ as input and returns a subset of satisfying assignments of $F$. Once these samples are generated 
+we add noise to the data with range 0 to 0.2 and 0.8 to 1, to generate fractional sampling for training.
+
 Table \ref{tab:tnorms} shows an example of random sampling.
 
 \begin{table}[t]
@@ -71,8 +75,8 @@ number of clauses that could possibly be present in the final solution. K is a h
 %This layer decides which input variables to selected for each clause.
 
 \smallskip
-\noindent\textbf{Gates G2:} G2 is of shape K x 1 i.e. each node represents one of the clause. 
-Here we decide upon which clause to keep as part of the solution skolem function.
+\noindent\textbf{Gates G2:} G2 is of shape K x M, where M is the number of output variables. 
+It selects the clauses for the skolem function.
 
 \smallskip
 \noindent\textbf{Conjunction Layer:} This layer takes input the gated output of the Disjunction Layer. It is of shape 1 x 1. 
