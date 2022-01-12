@@ -279,7 +279,7 @@ class utils():
         # training_samples = training_samples.repeat(2, 1)
         # add random noise to get fractional samples
         training_samples = torch.cat([
-            self.add_noise((training_samples)) for _ in range(5)
+            self.add_noise((training_samples)) for _ in range(1000)
             ])
         training_samples = training_samples.to(torch.double)
 
@@ -789,6 +789,9 @@ class utils():
                 sample_cnf_content = self.gen_weighted_cnf(
                     cnf_content, Xvar_map, Yvar_map, allvar_map)
             samples = self.get_sample_cms(allvar_map, sample_cnf_content, no_samples, verilog)
+
+        x_data, indices = np.unique(samples[:, Xvar], axis=0, return_index=True)
+        samples = samples[indices, :]
 
         return samples
     
