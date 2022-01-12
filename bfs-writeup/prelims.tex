@@ -96,7 +96,7 @@ logic, it must fulfill three conditions:
 
 \begin{enumerate}
     \item It must preserve the meaning of the logic, such that the continuous truth values of a valid assignment are always greater than the value of an invalid assignment:
-        \begin{dmath*}$(F(x) = True \wedge F(x') = False) \implies \mathcal{S}(F)(x) > \mathcal{S}(F)(x')$\end{dmath*}
+        $(F(x) = True \wedge F(x') = False) \implies \mathcal{S}(F)(x) > \mathcal{S}(F)(x')$
     \item It must be must be continuous and smooth (i.e. differentiable almost everywhere) to facilitate training.
     \item It must be strictly increasing as an unsatisfying assignment of terms approach satisfying the mapped formula,
 and strictly decreasing as a satisfying assignment of
