@@ -103,13 +103,13 @@ and strictly decreasing as a satisfying assignment of
 terms approach violating the formula.
 \end{enumerate}
 
-\script{S} is constructed as follows to satisfy these requirements. The
+$\mathcal{S}$ is constructed as follows to satisfy these requirements. The
 logical relations {$\wedge, \lor, \lnot$} are mapped to their continuous
 equivalents in BL:
 
-$$Conjunction: \script{S}(F_{1} \wedge F_{2}) \triangleq \script{S} (F_{1}) \otimes \mathcal{S} (F_{2})$$
-$$Disjunction: \script{S}(F_{1} \lor \F_{2}) \triangleq \script{S} (F_{1}) \otimes \mathcal{S} (F_{2})$$
-$$Negation: \script{S}(\neg{F}) \triangleq 1 - \script{S}(F)$$
+$$Conjunction: \mathcal{S}(F_{1} \wedge F_{2}) \triangleq \mathcal{S} (F_{1}) \otimes \mathcal{S} (F_{2})$$
+$$Disjunction: \mathcal{S}(F_{1} \lor \ F_{2}) \triangleq \mathcal{S} (F_{1}) \otimes \mathcal{S} (F_{2})$$
+$$Negation: \mathcal{S}(\neg{F}) \triangleq 1 - \mathcal{S}(F)$$
 
 For Gated CLN, we use gated t-norms and gated t-conorms.
 
@@ -127,7 +127,7 @@ For Gated CLN, we use gated t-norms and gated t-conorms.
 
 In Boolean Function Setting, formula F as defined as follows:
 $$F:\rightarrow p | F_1 \lor F_2 | F_1 \wedge F_2$$
-where p is either x or \neg x.
+where p is either x or $\neg$ x.
 
 We prove this theorem by structural induction on F assuming the model vanilla CLN.
 
@@ -160,7 +160,7 @@ So, from induction hypothesis we know that $M_1(x) = 1$.
 
 Using property of tconorm $t \oplus u \leq t^{'} \oplus u$ for $t \geq 0$ and $t \leq t^{'}$ 
 
-Also, from induction hypothesis, $M_2(x)$ \geq 0
+Also, from induction hypothesis, $M_2(x) \geq 0$
 
 we get, $0 \oplus M_1(x) \leq M_2(x) \oplus M_1(x)$
 
@@ -172,9 +172,9 @@ and we know that M_1(x) = 1 by induction hypothesis
 $$\therefore M(x) = 1$$
 
 \noindent\textbf{Backward Implication: } We have M(x) = 1 \\
-\iff M_1(x) \oplus M_2(x) = 1 \\
-\iff 1 - (1 - p_1) \otimes (1 - p_2) = 1 \\
-\iff (1 - p_1) \otimes (1 - p_2) = 0
+$\iff M_1(x) \oplus M_2(x) = 1$ \\
+$\iff 1 - (1 - p_1) \otimes (1 - p_2) = 1$ \\
+$\iff (1 - p_1) \otimes (1 - p_2) = 0$
 
 from induction hypothesis, we know that either M_1 = 1 or M_2 = 1. Without loss of generality, 
 let $M_1 = 1$ \\
