@@ -48,24 +48,80 @@ def generate_all_counterexamples(input_formula):
 #     print(all_counterexamples)
 
 def check_validity():
-	i_10 ,i_1 ,i_22 = Bools('i_10 i_1 i_22')
-	w1 = Bool('w1')
+	x_0, i_1, i_2, i_3, x_4, x_5, x_6, i_7, i_8, i_9, i_10, i_11, i_12 = Bools('x_0 i_1 i_2 i_3 x_4 x_5 x_6 i_7 i_8 i_9 i_10 i_11 i_12')
+	c1 = Bool('c1')
+	carry1 = Bool('carry1')
+	c2 = Bool('c2')
+	carry2 = Bool('carry2')
+	a1 = Bool('a1')
+	a2 = Bool('a2')
+	a3 = Bool('a3')
+	c3 = Bool('c3')
+	a4 = Bool('a4')
+	c4 = Bool('c4')
+	a5 = Bool('a5')
+	c5 = Bool('c5')
+	a6 = Bool('a6')
+	c6 = Bool('c6')
+	a7 = Bool('a7')
 	
-	o_1 = Bool('o_1')
-	nn_out0 = simplify(And((Or((i_10),Not(i_10),)),((i_10)),))
-	nn_out1 = simplify((Or((i_10),Not(i_10),)))
+	out = Bool('out')
+	nn_out0 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),)),(Or((x_0),(x_4),(x_6),Not(x_5),)),(Or((x_0),(x_5),(x_6),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_5),Not(x_4),Not(x_6),)),(Or((x_0),(x_5),Not(x_6),)),(Or(Not(x_0),Not(x_5),)),))
+	nn_out1 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_6),Not(x_5),)),(Or((x_0),(x_5),(x_6),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_5),Not(x_6),)),))
+	nn_out2 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),)),(Or((x_0),(x_4),(x_5),)),(Or((x_0),(x_4),(x_6),Not(x_5),)),))
+	nn_out3 = simplify(And((Or((x_0),(x_5),Not(x_6),)),(Or(Not(x_0),Not(x_5),)),))
+	nn_out4 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),)),(Or((x_0),(x_4),(x_5),)),(Or((x_0),(x_4),(x_6),Not(x_5),)),(Or((x_0),(x_5),Not(x_4),Not(x_6),)),(Or(Not(x_0),Not(x_5),)),))
+	nn_out5 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),)),(Or((x_0),(x_4),(x_6),Not(x_5),)),(Or((x_0),(x_5),(x_6),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_5),Not(x_4),Not(x_6),)),(Or((x_4),Not(x_5),Not(x_6),)),(Or(Not(x_0),Not(x_5),)),))
+	nn_out6 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),)),(Or((x_0),(x_4),(x_5),)),(Or((x_0),(x_5),Not(x_4),Not(x_6),)),(Or((x_0),(x_5),Not(x_6),)),(Or(Not(x_0),Not(x_5),)),))
+	nn_out7 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),)),(Or((x_0),(x_5),Not(x_6),)),(Or((x_4),Not(x_5),Not(x_6),)),(Or(Not(x_0),Not(x_5),)),))
+	nn_out8 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),)),(Or((x_0),(x_5),Not(x_4),Not(x_6),)),(Or((x_0),(x_5),Not(x_6),)),(Or(Not(x_0),Not(x_5),)),))
 	
-	w1 = (Xor((i_10),(i_1),))
-	o_1 = (Xor((w1),(i_22),))
-	z = Exists([i_1, i_22], o_1)
+	c1 = (Xor((x_0),(x_5),))
+	carry1 = (And((x_0),(x_5),))
+	c3 = Not(i_9)
+	c5 = (And((x_4),(i_10),))
+	c6 = (Or((x_5),(i_11),))
+	c4 = (Or((x_0),(i_12),))
+	a1 = Not((Xor((c1),(i_7),)))
+	c2 = (Xor(((Xor((carry1),(x_4),))),(x_6),))
+	carry2 = (Or(((And((x_4),(x_6),))),((And((carry1),((Xor((x_4),(x_6),))),))),))
+	a4 = Not((Xor((c3),(i_1),)))
+	a6 = Not((Xor((i_11),(c5),)))
+	a7 = Not((Xor((i_12),(c6),)))
+	a5 = Not((Xor((i_10),(c4),)))
+	a2 = Not((Xor((c2),(i_8),)))
+	a3 = Not((Xor((carry2),(i_3),)))
+	out = (And(((And(((And(((And(((And(((And((a1),(a2),))),(a3),))),(a4),))),(a5),))),(a6),))),(a7),))
+	z = Exists([i_1, i_2, i_3, i_7, i_8, i_9, i_10, i_11, i_12], out)
 	
 	i_1 = nn_out0
-	i_22 = nn_out1
+	i_2 = nn_out1
+	i_3 = nn_out2
+	i_7 = nn_out3
+	i_8 = nn_out4
+	i_9 = nn_out5
+	i_10 = nn_out6
+	i_11 = nn_out7
+	i_12 = nn_out8
 	
-	w1 = (Xor((i_10),(i_1),))
-	o_1 = (Xor((w1),(i_22),))
-	z2 = o_1
-	formula = z==z2
+	c1 = (Xor((x_0),(x_5),))
+	carry1 = (And((x_0),(x_5),))
+	c3 = Not(i_9)
+	c5 = (And((x_4),(i_10),))
+	c6 = (Or((x_5),(i_11),))
+	c4 = (Or((x_0),(i_12),))
+	a1 = Not((Xor((c1),(i_7),)))
+	c2 = (Xor(((Xor((carry1),(x_4),))),(x_6),))
+	carry2 = (Or(((And((x_4),(x_6),))),((And((carry1),((Xor((x_4),(x_6),))),))),))
+	a4 = Not((Xor((c3),(i_1),)))
+	a6 = Not((Xor((i_11),(c5),)))
+	a7 = Not((Xor((i_12),(c6),)))
+	a5 = Not((Xor((i_10),(c4),)))
+	a2 = Not((Xor((c2),(i_8),)))
+	a3 = Not((Xor((carry2),(i_3),)))
+	out = (And(((And(((And(((And(((And(((And((a1),(a2),))),(a3),))),(a4),))),(a5),))),(a6),))),(a7),))
+	z9 = out
+	formula = z==z9
 	all_counterexamples = generate_all_counterexamples(formula)
 	print('all_counterexamples', all_counterexamples)
 	if len(all_counterexamples) == 0:

@@ -32,7 +32,7 @@ def ce_train_loop(
         loop += 1
         print("Counter Example Loop: ", loop)
         s = time.time()
-        ce = model.repeat(200, 1)
+        ce = model
         ce = torch.cat([util.add_noise(ce) for _ in range(20)]).to(torch.double)
         # print("ce shape: ", ce.shape)
         e = time.time()

@@ -276,7 +276,7 @@ class utils():
         # tensor dataset
         training_samples = torch.from_numpy(samples)
         # repeat samples n=2 times
-        training_samples = training_samples.repeat(2, 1)
+        # training_samples = training_samples.repeat(2, 1)
         # add random noise to get fractional samples
         training_samples = torch.cat([
             self.add_noise((training_samples)) for _ in range(5)
