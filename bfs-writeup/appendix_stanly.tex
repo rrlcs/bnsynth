@@ -16,9 +16,14 @@ $x_i$ = set of variables and their negations (i.e.,  $2|V_{in}|$), .\\
 $g_{ij}$ = 1 iff the $i^{th}$ variable is used in the $j^{th}$ clause.\\
 $g_{j}$ = 1 iff the $j^{th}$ clause is used for the output.\\
 
-The GCLN architecture for $m = 3$ and $V_{in} = \{ x\}$ is as follows: \\
+The GCLN architecture for $m = 3$ and $V_{in} = \{ x\}$ is as \ref{fig:arch1}. \\
 
-Enter diagram here \\
+\begin{figure}[t]
+	\centering
+    \includegraphics[scale=0.5]{architecture-1.png}
+    \caption{Architecture 1: Single Output GCLN}
+    \label{fig:arch1}
+\end{figure}
 
 The network has three layers where the middle (disjunct) layer is variable in size.
 
@@ -38,9 +43,14 @@ $l$ = number of output variables (i.e.,  $|V_{out}|$), \\
 $g_{jk}$ = 1 iff the $j^{th}$ clause is used for the $k^{th}$ output.\\
 and the rest are as before.
 
-The GCLN architecture for $m = 3$,  $V_{in} = \{ x\}$, and $V_{out} = \{ y_1, y_2\}$ is as follows: \\
+The GCLN architecture for $m = 3$,  $V_{in} = \{ x\}$, and $V_{out} = \{ y_1, y_2\}$ is as \ref{fig:arch2}. \\
 
-Enter diagram here \\
+\begin{figure}[t]
+	\centering
+    \includegraphics[scale=0.5]{architecture-2.png}
+    \caption{Architecture 2: Multiple output GCLN with a shared layer}
+    \label{fig:arch2}
+\end{figure}
 
 As observed,  the middle layer is shared between all the $l$ outputs.
 \subsection{Architecture 3: Multiple output GCLN without a shared layer}
@@ -52,9 +62,14 @@ Thus, $F_k$ is now:
 
 where a block $B_k$ for an output $k$ ranges from $mk-m-1$ to $mk$, for a given output $k$, for $m$ clauses.
 
-The GCLN architecture for $m = 3$,  $V_{in} = \{ x\}$, and $V_{out} = \{ y_1, y_2\}$ is as follows: \\
+The GCLN architecture for $m = 3$,  $V_{in} = \{ x\}$, and $V_{out} = \{ y_1, y_2\}$ is as \ref{fig:arch3} \\
 
-Enter diagram here \\
+\begin{figure}[t]
+	\centering
+    \includegraphics[scale=0.5]{architecture-3.png}
+    \caption{Architecture 3: Multiple output GCLN without a shared layer}
+    \label{fig:arch3}
+\end{figure}
 
 \section{Network architecture to represent DNF formulae}
 
