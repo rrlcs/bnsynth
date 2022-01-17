@@ -55,16 +55,15 @@ def train_regressor(
         train_epoch_loss = 0
         for batch_idx, (inps, tgts) in enumerate(train_loader):
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
-            outs = gcln(inps)#.to(device)
-            # print("outs: ",outs[0].shape)
+            outs = gcln(inps).squeeze(-1).to(device)
             l = []
             for i in range(num_of_outputs):
-                l.append(criterion(outs[i], tgts[:, i]))
+                l.append(criterion(outs[i, :], tgts[:, i]))
             t_loss = sum(l)
 
             # t_loss = torch.sqrt(criterion(out, tgts))
-            # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
-            #     lambda2*torch.linalg.norm(gcln.G2, 1)
+            t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 1) + \
+                lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
             #     lambda2*torch.linalg.norm(gcln.G2, 2)
 

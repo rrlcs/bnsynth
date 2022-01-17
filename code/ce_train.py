@@ -33,7 +33,7 @@ def ce_train_loop(
         print("Counter Example Loop: ", loop)
         s = time.time()
         ce = model
-        ce = torch.cat([util.add_noise(ce) for _ in range(20)]).to(torch.double)
+        ce = torch.cat([util.add_noise(ce) for _ in range(1000)]).to(torch.double)
         # print("ce shape: ", ce.shape)
         e = time.time()
         data_t = e - s

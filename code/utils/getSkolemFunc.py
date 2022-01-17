@@ -10,11 +10,8 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
     '''
 
     sigmoid = nn.Sigmoid()
-    layer_or_weights = []
-    layer_and_weights = []
-    for i in range(num_of_outputs):
-        layer_or_weights.append(sigmoid(gcln.layer_or_weights[i].cpu().detach()).numpy()) # input_size x K
-        layer_and_weights.append(sigmoid(gcln.layer_and_weights[i].cpu().detach()).numpy()) # K x num_of_outputs
+    layer_or_weights = sigmoid(gcln.layer_or_weights.cpu().detach()).numpy() # input_size x K
+    layer_and_weights = sigmoid(gcln.layer_and_weights.cpu().detach()).numpy() # K x num_of_outputs
 
     literals = []
     neg_literals = []
@@ -25,29 +22,20 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
     clause = np.array(literals + neg_literals)
 
     clauses = []
-    for i in range(num_of_outputs):
-        G1 = layer_or_weights[i]
-        clauses_per_output = []
-        for j in range(K):
-            mask = G1[:, j] > threshold
-            clauses_per_output.append(clause[mask])
-        clauses.append(np.array(clauses_per_output))
+    for j in range(num_of_outputs * K):
+        mask = layer_or_weights[:, j] > threshold
+        clauses.append(clause[mask])
+    clauses = np.array(clauses)
 
     ored_clauses = []
-    for i in range(num_of_outputs):
-        ored_clause = []
-        clause = clauses[i]
-        print(clause.shape)
-        for j in range(len(clause)):
-            ored_clause.append("("+" | ".join(clause[i])+")".replace("() &", ""))
-        ored_clauses.append(np.array(ored_clause))
-    print(ored_clauses)
+    for j in range(len(clauses)):
+        ored_clauses.append("("+" | ".join(clauses[j])+")")
+    ored_clauses = np.array(ored_clauses)
 
     gated_ored_clauses = []
     for i in range(num_of_outputs):
-        G2 = layer_and_weights[i]
-        mask = G2 > threshold
-        ored_clause = ored_clauses[i].reshape((-1, 1))
+        mask = layer_and_weights[i*K:(i+1)*K, :] > threshold
+        ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
         gated_ored_clauses.append(
             np.unique(ored_clause[mask]))
 
