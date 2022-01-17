@@ -20,14 +20,21 @@ pip3 install torch==1.8.1+cu102 torchvision==0.9.1+cu102 torchaudio===0.8.1 -f h
 ```
 pip3 install numpy
 ```
-
 - ArgParse
 ```
 pip3 install argparse
 ```
+- Z3
+```
+pip install z3-solver
+```
+-ANTLR4
+```
+pip install antlr4-python3-runtime
+```
 
 ## Switch to updated branch
-```git checkout autotest```
+```git checkout saakha for architecture 3```
 
 ## To switch to writeup branch
 ```git checkout writeup```
