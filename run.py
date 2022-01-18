@@ -142,14 +142,14 @@ if __name__ == "__main__":
     pt.plot()
 
     # Run the Z3 Validity Checker
-    util.store_nn_output(num_of_outputs, skfunc)
-    preparez3(args.verilog_spec, args.verilog_spec_location, num_of_outputs)
-    importlib.reload(z3)
-    result, _ = z3.check_validity()
-    if result:
-        print("Z3: Valid")
-    else:
-        print("Z3: Not Valid")
+    # util.store_nn_output(num_of_outputs, skfunc)
+    # preparez3(args.verilog_spec, args.verilog_spec_location, num_of_outputs)
+    # importlib.reload(z3)
+    # result, _ = z3.check_validity()
+    # if result:
+    #     print("Z3: Valid")
+    # else:
+    #     print("Z3: Not Valid")
     # ----------------------------------------------------------------------------------------------------------
 
 

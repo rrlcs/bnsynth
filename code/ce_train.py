@@ -104,14 +104,14 @@ def ce_train_loop(
         print("Formula Extraction Time: ", e-s)
 
         # Run the Z3 Validity Checker
-        util.store_nn_output(num_of_outputs, skfunc)
-        preparez3(verilog_spec, verilog_spec_location, num_of_outputs)
-        importlib.reload(z3)
-        result, _ = z3.check_validity()
-        if result:
-            print("Z3: Valid")
-        else:
-            print("Z3: Not Valid")
+        # util.store_nn_output(num_of_outputs, skfunc)
+        # preparez3(verilog_spec, verilog_spec_location, num_of_outputs)
+        # importlib.reload(z3)
+        # result, _ = z3.check_validity()
+        # if result:
+        #     print("Z3: Valid")
+        # else:
+        #     print("Z3: Not Valid")
 
         # skfunc = [s.replace("_", "") for s in skfunc]
         skfunc = skf.get_skolem_function(

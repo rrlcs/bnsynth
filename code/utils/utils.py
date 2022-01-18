@@ -279,7 +279,7 @@ class utils():
         # training_samples = training_samples.repeat(2, 1)
         # add random noise to get fractional samples
         training_samples = torch.cat([
-            self.add_noise((training_samples)) for _ in range(1000)
+            self.add_noise((training_samples)) for _ in range(10)
             ])
         training_samples = training_samples.to(torch.double)
 
