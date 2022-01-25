@@ -45,8 +45,8 @@ def train_regressor(
     # Loss and Optimizer
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(list(gcln.parameters()), lr=learning_rate)
-    if flag:
-        load_checkpoint(torch.load('model.pth.tar'), gcln, optimizer)
+    # if flag:
+    #     load_checkpoint(torch.load('model.pth.tar'), gcln, optimizer)
     
     # Train network
     for epoch in range(1, max_epochs+1):
@@ -55,42 +55,59 @@ def train_regressor(
         train_epoch_loss = 0
         for batch_idx, (inps, tgts) in enumerate(train_loader):
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
+            tgts = tgts.round()
+            print("tgts:", tgts)
             out = gcln(inps).to(device)
             l = []
             # for i in range(num_of_outputs):
             #     l.append(criterion(out[:, i], tgts[:, i]))
             # t_loss = sum(l)
             # print("target and input shapes: ", out.squeeze().shape, tgts[:, current_output].shape)
-            t_loss = torch.sqrt(criterion(out, tgts[:, current_output].unsqueeze(-1)))
-            t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
-                lambda2*torch.linalg.norm(gcln.G2, 1)
-            t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
-                lambda2*torch.linalg.norm(gcln.G2, 2)
 
+            # check network output:
+            print("comparing nw out: ", out, tgts)
+            t_loss = (criterion(out, tgts[:, current_output].unsqueeze(-1)))
+            # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
+            #     lambda2*torch.linalg.norm(gcln.G2, 1)
+            # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
+            #     lambda2*torch.linalg.norm(gcln.G2, 2)
+            print("G1: ", gcln.G1.data)
+            print("G2: ", gcln.G2.data)
+            print("Loss: ", t_loss.item())
             optimizer.zero_grad()
             t_loss.backward()
             optimizer.step()
+            t_loss = torch.sqrt(criterion(out, tgts[:, current_output].unsqueeze(-1)))
+            print("Loss: ", t_loss.item())
+            print("G1: ", gcln.G1.data)
+            print("G2: ", gcln.G2.data)
             train_epoch_loss += t_loss.item()*inps.size(0)
         train_loss.append(train_epoch_loss / len(train_loader.sampler))
 
-        gcln.eval()
-        valid_epoch_loss = 0
-        for batch_idx, (inps, tgts) in enumerate(validation_loader):
-            tgts = tgts.reshape((tgts.size(0), -1)).to(device)
-            out = gcln(inps).to(device)
-            l = []
-            # for i in range(num_of_outputs):
-            #     l.append(criterion(out[:, i], tgts[:, i]))
-            # v_loss = sum(l)
+        print('epoch {}, train loss {}'.format(
+                epoch, round(t_loss.item(), 4))
+            )
+        print("Gradient for G1: ", gcln.G1.grad)
+        print("Gradient for G2: ", gcln.G2.grad)
 
-            v_loss = torch.sqrt(criterion(out, tgts[:, current_output].unsqueeze(-1)))
-            v_loss = v_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
-                lambda2*torch.linalg.norm(gcln.G2, 1)
-            v_loss = v_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
-                lambda2*torch.linalg.norm(gcln.G2, 2)
+        # gcln.eval()
+        # valid_epoch_loss = 0
+        # for batch_idx, (inps, tgts) in enumerate(validation_loader):
+        #     tgts = tgts.reshape((tgts.size(0), -1)).to(device)
+        #     out = gcln(inps).to(device)
+        #     l = []
+        #     # for i in range(num_of_outputs):
+        #     #     l.append(criterion(out[:, i], tgts[:, i]))
+        #     # v_loss = sum(l)
 
-            valid_epoch_loss += v_loss.item()*inps.size(0)
-        valid_loss.append(valid_epoch_loss / len(validation_loader.sampler))
+        #     v_loss = torch.sqrt(criterion(out, tgts[:, current_output].unsqueeze(-1)))
+        #     v_loss = v_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
+        #         lambda2*torch.linalg.norm(gcln.G2, 1)
+        #     v_loss = v_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
+        #         lambda2*torch.linalg.norm(gcln.G2, 2)
+
+        #     valid_epoch_loss += v_loss.item()*inps.size(0)
+        # valid_loss.append(valid_epoch_loss / len(validation_loader.sampler))
         
         # early_stopping needs the validation loss to check if it has decresed, 
         # and if it has, it will make a checkpoint of the current model
@@ -104,9 +121,11 @@ def train_regressor(
                 # break
 
         if epoch % 5 == 0:
-            print('epoch {}, train loss {}, valid loss {}'.format(
-                epoch, round(t_loss.item(), 4), round(v_loss.item(), 4))
+            print('epoch {}, train loss {}'.format(
+                epoch, round(t_loss.item(), 4))
             )
+            print("Gradient for G1: ", gcln.G1.grad)
+            print("Gradient for G2: ", gcln.G2.grad)
             checkpoint = {'state_dict': gcln.state_dict(), 'optimizer':optimizer.state_dict()}
             save_checkpoint(checkpoint)
             

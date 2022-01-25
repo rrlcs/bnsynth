@@ -280,7 +280,7 @@ class utils():
         # training_samples = training_samples.repeat(2, 1)
         # add random noise to get fractional samples
         training_samples = torch.cat([
-            self.add_noise((training_samples)) for _ in range(2000)
+            self.add_noise((training_samples)) for _ in range(100)
             ])
         training_samples = training_samples.to(torch.double)
 
@@ -417,7 +417,7 @@ class utils():
 
     def get_train_test_split(self, training_samples):
         data_size = training_samples.shape[0]
-        val_size = floor(data_size*0.2)
+        val_size = floor(data_size*0)
         train_size = data_size - val_size
         validation_set = training_samples[train_size:, :]
         training_set = training_samples[:train_size, :]

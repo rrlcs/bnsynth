@@ -48,31 +48,19 @@ def generate_all_counterexamples(input_formula):
 #     print(all_counterexamples)
 
 def check_validity():
-	i_10 ,i_1 ,i_22 = Bools('i_10 i_1 i_22')
-	w1 = Bool('w1')
+	i_0 ,i_1 = Bools('i_0 i_1')
 	
 	out = Bool('out')
-	nn_out0 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),Not(x_0),Not(x_6),)),(Or((x_0),(x_4),(x_6),Not(x_0),Not(x_4),Not(x_5),)),(Or((x_0),(x_4),(x_6),Not(x_0),Not(x_4),Not(x_6),)),(Or((x_0),(x_4),(x_6),Not(x_0),Not(x_5),)),(Or((x_0),(x_4),(x_6),Not(x_4),Not(x_6),)),(Or((x_0),(x_5),Not(x_0),Not(x_5),)),(Or((x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_4),(x_5),(x_6),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_4),(x_5),(x_6),)),(Or((x_4),(x_5),Not(x_5),)),(Or((x_4),(x_6),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_4),(x_6),Not(x_4),Not(x_5),)),(Or((x_4),(x_6),Not(x_6),)),(Or((x_4),Not(x_0),)),(Or((x_4),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_6),Not(x_0),)),))
-	nn_out1 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_5),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_5),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),)),(Or((x_0),(x_4),(x_5),Not(x_0),Not(x_4),)),(Or((x_0),(x_4),(x_5),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_6),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),Not(x_0),Not(x_4),)),(Or((x_0),(x_5),(x_6),Not(x_0),Not(x_6),)),(Or((x_0),(x_5),Not(x_5),Not(x_6),)),(Or((x_0),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_5),)),(Or((x_4),(x_5),Not(x_4),Not(x_5),)),(Or((x_4),(x_5),)),(Or((x_4),(x_6),Not(x_0),Not(x_5),)),(Or((x_5),(x_6),Not(x_0),Not(x_4),)),))
-	nn_out2 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),Not(x_0),Not(x_4),)),(Or((x_0),(x_4),(x_6),Not(x_0),Not(x_6),)),(Or((x_0),(x_4),Not(x_6),)),(Or((x_0),(x_5),(x_6),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_0),(x_5),(x_6),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_5),(x_6),Not(x_5),Not(x_6),)),(Or((x_0),(x_5),Not(x_0),Not(x_5),)),(Or((x_0),(x_5),Not(x_0),)),(Or((x_0),(x_6),)),(Or((x_4),(x_5),Not(x_0),Not(x_6),)),(Or((x_4),(x_6),Not(x_0),Not(x_5),)),(Or((x_5),(x_6),)),(Or(Not(x_0),Not(x_4),Not(x_6),)),))
-	nn_out3 = simplify(And((Or((x_0),(x_5),)),(Or((x_4),(x_5),(x_6),Not(x_0),Not(x_4),)),(Or((x_4),(x_5),(x_6),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_4),(x_5),(x_6),Not(x_0),Not(x_5),)),(Or((x_4),(x_5),(x_6),Not(x_5),)),(Or((x_4),(x_5),(x_6),Not(x_6),)),(Or((x_4),(x_5),Not(x_0),Not(x_5),)),(Or((x_4),(x_6),Not(x_0),)),(Or((x_4),(x_6),Not(x_6),)),(Or((x_5),(x_6),Not(x_0),Not(x_4),)),(Or((x_5),(x_6),Not(x_0),Not(x_6),)),(Or((x_5),(x_6),Not(x_0),)),(Or(Not(x_0),Not(x_5),)),))
-	nn_out4 = simplify(And((Or((x_0),(x_4),(x_6),)),(Or((x_0),Not(x_4),Not(x_6),)),(Or((x_4),(x_5),(x_6),)),(Or((x_4),(x_6),Not(x_0),Not(x_4),Not(x_5),)),(Or((x_4),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_5),Not(x_4),Not(x_6),)),(Or((x_6),Not(x_0),Not(x_4),Not(x_5),)),))
-	nn_out5 = simplify(And((Or((x_0),(x_4),(x_5),Not(x_6),)),(Or((x_0),(x_4),Not(x_0),Not(x_4),Not(x_5),)),(Or((x_0),(x_4),Not(x_6),)),(Or((x_0),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_6),)),(Or((x_0),(x_5),(x_6),Not(x_0),Not(x_6),)),(Or((x_0),(x_5),(x_6),Not(x_4),)),(Or((x_0),(x_5),(x_6),Not(x_6),)),(Or((x_0),(x_5),Not(x_4),Not(x_6),)),(Or((x_0),(x_6),Not(x_5),)),(Or((x_4),(x_5),(x_6),Not(x_0),)),(Or((x_4),(x_5),(x_6),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_4),(x_5),(x_6),Not(x_4),Not(x_6),)),(Or((x_4),(x_5),(x_6),Not(x_5),Not(x_6),)),(Or((x_4),(x_5),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_5),(x_6),Not(x_4),Not(x_6),)),(Or(Not(x_0),Not(x_4),Not(x_6),)),))
-	nn_out6 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),)),(Or((x_0),(x_5),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_5),Not(x_6),)),(Or((x_0),(x_6),Not(x_4),Not(x_5),)),(Or((x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_4),(x_5),(x_6),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_4),(x_6),Not(x_4),)),(Or((x_5),(x_6),Not(x_0),)),(Or((x_5),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_5),Not(x_4),Not(x_5),Not(x_6),)),))
-	nn_out7 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_5),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_0),)),(Or((x_0),(x_4),(x_5),Not(x_0),Not(x_4),Not(x_5),)),(Or((x_0),(x_4),(x_5),Not(x_0),Not(x_4),)),(Or((x_0),(x_4),(x_5),Not(x_0),Not(x_5),)),(Or((x_0),(x_4),(x_5),Not(x_4),Not(x_5),)),(Or((x_0),(x_4),(x_5),Not(x_4),Not(x_6),)),(Or((x_0),(x_4),(x_5),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_6),Not(x_0),Not(x_6),)),(Or((x_0),(x_4),(x_6),Not(x_4),Not(x_6),)),(Or((x_0),(x_4),Not(x_0),Not(x_4),Not(x_6),)),(Or((x_0),(x_4),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),Not(x_0),)),(Or((x_0),(x_4),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_5),(x_6),Not(x_5),Not(x_6),)),(Or((x_0),(x_5),Not(x_0),)),(Or((x_0),(x_5),Not(x_6),)),(Or((x_0),(x_6),Not(x_5),)),(Or((x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_6),)),(Or((x_4),(x_5),(x_6),Not(x_0),Not(x_6),)),(Or((x_4),(x_5),(x_6),Not(x_0),)),(Or((x_4),(x_5),(x_6),Not(x_5),Not(x_6),)),(Or((x_4),(x_5),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_4),(x_5),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_4),(x_5),Not(x_5),Not(x_6),)),(Or((x_4),(x_5),Not(x_5),)),((x_4)),(Or(Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),))
-	nn_out8 = simplify(And((Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),(x_6),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_5),Not(x_0),Not(x_4),Not(x_5),)),(Or((x_0),(x_4),(x_6),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_6),Not(x_0),Not(x_4),Not(x_6),)),(Or((x_0),(x_4),(x_6),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),(x_6),Not(x_0),Not(x_6),)),(Or((x_0),(x_4),Not(x_0),Not(x_4),Not(x_5),Not(x_6),)),(Or((x_0),(x_4),Not(x_0),Not(x_4),Not(x_6),)),(Or((x_0),(x_4),Not(x_0),)),(Or((x_0),(x_5),(x_6),Not(x_0),Not(x_5),)),(Or((x_0),(x_5),(x_6),Not(x_4),Not(x_5),)),(Or((x_0),(x_5),Not(x_0),Not(x_4),Not(x_5),)),(Or((x_0),(x_5),Not(x_6),)),(Or((x_4),(x_5),(x_6),Not(x_0),Not(x_5),Not(x_6),)),(Or((x_4),(x_5),)),(Or((x_4),(x_6),Not(x_0),Not(x_4),Not(x_6),)),(Or((x_4),(x_6),Not(x_4),Not(x_6),)),(Or((x_5),(x_6),Not(x_0),Not(x_4),)),(Or((x_5),Not(x_0),Not(x_5),Not(x_6),)),))
+	nn_out0 = simplify((Not(i_0)))
 	
-	w1 = (Xor((i_10),(i_1),))
-	o_1 = (Xor((w1),(i_22),))
-	z = Exists([i_1, i_22], o_1)
+	out = (Or((i_0),(i_1),))
+	z = Exists([i_1], out)
 	
 	i_1 = nn_out0
-	i_22 = nn_out1
 	
-	w1 = (Xor((i_10),(i_1),))
-	o_1 = (Xor((w1),(i_22),))
-	z2 = o_1
-	formula = z==z2
+	out = (Or((i_0),(i_1),))
+	z1 = out
+	formula = z==z1
 	all_counterexamples = generate_all_counterexamples(formula)
 	print('all_counterexamples', all_counterexamples)
 	if len(all_counterexamples) == 0:

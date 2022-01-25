@@ -41,9 +41,9 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------------------------------------
     # TO DO:
     # 1. USE THE UNATES TO CONSTRUCT UNATE_SKOLEMFORMULA
-    result = util.check_unates(pos_unate, neg_unate, Xvar, Yvar, args.verilog_spec[:-2])
-    if result:
-        exit("All Unates!")
+    # result = util.check_unates(pos_unate, neg_unate, Xvar, Yvar, args.verilog_spec[:-2])
+    # if result:
+    #     exit("All Unates!")
     # ----------------------------------------------------------------------------------------------------------
 
 
@@ -61,11 +61,14 @@ if __name__ == "__main__":
         max_samples=args.training_size
         )
     
-    print("samples: ", samples.shape)
+    # print("samples: ", samples.shape)
 
     # Repeat or add noise to get larger dataset
+    
+    # samples = np.array([[1,0],[0,1]])
     training_samples = util.make_dataset_larger(samples)
-    print(training_samples.shape)
+    # training_samples = torch.from_numpy(samples).to(torch.double)
+    print(training_samples)
 
     # Get train test split
     training_set, validation_set = util.get_train_test_split(training_samples)
@@ -102,8 +105,9 @@ if __name__ == "__main__":
     # load data
     train_loader = dataLoader(training_set, args.training_size, args.P, input_var_idx,
                               output_var_idx, num_of_outputs, args.threshold, args.batch_size)
-    validation_loader = dataLoader(validation_set, args.training_size, args.P, input_var_idx,
-                                   output_var_idx, num_of_outputs, args.threshold, args.batch_size)
+    # validation_loader = dataLoader(validation_set, args.training_size, args.P, input_var_idx,
+    #                                output_var_idx, num_of_outputs, args.threshold, args.batch_size)
+    validation_loader = []
     # ----------------------------------------------------------------------------------------------------------
 
 
@@ -128,6 +132,8 @@ if __name__ == "__main__":
         # print("Training Time: ", train_t_e - train_t_s)
         # ----------------------------------------------------------------------------------------------------------
 
+        util.store_losses(train_loss, valid_loss)
+        pt.plot()
 
         # ----------------------------------------------------------------------------------------------------------
         # Checking Skolem Function using Z3
@@ -149,10 +155,18 @@ if __name__ == "__main__":
         # print("skolem function run: ", skfunc)
         # print("-----------------------------------------------------------------------------")
     print(skf_dict_z3)
+    if any(v=='()\n' or v == '\n' for v in skf_dict_z3.values()):
+        t = time.time() - start_time
+        datastring = str(args.epochs)+", "+str(args.K)+", "+str(0)+", "+"empty string"+", "+"Invalid"+", "+str(t)+"\n"
+        print(datastring)
+        f = open("abalation_original.csv", "a")
+        f.write(datastring)
+        f.close()
+        exit("No Skolem Function Learned!! Try Again.")
+    print("hello")
     # exit()
     # Store train and test losses in a file
-    util.store_losses(train_loss, valid_loss)
-    pt.plot()
+    
 
     # Run the Z3 Validity Checker
     # num_of_outputs = len(skf_dict_z3)
@@ -171,6 +185,7 @@ if __name__ == "__main__":
 
 
     # Write the error formula in verilog
+    print("@@@@@@@@@@@@@@@@@@@@@@@@@@skf manthan: ", skf_dict_verilog)
     util.write_error_formula(args.verilog_spec, verilog, verilog_formula, list(skf_dict_verilog.values()), Xvar, Yvar, pos_unate, neg_unate)
 
     # Run Manthan's Validity Checker
@@ -188,21 +203,27 @@ if __name__ == "__main__":
     if ret == 0:
         print('error formula unsat.. skolem functions generated')
         print("success")
+        t = time.time() - start_time
+        datastring = str(args.epochs)+", "+str(args.K)+", "+str(0)+", "+str(skf_dict_z3)+", "+"Valid"+", "+str(t)+"\n"
+        print(datastring)
+        f = open("abalation_original.csv", "a")
+        f.write(datastring)
+        f.close()
     else:
         counter_examples = torch.from_numpy(
             np.concatenate(
                 (sigma.modelx, sigma.modely)
                 ).reshape((1, num_of_vars))
             )
-        print("ce shape: ", counter_examples.shape)
-        # Counter example loop
-        print("\nCounter Example Guided Trainig Loop\n", counter_examples)
-        ret, ce_time2, ce_data_time = ce_train_loop(
-            training_samples, io_dict, io_dictz3, ret, counter_examples, num_of_vars, num_of_outputs, input_size, 
-            start_time, pos_unate, neg_unate, args.training_size, input_var_idx, output_var_idx, args.P, 
-            args.threshold, args.batch_size, args.verilog_spec, args.verilog_spec_location, Xvar, Yvar, 
-            verilog_formula, verilog, args.learning_rate, args.epochs, args.K, device
-            )
+        # print("ce shape: ", counter_examples.shape)
+        # # Counter example loop
+        # print("\nCounter Example Guided Trainig Loop\n", counter_examples)
+        # ret, ce_time2, ce_data_time = ce_train_loop(
+        #     training_samples, io_dict, io_dictz3, ret, counter_examples, num_of_vars, num_of_outputs, input_size, 
+        #     start_time, pos_unate, neg_unate, args.training_size, input_var_idx, output_var_idx, args.P, 
+        #     args.threshold, args.batch_size, args.verilog_spec, args.verilog_spec_location, Xvar, Yvar, 
+        #     verilog_formula, verilog, args.learning_rate, args.epochs, args.K, device
+        #     )
 
     end_time = time.time()
     total_time = int(end_time - start_time)
