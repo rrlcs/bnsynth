@@ -65,9 +65,9 @@ if __name__ == "__main__":
 
     # Repeat or add noise to get larger dataset
     
-    # samples = np.array([[1,0],[0,1]])
-    training_samples = util.make_dataset_larger(samples)
-    # training_samples = torch.from_numpy(samples).to(torch.double)
+    samples = np.array([[1,0],[0,1]])
+    # training_samples = util.make_dataset_larger(samples)
+    training_samples = torch.from_numpy(samples).to(torch.double)
     print(training_samples)
 
     # Get train test split
@@ -154,6 +154,9 @@ if __name__ == "__main__":
         # print("-----------------------------------------------------------------------------")
         # print("skolem function run: ", skfunc)
         # print("-----------------------------------------------------------------------------")
+    print("start loss: ", train_loss[0])
+    print("end loss: ", train_loss[-1])
+
     print(skf_dict_z3)
     if any(v=='()\n' or v == '\n' for v in skf_dict_z3.values()):
         t = time.time() - start_time
