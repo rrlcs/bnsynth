@@ -1,5 +1,6 @@
 import copy
 import importlib
+from code.train import train
 
 import torch
 import torch.nn as nn
@@ -39,6 +40,7 @@ def train_regressor(
     # Set regularizers
     lambda1 = 1e-1
     lambda2 = 1e-2
+    print("train reg: ", num_of_outputs)
 
     # Initialize network
     gcln = GCLN(input_size, num_of_outputs, K, device, P).to(device)
@@ -57,6 +59,7 @@ def train_regressor(
         optimizer.zero_grad()
         train_epoch_loss = 0
         accuracy = 0
+        datalen = 0
         for batch_idx, (inps, tgts) in enumerate(train_loader):
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
             tgts = tgts.round()
@@ -68,7 +71,7 @@ def train_regressor(
             print("model: ", gcln_.G1, gcln_.G2)
             out_ = gcln_(inps)
             
-
+            print("out shape, tgts shape: ", out.shape, tgts.shape)
             l = []
             # for i in range(num_of_outputs):
             #     l.append(criterion(out[:, i], tgts[:, i]))
@@ -77,7 +80,7 @@ def train_regressor(
 
             # check network output:
             print("comparing nw out: ",inps, out, tgts)
-            t_loss = (criterion(out, tgts[:, current_output].unsqueeze(-1)))
+            t_loss = (criterion(out, tgts))
             t_loss = t_loss + lambda1*torch.sum(1-gcln.G2)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
             #     lambda2*torch.linalg.norm(gcln.G2, 1)
@@ -96,8 +99,11 @@ def train_regressor(
             print("G1: ", gcln.G1.data)
             print("G2: ", gcln.G2.data)
             train_epoch_loss += t_loss.item()*inps.size(0)
+            print(out, out_, tgts)
             accuracy += (out_.round()==tgts).sum()
-        total_accuracy = accuracy.item()//2
+            datalen += 1
+        print("data len: ", datalen, len(train_loader))
+        total_accuracy = accuracy.item()/(len(train_loader)*num_of_outputs)
         print("Accuracy: ", total_accuracy)
         print(total_accuracy==1)
         if total_accuracy != 1:

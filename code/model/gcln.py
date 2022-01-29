@@ -15,23 +15,24 @@ class GCLN(torch.nn.Module):
         self.K = K
         self.input_size = input_size
         self.output_size = num_of_output_var
+        print("gcln no out: ", num_of_output_var)
 
         # Weights and Biases
         # self.G1.shape: 2 * no_input_var x K
         self.G1 = torch.nn.Parameter(
             torch.Tensor(
-                self.input_size, K
+                self.input_size, K*num_of_output_var
             ).uniform_(0.4, 0.6).to(dtype=torch.double).to(self.device)
         )
         # with torch.no_grad():
-        self.G1.data = torch.tensor([[1.0], [0.0]])
+        # self.G1.data = torch.tensor([[1.0], [0.0]])
         # self.G2.shape: K x 1
         self.G2 = torch.nn.Parameter(
             torch.Tensor(
-                K, num_of_output_var
+                K*num_of_output_var, num_of_output_var
             ).uniform_(0.4, 0.6).to(dtype=torch.double).to(self.device)
         )
-        self.G2.data = torch.tensor([[0.0]])
+        # self.G2.data = torch.tensor([[0.0]])
         # print(self.G1, self.G2)
         # self.b1.shape: 2 * no_input_var x K
         self.b1 = torch.nn.Parameter(torch.randn(
@@ -79,5 +80,6 @@ class GCLN(torch.nn.Module):
 
         # out.shape: batch_size x 1
         out = util.tnorm_n_inputs(gated_or_res).to(self.device)
+        print(out.shape)
 
         return out
