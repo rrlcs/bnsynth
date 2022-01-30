@@ -416,10 +416,10 @@ class utils():
 
     def get_train_test_split(self, training_samples):
         data_size = training_samples.shape[0]
-        val_size = floor(data_size*0.2)
+        val_size = floor(data_size*0.5)
         train_size = data_size - val_size
         validation_set = training_samples[train_size:, :]
-        training_set = training_samples[:train_size, :]
+        training_set = training_samples[:, :]
 
         return training_set, validation_set
 

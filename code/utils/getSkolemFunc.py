@@ -9,9 +9,9 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
     Functionality: Reads the model weights (G1, G2) and builds the skolem function based on it.
     '''
 
-    sigmoid = nn.Sigmoid()
-    layer_or_weights = sigmoid(gcln.layer_or_weights.cpu().detach()).numpy() # input_size x K
-    layer_and_weights = sigmoid(gcln.layer_and_weights.cpu().detach()).numpy() # K x num_of_outputs
+    # sigmoid = nn.Sigmoid()
+    layer_or_weights = gcln.layer_or_weights.cpu().detach().numpy() # input_size x K
+    layer_and_weights = gcln.layer_and_weights.cpu().detach().numpy() # K x num_of_outputs
 
     literals = []
     neg_literals = []

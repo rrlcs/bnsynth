@@ -21,13 +21,13 @@ class GCLN(torch.nn.Module):
         self.layer_or_weights = torch.nn.Parameter(
                 torch.Tensor(
                     self.input_size, num_of_output_var * K
-                ).uniform_(0, 1).to(dtype=torch.double).to(self.device)
+                ).uniform_(0.0, 1.0).to(dtype=torch.double).to(self.device)
             )
         # self.G2.shape: num_of_output_var * K x 1
         self.layer_and_weights = torch.nn.Parameter(
                 torch.Tensor(
                     num_of_output_var * K, 1
-                ).uniform_(0, 1).to(dtype=torch.double).to(self.device)
+                ).uniform_(0.0, 1.0).to(dtype=torch.double).to(self.device)
             )
         # self.b1.shape: 2 * no_input_var x K
         self.b1 = torch.nn.Parameter(torch.randn(
@@ -45,6 +45,9 @@ class GCLN(torch.nn.Module):
 
     # FORWARD
     def forward(self, x):
+        with torch.no_grad():
+            self.layer_or_weights.data.clamp_(0.0, 1.0)
+            self.layer_and_weights.data.clamp_(0.0, 1.0)
         # x.shape and neg_x.shape: batch_size x no_input_vars
         x = x.to(self.device)
         neg_x = 1 - x

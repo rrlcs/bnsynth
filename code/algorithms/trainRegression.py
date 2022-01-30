@@ -1,4 +1,6 @@
+import copy
 import importlib
+from code.utils import plot as pt
 
 import torch
 import torch.nn as nn
@@ -43,36 +45,86 @@ def train_regressor(
     gcln = GCLN(input_size, num_of_outputs, K, device, P).to(device)
 
     # Loss and Optimizer
-    criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(list(gcln.parameters()), lr=learning_rate)
+    criterion = nn.MSELoss(reduction='mean')
+    optimizer = torch.optim.SGD(list(gcln.parameters()), lr=learning_rate)
     if flag:
         load_checkpoint(torch.load('model.pth.tar'), gcln, optimizer)
     
     # Train network
-    for epoch in range(1, max_epochs+1):
+    max_epochs = max_epochs+1
+    epoch = 1
+    while epoch < max_epochs:
         gcln.train()
         optimizer.zero_grad()
         train_epoch_loss = 0
+        accuracy = 0
+        train_size = 0
         for batch_idx, (inps, tgts) in enumerate(train_loader):
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
-            outs = gcln(inps).squeeze(-1).to(device)
+            tgts = tgts.round()
+            outs = gcln(inps).squeeze(-1).T.to(device)
+            gcln_ = copy.deepcopy(gcln)
+            gcln_.layer_or_weights = torch.nn.Parameter(gcln_.layer_or_weights.round())
+            gcln_.layer_and_weights = torch.nn.Parameter(gcln_.layer_and_weights.round())
+            out_ = gcln_(inps).squeeze(-1).T
+            # print("outs, tgts", outs.shape, tgts.shape)
+            # print("comparing nw out: ",inps, outs, tgts)
             l = []
             for i in range(num_of_outputs):
-                l.append(criterion(outs[i, :], tgts[:, i]))
+                l.append(criterion(outs[:, i], tgts[:, i]))
+            # print("loss list: ", l)
             t_loss = sum(l)
-
-            # t_loss = torch.sqrt(criterion(out, tgts))
-            t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 1) + \
-                lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)
+            train_epoch_loss += t_loss.item()/num_of_outputs
+            # print("loss sum: ", t_loss)
+            # print("loss: ", t_loss)
+            # print(outs.shape, tgts.shape)
+            train_size += outs.shape[0]
+            # t_loss = (criterion(outs, tgts))
+            t_loss = t_loss + lambda1*torch.sum(1-gcln.layer_and_weights)
+            # print("loss: ", t_loss)
+            # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 1) + \
+            #     lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
             #     lambda2*torch.linalg.norm(gcln.G2, 2)
+            # print("G1: ", gcln.layer_or_weights.data)
+            # print("G2: ", gcln.layer_and_weights.data)
+            # print(len(train_loader))
 
             optimizer.zero_grad()
             t_loss.backward()
             optimizer.step()
-            train_epoch_loss += t_loss.item()*inps.size(0)
-        train_loss.append(train_epoch_loss / len(train_loader.sampler))
 
+            # print("Gradient for G1: ", gcln.layer_or_weights.grad)
+            # print("Gradient for G2: ", gcln.layer_and_weights.grad)
+            # print(inps.size(0))
+            
+            # print("outs, out_, tgts: ", inps, outs, out_, tgts)
+            # print((out_.round()==tgts).sum())
+            accuracy += (out_.round()==tgts).sum()
+        print(len(train_loader.sampler))
+        train_loss.append(train_epoch_loss)
+        print(len(train_loader)*32*num_of_outputs, num_of_outputs)
+        total_accuracy = accuracy.item()/(train_size*num_of_outputs)
+        print("Accuracy: ", total_accuracy)
+        print(total_accuracy==1)
+        print(t_loss)
+        if total_accuracy != 1:
+            max_epochs += 1
+
+        print('epoch {}, train loss {}'.format(
+                epoch, round(t_loss.item(), 4))
+            )
+        
+        print("Training Loss: ", t_loss.item())
+        epoch += 1
+        print("G1: ", gcln.layer_or_weights.data)
+        print("G2: ", gcln.layer_and_weights.data)
+
+        print("Gradient for G1: ", gcln.layer_or_weights.grad)
+        print("Gradient for G2: ", gcln.layer_and_weights.grad)
+
+        util.store_losses(train_loss, valid_loss)
+        pt.plot()
         # gcln.eval()
         # valid_epoch_loss = 0
         # for batch_idx, (inps, tgts) in enumerate(validation_loader):
@@ -104,9 +156,9 @@ def train_regressor(
         #         print("Early Stopping!!")
                 # break
 
-        if epoch % 5 == 0:
-            print('epoch {}, train loss {}, valid loss {}'.format(
-                epoch, round(t_loss.item(), 4), "round(v_loss.item(), 4)")
+        if epoch % 1 == 0:
+            print('epoch {}, train loss {}'.format(
+                epoch, round(t_loss.item(), 4))
             )
             checkpoint = {'state_dict': gcln.state_dict(), 'optimizer':optimizer.state_dict()}
             save_checkpoint(checkpoint)
@@ -145,4 +197,4 @@ def train_regressor(
             # if ret == 0:
             #     return gcln, train_loss, valid_loss
 
-    return gcln, train_loss, valid_loss
+    return gcln, train_loss, valid_loss, total_accuracy

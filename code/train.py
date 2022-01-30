@@ -21,7 +21,7 @@ def train(P, train, train_loader, validation_loader, learning_rate, epochs,
     
     if P == 0:
         if train:
-            gcln, train_loss, valid_loss = train_regressor(
+            gcln, train_loss, valid_loss, accuracy = train_regressor(
                 train_loader, validation_loader, learning_rate, epochs, input_size, num_of_outputs, K, device, P, 0, num_of_vars, input_var_idx,
                 output_var_idx, io_dict, io_dictz3, threshold,
                 verilog_spec, verilog_spec_location,
@@ -69,4 +69,4 @@ def train(P, train, train_loader, validation_loader, learning_rate, epochs,
         #     gcln.load_state_dict(torch.load("classifier2"))
         #     gcln.eval()
 	
-    return gcln, train_loss, valid_loss
+    return gcln, train_loss, valid_loss, accuracy
