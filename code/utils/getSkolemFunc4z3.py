@@ -22,7 +22,7 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
     clause = np.array(literals + neg_literals)
 
     clauses = []
-    for i in range(K*num_of_outputs):
+    for i in range(K):
         mask = G1[:, i] > threshold
         clauses.append(clause[mask])
 

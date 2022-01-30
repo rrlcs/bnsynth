@@ -127,7 +127,7 @@ if __name__ == "__main__":
     # for i in range(len(Yvar)):
     i = 0
     current_output = i
-    gcln, train_loss, valid_loss = train(
+    gcln, train_loss, valid_loss, accuracy = train(
         args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs, 
         input_size, num_of_outputs, current_output, args.K, device, num_of_vars, input_var_idx, output_var_idx, 
         io_dict, io_dictz3, args.threshold, args.verilog_spec, args.verilog_spec_location, 
@@ -136,6 +136,9 @@ if __name__ == "__main__":
     train_t_e = time.time()
     # print("Training Time: ", train_t_e - train_t_s)
     # ----------------------------------------------------------------------------------------------------------
+
+    final_loss = train_loss[-1]
+    loss_drop = train_loss[0] - train_loss[-1]
 
     util.store_losses(train_loss, valid_loss)
     pt.plot()
@@ -165,13 +168,13 @@ if __name__ == "__main__":
     print(skf_dict_z3)
     if any(v=='()\n' or v == '\n' for v in skfuncz3):
         t = time.time() - start_time
-        datastring = str(args.epochs)+", "+str(args.K)+", "+str(0)+", "+"empty string"+", "+"Invalid"+", "+str(t)+"\n"
+        datastring = str(args.verilog_spec)+", "+str(args.epochs)+", "+str(args.K)+", "+str(0)+", "+str(skfuncz3)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
         print(datastring)
         f = open("abalation_original.csv", "a")
         f.write(datastring)
         f.close()
         exit("No Skolem Function Learned!! Try Again.")
-    print("hello")
+    # print("hello")
     # exit()
     # Store train and test losses in a file
     
@@ -179,13 +182,13 @@ if __name__ == "__main__":
     # Run the Z3 Validity Checker
     # num_of_outputs = len(skf_dict_z3)
     util.store_nn_output(len(skfuncz3), skfuncz3)
-    preparez3(args.verilog_spec, args.verilog_spec_location, len(skfuncz3))
-    importlib.reload(z3)
-    result, _ = z3.check_validity()
-    if result:
-        print("Z3: Valid")
-    else:
-        print("Z3: Not Valid")
+    # preparez3(args.verilog_spec, args.verilog_spec_location, len(skfuncz3))
+    # importlib.reload(z3)
+    # result, _ = z3.check_validity()
+    # if result:
+    #     print("Z3: Valid")
+    # else:
+    #     print("Z3: Not Valid")
     # ----------------------------------------------------------------------------------------------------------
 
 
@@ -211,8 +214,9 @@ if __name__ == "__main__":
     if ret == 0:
         print('error formula unsat.. skolem functions generated')
         print("success")
+        skfuncv = [sk.replace('\n', '') for sk in skfuncv]
         t = time.time() - start_time
-        datastring = str(args.epochs)+", "+str(args.K)+", "+str(0)+", "+str(skf_dict_z3)+", "+"Valid"+", "+str(t)+"\n"
+        datastring = str(args.verilog_spec)+", "+str(args.epochs)+", "+str(args.K)+", "+str(0)+", "+'; '.join(skfuncv)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
         print(datastring)
         f = open("abalation_original.csv", "a")
         f.write(datastring)

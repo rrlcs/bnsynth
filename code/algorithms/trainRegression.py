@@ -1,6 +1,7 @@
 import copy
 import importlib
 from code.train import train
+from code.utils import plot as pt
 
 import torch
 import torch.nn as nn
@@ -38,7 +39,7 @@ def train_regressor(
     early_stop = 0
 
     # Set regularizers
-    lambda1 = 1e-1
+    lambda1 = 1e-2
     lambda2 = 1e-2
     print("train reg: ", num_of_outputs)
 
@@ -60,6 +61,7 @@ def train_regressor(
         train_epoch_loss = 0
         accuracy = 0
         datalen = 0
+        train_size = 0
         for batch_idx, (inps, tgts) in enumerate(train_loader):
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
             tgts = tgts.round()
@@ -68,48 +70,49 @@ def train_regressor(
             gcln_ = copy.deepcopy(gcln)
             gcln_.G1 = torch.nn.Parameter(gcln_.G1.round())
             gcln_.G2 = torch.nn.Parameter(gcln_.G2.round())
-            print("model: ", gcln_.G1, gcln_.G2)
+            # print("model: ", gcln_.G1, gcln_.G2)
             out_ = gcln_(inps)
-            
+            train_size += out.shape[0]
             print("out shape, tgts shape: ", out.shape, tgts.shape)
             l = []
-            # for i in range(num_of_outputs):
-            #     l.append(criterion(out[:, i], tgts[:, i]))
-            # t_loss = sum(l)
+            for i in range(num_of_outputs):
+                l.append(criterion(out[:, i], tgts[:, i]))
+            t_loss = sum(l)
+            print("loss: ", t_loss)
             # print("target and input shapes: ", out.squeeze().shape, tgts[:, current_output].shape)
 
             # check network output:
-            print("comparing nw out: ",inps, out, tgts)
-            t_loss = (criterion(out, tgts))
+            # print("comparing nw out: ",inps, out, tgts)
+            # t_loss = (criterion(out, tgts))
+            # print("loss: ", t_loss)
+            train_epoch_loss += t_loss.item()/num_of_outputs
             t_loss = t_loss + lambda1*torch.sum(1-gcln.G2)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
             #     lambda2*torch.linalg.norm(gcln.G2, 1)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
             #     lambda2*torch.linalg.norm(gcln.G2, 2)
-            print("G1: ", gcln.G1.data)
-            print("G2: ", gcln.G2.data)
-            print("Loss: ", t_loss.item())
+            # print("G1: ", gcln.G1.data)
+            # print("G2: ", gcln.G2.data)
+            # print("Loss: ", t_loss.item())
             optimizer.zero_grad()
             t_loss.backward()
             optimizer.step()
-            print("Gradient for G1: ", gcln.G1.grad)
-            print("Gradient for G2: ", gcln.G2.grad)
+            # print("Gradient for G1: ", gcln.G1.grad)
+            # print("Gradient for G2: ", gcln.G2.grad)
             # t_loss = torch.sqrt(criterion(out, tgts[:, current_output].unsqueeze(-1)))
             # print("Loss: ", t_loss.item())
-            print("G1: ", gcln.G1.data)
-            print("G2: ", gcln.G2.data)
-            train_epoch_loss += t_loss.item()*inps.size(0)
-            print(out, out_, tgts)
+            # print("G1: ", gcln.G1.data)
+            # print("G2: ", gcln.G2.data)
+            # train_epoch_loss += t_loss.item()*inps.size(0)
+            # print(out, out_, tgts)
             accuracy += (out_.round()==tgts).sum()
-            datalen += 1
-        print("data len: ", datalen, len(train_loader))
-        total_accuracy = accuracy.item()/(len(train_loader)*num_of_outputs)
+        total_accuracy = accuracy.item()/(train_size*num_of_outputs)
         print("Accuracy: ", total_accuracy)
         print(total_accuracy==1)
         if total_accuracy != 1:
             max_epochs += 1
         
-        train_loss.append(train_epoch_loss / len(train_loader.sampler))
+        train_loss.append(train_epoch_loss)
 
         print('epoch {}, train loss {}'.format(
                 epoch, round(t_loss.item(), 4))
@@ -117,6 +120,8 @@ def train_regressor(
         
         print("Training Loss: ", t_loss.item())
         epoch += 1
+        util.store_losses(train_loss, valid_loss)
+        pt.plot()
         # if gcln.G1[1,0] > 0.5:
         #     return gcln, train_loss, valid_loss
         # gcln.eval()
@@ -192,4 +197,4 @@ def train_regressor(
             # if ret == 0:
             #     return gcln, train_loss, valid_loss
 
-    return gcln, train_loss, valid_loss
+    return gcln, train_loss, valid_loss, total_accuracy
