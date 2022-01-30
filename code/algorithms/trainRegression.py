@@ -197,4 +197,4 @@ def train_regressor(
             # if ret == 0:
             #     return gcln, train_loss, valid_loss
 
-    return gcln, train_loss, valid_loss, total_accuracy
+    return gcln, train_loss, valid_loss, total_accuracy, epoch-1

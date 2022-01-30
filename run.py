@@ -64,9 +64,9 @@ if __name__ == "__main__":
     print("samples: ", samples.shape)
 
     # Repeat or add noise to get larger dataset
-    # training_samples = util.make_dataset_larger(samples)
+    training_samples = util.make_dataset_larger(samples)
     # samples = np.array([[1,0],[0,1]])
-    training_samples = torch.from_numpy(samples).to(torch.double)
+    # training_samples = torch.from_numpy(samples).to(torch.double)
     print(training_samples.shape)
 
     # Get train test split
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------------------------------------
     # TRAINING MODEL
     train_t_s = time.time()
-    gcln, train_loss, valid_loss, accuracy = train(
+    gcln, train_loss, valid_loss, accuracy, epochs = train(
         args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs, 
         input_size, num_of_outputs, args.K, device, num_of_vars, input_var_idx, output_var_idx, 
         io_dict, io_dictz3, args.threshold, args.verilog_spec, args.verilog_spec_location, 
@@ -149,9 +149,9 @@ if __name__ == "__main__":
 
     if any(v=='()\n' or v == '\n' for v in skfunc):
         t = time.time() - start_time
-        datastring = str(args.verilog_spec)+", "+str(args.epochs)+", "+str(args.K)+", "+str(0)+", "+str(skfunc)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
+        datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(0)+", "+str(skfunc)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
         print(datastring)
-        f = open("abalation_original.csv", "a")
+        f = open("abalation_study.csv", "a")
         f.write(datastring)
         f.close()
         exit("No Skolem Function Learned!! Try Again.")
@@ -194,9 +194,9 @@ if __name__ == "__main__":
         skfunc = [sk.replace('\n', '') for sk in skfunc]
         print("==============", '; '.join(skfunc))
         t = time.time() - start_time
-        datastring = str(args.verilog_spec)+", "+str(args.epochs)+", "+str(args.K)+", "+str(0)+", "+'; '.join(skfunc)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
+        datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(0)+", "+'; '.join(skfunc)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
         print(datastring)
-        f = open("abalation_original.csv", "a")
+        f = open("abalation_study.csv", "a")
         f.write(datastring)
         f.close()
     # else:
