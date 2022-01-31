@@ -86,7 +86,7 @@ def train_regressor(
             # t_loss = (criterion(out, tgts))
             # print("loss: ", t_loss)
             train_epoch_loss += t_loss.item()/num_of_outputs
-            # t_loss = t_loss + lambda1*torch.sum(1-gcln.G2)
+            t_loss = t_loss + lambda1*torch.sum(1-gcln.G2)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
             #     lambda2*torch.linalg.norm(gcln.G2, 1)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
@@ -158,8 +158,8 @@ def train_regressor(
             print('epoch {}, train loss {}'.format(
                 epoch-1, round(t_loss.item(), 4))
             )
-            # print("Gradient for G1: ", gcln.G1.grad)
-            # print("Gradient for G2: ", gcln.G2.grad)
+            print("Gradient for G1: ", gcln.G1.grad)
+            print("Gradient for G2: ", gcln.G2.grad)
             checkpoint = {'state_dict': gcln.state_dict(), 'optimizer':optimizer.state_dict()}
             save_checkpoint(checkpoint)
         

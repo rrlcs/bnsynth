@@ -25,7 +25,7 @@ class GCLN(torch.nn.Module):
             ).uniform_(0.0, 1.0).to(dtype=torch.double).to(self.device)
         )
         # with torch.no_grad():
-        self.G1.data = torch.tensor([[0.0], [0.0]])
+        self.G1.data = torch.tensor([[1.0], [0.0]])
         # self.G2.shape: K x 1
         self.G2 = torch.nn.Parameter(
             torch.Tensor(
