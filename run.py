@@ -1,4 +1,5 @@
 import importlib
+import tempfile
 import time
 from code.ce_train import ce_train_loop
 from code.train import train
@@ -37,7 +38,7 @@ if __name__ == "__main__":
     # End Preprocessing
     print("Preprocessing Time: ", pre_t_e - pre_t_s)
     # ----------------------------------------------------------------------------------------------------------
-
+    print("Num of unates: ", len(pos_unate)+len(neg_unate))
 
     # ----------------------------------------------------------------------------------------------------------
     # TO DO:
@@ -221,6 +222,11 @@ if __name__ == "__main__":
         f = open("abalation_study.csv", "a")
         f.write(datastring)
         f.close()
+        inputfile_name = args.verilog_spec[:-2]
+        skolemformula = tempfile.gettempdir(
+            ) + '/' + inputfile_name + "_skolem.v"
+        print("self sub: ", ref.selfsub)
+        sub_skolem(skolemformula, Xvar, Yvar, Yvar_order, verilog_formula, ref.selfsub)
     else:
         counter_examples = torch.from_numpy(
             np.concatenate(
