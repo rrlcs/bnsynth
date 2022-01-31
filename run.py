@@ -69,6 +69,7 @@ if __name__ == "__main__":
     
     # samples = np.array([[0., 1., 0.], [0., 0., 1.], [1., 1., 1.],
     #     [1., 0., 0.]])
+    samples = np.array([[1,0],[0,1]])
     # training_samples = util.make_dataset_larger(samples)
     training_samples = torch.from_numpy(samples).to(torch.double)
     # print(training_samples)
@@ -169,7 +170,7 @@ if __name__ == "__main__":
     print(skf_dict_z3)
     if any(v=='()\n' or v == '\n' for v in skfuncz3):
         t = time.time() - start_time
-        datastring = str(args.verilog_spec)+", "+str(args.epochs)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+str(skfuncz3)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
+        datastring = str(args.verilog_spec)+", "+str(args.epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+str(skfuncz3)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
         print(datastring)
         f = open("abalation_study.csv", "a")
         f.write(datastring)
@@ -222,11 +223,11 @@ if __name__ == "__main__":
         f = open("abalation_study.csv", "a")
         f.write(datastring)
         f.close()
-        inputfile_name = args.verilog_spec[:-2]
-        skolemformula = tempfile.gettempdir(
-            ) + '/' + inputfile_name + "_skolem.v"
-        print("self sub: ", ref.selfsub)
-        sub_skolem(skolemformula, Xvar, Yvar, Yvar_order, verilog_formula, ref.selfsub)
+        # inputfile_name = args.verilog_spec[:-2]
+        # skolemformula = tempfile.gettempdir(
+        #     ) + '/' + inputfile_name + "_skolem.v"
+        # print("self sub: ", ref.selfsub)
+        # sub_skolem(skolemformula, Xvar, Yvar, Yvar_order, verilog_formula, ref.selfsub)
     else:
         counter_examples = torch.from_numpy(
             np.concatenate(
