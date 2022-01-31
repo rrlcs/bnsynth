@@ -43,7 +43,8 @@ def train_regressor(
 
     # Initialize network
     gcln = GCLN(input_size, num_of_outputs, K, device, P).to(device)
-
+    print("Network")
+    print(gcln)
     # Loss and Optimizer
     criterion = nn.MSELoss(reduction='mean')
     optimizer = torch.optim.SGD(list(gcln.parameters()), lr=learning_rate)

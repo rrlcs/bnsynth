@@ -66,8 +66,8 @@ if __name__ == "__main__":
     # Repeat or add noise to get larger dataset
     
     samples = np.array([[1,0],[0,1]])
-    training_samples = util.make_dataset_larger(samples)
-    # training_samples = torch.from_numpy(samples).to(torch.double)
+    # training_samples = util.make_dataset_larger(samples)
+    training_samples = torch.from_numpy(samples).to(torch.double)
     # print(training_samples)
 
     # Get train test split
@@ -122,41 +122,42 @@ if __name__ == "__main__":
     skf_dict_verilog = {}
     final_accuracy = 0
     final_epochs = 0
-    for i in range(len(Yvar)):
-        current_output = i
-        gcln, train_loss, valid_loss, accuracy, epochs = train(
-            args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs, 
-            input_size, num_of_outputs, current_output, args.K, device, num_of_vars, input_var_idx, output_var_idx, 
-            io_dict, io_dictz3, args.threshold, args.verilog_spec, args.verilog_spec_location, 
-            Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate
-            )
-        train_t_e = time.time()
-        # print("Training Time: ", train_t_e - train_t_s)
-        # ----------------------------------------------------------------------------------------------------------
-        final_accuracy += accuracy
-        final_epochs += epochs
-        util.store_losses(train_loss, valid_loss)
-        pt.plot()
+    # for i in range(len(Yvar)):
+    i=0
+    current_output = i
+    gcln, train_loss, valid_loss, accuracy, epochs = train(
+        args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs, 
+        input_size, num_of_outputs, current_output, args.K, device, num_of_vars, input_var_idx, output_var_idx, 
+        io_dict, io_dictz3, args.threshold, args.verilog_spec, args.verilog_spec_location, 
+        Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate
+        )
+    train_t_e = time.time()
+    # print("Training Time: ", train_t_e - train_t_s)
+    # ----------------------------------------------------------------------------------------------------------
+    final_accuracy += accuracy
+    final_epochs += epochs
+    util.store_losses(train_loss, valid_loss)
+    pt.plot()
 
-        # ----------------------------------------------------------------------------------------------------------
-        # Checking Skolem Function using Z3
-        extract_t_s = time.time()
-        # Skolem function in z3py format
-        skfunc = skfz3.get_skolem_function(
-            gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dictz3, args.threshold, args.K
-            )
-        skf_dict_z3[Yvar[i]] = skfunc[0]
+    # ----------------------------------------------------------------------------------------------------------
+    # Checking Skolem Function using Z3
+    extract_t_s = time.time()
+    # Skolem function in z3py format
+    skfunc = skfz3.get_skolem_function(
+        gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dictz3, args.threshold, args.K
+        )
+    skf_dict_z3[Yvar[i]] = skfunc[0]
 
-        # Skolem function in verilog format
-        skfunc = skf.get_skolem_function(
-            gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
-        skf_dict_verilog[Yvar[i]] = skfunc[0]
-        
-        extract_t_e = time.time()
-        # print("Formula Extraction Time: ", extract_t_e - extract_t_s)
-        # print("-----------------------------------------------------------------------------")
-        # print("skolem function run: ", skfunc)
-        # print("-----------------------------------------------------------------------------")
+    # Skolem function in verilog format
+    skfunc = skf.get_skolem_function(
+        gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
+    skf_dict_verilog[Yvar[i]] = skfunc[0]
+    
+    extract_t_e = time.time()
+    # print("Formula Extraction Time: ", extract_t_e - extract_t_s)
+    # print("-----------------------------------------------------------------------------")
+    # print("skolem function run: ", skfunc)
+    # print("-----------------------------------------------------------------------------")
     print(skf_dict_z3)
     final_accuracy = final_accuracy / num_of_outputs
     final_loss = train_loss[-1]
