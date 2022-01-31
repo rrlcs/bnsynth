@@ -20,7 +20,7 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
         neg_literals.append("~"+io_dict.get(i.item()))
     for i in range(len(neg_literals)):
         neg_literals[i] = neg_literals[i].replace(" ", "")
-    print(neg_literals)
+    # print(neg_literals)
     clause = np.array(literals + neg_literals)
 
     clauses = []

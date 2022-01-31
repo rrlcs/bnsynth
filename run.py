@@ -1,4 +1,5 @@
 import importlib
+import os
 import time
 from code.ce_train import ce_train_loop
 from code.train import train
@@ -61,12 +62,12 @@ if __name__ == "__main__":
         max_samples=args.training_size
         )
     
-    print("samples: ", samples.shape)
+    print("samples: ", samples)
 
     # Repeat or add noise to get larger dataset
-    training_samples = util.make_dataset_larger(samples)
+    # training_samples = util.make_dataset_larger(samples)
     # samples = np.array([[1,0],[0,1]])
-    # training_samples = torch.from_numpy(samples).to(torch.double)
+    training_samples = torch.from_numpy(samples).to(torch.double)
     print(training_samples.shape)
 
     # Get train test split
@@ -172,7 +173,7 @@ if __name__ == "__main__":
     # Skolem function in verilog format
     skfunc = skf.get_skolem_function(
         gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
-
+    print("skfunc veri: ", skfunc)
     # Write the error formula in verilog
     util.write_error_formula(args.verilog_spec, verilog, verilog_formula, skfunc, Xvar, Yvar, pos_unate, neg_unate)
 
@@ -214,7 +215,7 @@ if __name__ == "__main__":
     #         args.threshold, args.batch_size, args.verilog_spec, args.verilog_spec_location, Xvar, Yvar, 
     #         verilog_formula, verilog, args.learning_rate, args.epochs, args.K, device
     #         )
-
+    os.system('rm /tmp/*.v')
     end_time = time.time()
     total_time = int(end_time - start_time)
     print("Time = ", end_time - start_time)

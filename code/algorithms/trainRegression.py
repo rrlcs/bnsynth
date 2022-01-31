@@ -68,7 +68,7 @@ def train_regressor(
             gcln_.layer_and_weights = torch.nn.Parameter(gcln_.layer_and_weights.round())
             out_ = gcln_(inps).squeeze(-1).T
             # print("outs, tgts", outs.shape, tgts.shape)
-            # print("comparing nw out: ",inps, outs, tgts)
+            print("comparing nw out: ",inps, out_, tgts)
             l = []
             for i in range(num_of_outputs):
                 l.append(criterion(outs[:, i], tgts[:, i]))

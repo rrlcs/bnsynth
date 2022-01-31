@@ -49,7 +49,7 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
         skfs.append(skf)
 
     # print("-----------------------------------------------------------------------------")
-    # print("skolem function in getSkolemFunc.py: ", skfs)
+    print("skolem function in getSkolemFunc.py: ", skfs)
     # print("-----------------------------------------------------------------------------")
 
     return skfs
