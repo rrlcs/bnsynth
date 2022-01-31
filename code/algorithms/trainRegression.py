@@ -147,8 +147,8 @@ def train_regressor(
             print('epoch {}, train loss {}'.format(
                 epoch, round(t_loss.item(), 4))
             )
-            # print("Gradient for G1: ", gcln.G1.grad)
-            # print("Gradient for G2: ", gcln.G2.grad)
+            print("Gradient for G1: ", gcln.G1.grad)
+            print("Gradient for G2: ", gcln.G2.grad)
             checkpoint = {'state_dict': gcln.state_dict(), 'optimizer':optimizer.state_dict()}
             save_checkpoint(checkpoint)
             

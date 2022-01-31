@@ -24,14 +24,14 @@ class GCLN(torch.nn.Module):
             ).uniform_(0.0, 1.0).to(dtype=torch.double).to(self.device)
         )
         # with torch.no_grad():
-        # self.G1.data = torch.tensor([[1.0], [1.0]])
+        self.G1.data = torch.tensor([[1.0], [1.0]])
         # self.G2.shape: K x 1
         self.G2 = torch.nn.Parameter(
             torch.Tensor(
                 K, num_of_output_var
             ).uniform_(0., 1.0).to(dtype=torch.double).to(self.device)
         )
-        # self.G2.data = torch.tensor([[1.0]])
+        self.G2.data = torch.tensor([[1.0]])
         # print(self.G1, self.G2)
         # self.b1.shape: 2 * no_input_var x K
         self.b1 = torch.nn.Parameter(torch.randn(
@@ -72,7 +72,7 @@ class GCLN(torch.nn.Module):
 
         # gated_or_res.shape: batch_size x K
         gated_or_res = self.apply_gates(self.G2, or_res)
-        # gated_or_res = torch.add(gated_or_res, 1 - self.G2, alpha=1)
+        gated_or_res = torch.add(gated_or_res, 1 - self.G2, alpha=1)
         # gated_or_res = self.apply_bias(gated_or_res, self.b2)
 
         # out.shape: batch_size x 1
