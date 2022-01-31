@@ -1,4 +1,6 @@
+import copy
 import importlib
+from code.utils import plot as pt
 
 import torch
 import torch.nn as nn
@@ -43,22 +45,32 @@ def train_regressor(
     gcln = GCLN(input_size, num_of_outputs, K, device, P).to(device)
 
     # Loss and Optimizer
-    criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(list(gcln.parameters()), lr=learning_rate)
+    criterion = nn.MSELoss(reduction='mean')
+    optimizer = torch.optim.SGD(list(gcln.parameters()), lr=learning_rate)
     # if flag:
     #     load_checkpoint(torch.load('model.pth.tar'), gcln, optimizer)
     
     # Train network
-    for epoch in range(1, max_epochs+1):
+    max_epochs = max_epochs+1
+    epoch = 1
+    while epoch < max_epochs:
         gcln.train()
         optimizer.zero_grad()
         train_epoch_loss = 0
+        accuracy = 0
+        train_size = 0
         for batch_idx, (inps, tgts) in enumerate(train_loader):
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
             tgts = tgts.round()
-            print("tgts:", tgts)
+            # print("tgts:", tgts)
             out = gcln(inps).to(device)
-            l = []
+            gcln_ = copy.deepcopy(gcln)
+            gcln_.G1 = torch.nn.Parameter(gcln_.G1.round())
+            gcln_.G2 = torch.nn.Parameter(gcln_.G2.round())
+            # print("model: ", gcln_.G1, gcln_.G2)
+            out_ = gcln_(inps)
+            train_size += out.shape[0]
+            # l = []
             # for i in range(num_of_outputs):
             #     l.append(criterion(out[:, i], tgts[:, i]))
             # t_loss = sum(l)
@@ -67,28 +79,39 @@ def train_regressor(
             # check network output:
             print("comparing nw out: ", out, tgts)
             t_loss = (criterion(out, tgts[:, current_output].unsqueeze(-1)))
+            train_epoch_loss += t_loss.item()/num_of_outputs
+            t_loss = t_loss + lambda1*torch.sum(1-gcln.G2)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
             #     lambda2*torch.linalg.norm(gcln.G2, 1)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
             #     lambda2*torch.linalg.norm(gcln.G2, 2)
-            print("G1: ", gcln.G1.data)
-            print("G2: ", gcln.G2.data)
-            print("Loss: ", t_loss.item())
+            # print("G1: ", gcln.G1.data)
+            # print("G2: ", gcln.G2.data)
+            # print("Loss: ", t_loss.item())
             optimizer.zero_grad()
             t_loss.backward()
             optimizer.step()
-            t_loss = torch.sqrt(criterion(out, tgts[:, current_output].unsqueeze(-1)))
-            print("Loss: ", t_loss.item())
-            print("G1: ", gcln.G1.data)
-            print("G2: ", gcln.G2.data)
-            train_epoch_loss += t_loss.item()*inps.size(0)
-        train_loss.append(train_epoch_loss / len(train_loader.sampler))
+            # t_loss = torch.sqrt(criterion(out, tgts[:, current_output].unsqueeze(-1)))
+            # print("Loss: ", t_loss.item())
+            # print("G1: ", gcln.G1.data)
+            # print("G2: ", gcln.G2.data)
+            accuracy += (out_.round()==tgts).sum()
+        print(accuracy, train_size)
+        total_accuracy = accuracy.item()/(train_size)
+        print("Accuracy: ", total_accuracy)
+        print(total_accuracy==1)
+        if total_accuracy != 1:
+            max_epochs += 1
+        train_loss.append(train_epoch_loss)
 
         print('epoch {}, train loss {}'.format(
                 epoch, round(t_loss.item(), 4))
             )
-        print("Gradient for G1: ", gcln.G1.grad)
-        print("Gradient for G2: ", gcln.G2.grad)
+        
+        print("Training Loss: ", t_loss.item())
+        epoch += 1
+        util.store_losses(train_loss, valid_loss)
+        pt.plot()
 
         # gcln.eval()
         # valid_epoch_loss = 0
@@ -120,12 +143,12 @@ def train_regressor(
         #         print("Early Stopping!!")
                 # break
 
-        if epoch % 5 == 0:
+        if epoch % 1 == 0:
             print('epoch {}, train loss {}'.format(
                 epoch, round(t_loss.item(), 4))
             )
-            print("Gradient for G1: ", gcln.G1.grad)
-            print("Gradient for G2: ", gcln.G2.grad)
+            # print("Gradient for G1: ", gcln.G1.grad)
+            # print("Gradient for G2: ", gcln.G2.grad)
             checkpoint = {'state_dict': gcln.state_dict(), 'optimizer':optimizer.state_dict()}
             save_checkpoint(checkpoint)
             
@@ -163,4 +186,4 @@ def train_regressor(
             # if ret == 0:
             #     return gcln, train_loss, valid_loss
 
-    return gcln, train_loss, valid_loss
+    return gcln, train_loss, valid_loss, total_accuracy, epoch-1

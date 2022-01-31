@@ -66,9 +66,9 @@ if __name__ == "__main__":
     # Repeat or add noise to get larger dataset
     
     # samples = np.array([[1,0],[0,1]])
-    training_samples = util.make_dataset_larger(samples)
-    # training_samples = torch.from_numpy(samples).to(torch.double)
-    print(training_samples)
+    # training_samples = util.make_dataset_larger(samples)
+    training_samples = torch.from_numpy(samples).to(torch.double)
+    # print(training_samples)
 
     # Get train test split
     training_set, validation_set = util.get_train_test_split(training_samples)
@@ -120,9 +120,11 @@ if __name__ == "__main__":
     num_of_outputs = 1
     skf_dict_z3 = {}
     skf_dict_verilog = {}
+    final_accuracy = 0
+    final_epochs = 0
     for i in range(len(Yvar)):
         current_output = i
-        gcln, train_loss, valid_loss = train(
+        gcln, train_loss, valid_loss, accuracy, epochs = train(
             args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs, 
             input_size, num_of_outputs, current_output, args.K, device, num_of_vars, input_var_idx, output_var_idx, 
             io_dict, io_dictz3, args.threshold, args.verilog_spec, args.verilog_spec_location, 
@@ -131,7 +133,8 @@ if __name__ == "__main__":
         train_t_e = time.time()
         # print("Training Time: ", train_t_e - train_t_s)
         # ----------------------------------------------------------------------------------------------------------
-
+        final_accuracy += accuracy
+        final_epochs += epochs
         util.store_losses(train_loss, valid_loss)
         pt.plot()
 
@@ -155,11 +158,14 @@ if __name__ == "__main__":
         # print("skolem function run: ", skfunc)
         # print("-----------------------------------------------------------------------------")
     print(skf_dict_z3)
+    final_accuracy = final_accuracy / num_of_outputs
+    final_loss = train_loss[-1]
+    loss_drop = train_loss[0] - train_loss[-1]
     if any(v=='()\n' or v == '\n' for v in skf_dict_z3.values()):
         t = time.time() - start_time
-        datastring = str(args.epochs)+", "+str(args.K)+", "+str(0)+", "+"empty string"+", "+"Invalid"+", "+str(t)+"\n"
+        datastring = str(args.verilog_spec)+", "+str(final_epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+str(skf_dict_z3)+", "+"empty string"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(final_accuracy)+"\n"
         print(datastring)
-        f = open("abalation_original.csv", "a")
+        f = open("abalation_study.csv", "a")
         f.write(datastring)
         f.close()
         exit("No Skolem Function Learned!! Try Again.")
@@ -204,9 +210,9 @@ if __name__ == "__main__":
         print('error formula unsat.. skolem functions generated')
         print("success")
         t = time.time() - start_time
-        datastring = str(args.epochs)+", "+str(args.K)+", "+str(0)+", "+str(skf_dict_z3)+", "+"Valid"+", "+str(t)+"\n"
+        datastring = str(args.verilog_spec)+", "+str(final_epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+str(skf_dict_z3)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
         print(datastring)
-        f = open("abalation_original.csv", "a")
+        f = open("abalation_study.csv", "a")
         f.write(datastring)
         f.close()
     else:

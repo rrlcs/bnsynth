@@ -28,7 +28,7 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
 
     ored_clauses = []
     for i in range(len(clauses)):
-        ored_clauses.append("("+" | ".join(clauses[i])+")".replace("() &", ""))
+        ored_clauses.append("("+" | ".join(clauses[i])+")")
     ored_clauses = np.array(ored_clauses)
 
     gated_ored_clauses = []
