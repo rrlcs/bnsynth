@@ -80,6 +80,6 @@ class GCLN(torch.nn.Module):
 
         # out.shape: batch_size x 1
         out = util.tnorm_n_inputs(gated_or_res).to(self.device)
-        print(out.shape)
+        # print(out.shape)
 
         return out

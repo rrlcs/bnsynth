@@ -42,9 +42,9 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------------------------------------
     # TO DO:
     # 1. USE THE UNATES TO CONSTRUCT UNATE_SKOLEMFORMULA
-    # result = util.check_unates(pos_unate, neg_unate, Xvar, Yvar, args.verilog_spec[:-2])
-    # if result:
-    #     exit("All Unates!")
+    result = util.check_unates(pos_unate, neg_unate, Xvar, Yvar, args.verilog_spec[:-2])
+    if result:
+        print("All Unates!")
     # ----------------------------------------------------------------------------------------------------------
 
 
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     #     [1., 0., 0.]])
     # training_samples = util.make_dataset_larger(samples)
     training_samples = torch.from_numpy(samples).to(torch.double)
-    print(training_samples)
+    # print(training_samples)
 
     # Get train test split
     training_set, validation_set = util.get_train_test_split(training_samples)
@@ -127,7 +127,7 @@ if __name__ == "__main__":
     # for i in range(len(Yvar)):
     i = 0
     current_output = i
-    gcln, train_loss, valid_loss, accuracy = train(
+    gcln, train_loss, valid_loss, accuracy, epochs = train(
         args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs, 
         input_size, num_of_outputs, current_output, args.K, device, num_of_vars, input_var_idx, output_var_idx, 
         io_dict, io_dictz3, args.threshold, args.verilog_spec, args.verilog_spec_location, 
@@ -168,9 +168,9 @@ if __name__ == "__main__":
     print(skf_dict_z3)
     if any(v=='()\n' or v == '\n' for v in skfuncz3):
         t = time.time() - start_time
-        datastring = str(args.verilog_spec)+", "+str(args.epochs)+", "+str(args.K)+", "+str(0)+", "+str(skfuncz3)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
+        datastring = str(args.verilog_spec)+", "+str(args.epochs)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+str(skfuncz3)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
         print(datastring)
-        f = open("abalation_original.csv", "a")
+        f = open("abalation_study.csv", "a")
         f.write(datastring)
         f.close()
         exit("No Skolem Function Learned!! Try Again.")
@@ -196,7 +196,7 @@ if __name__ == "__main__":
 
 
     # Write the error formula in verilog
-    print("@@@@@@@@@@@@@@@@@@@@@@@@@@skf manthan: ", skfuncv)
+    # print("@@@@@@@@@@@@@@@@@@@@@@@@@@skf manthan: ", skfuncv)
     util.write_error_formula(args.verilog_spec, verilog, verilog_formula, skfuncv, Xvar, Yvar, pos_unate, neg_unate)
 
     # Run Manthan's Validity Checker
@@ -216,9 +216,9 @@ if __name__ == "__main__":
         print("success")
         skfuncv = [sk.replace('\n', '') for sk in skfuncv]
         t = time.time() - start_time
-        datastring = str(args.verilog_spec)+", "+str(args.epochs)+", "+str(args.K)+", "+str(0)+", "+'; '.join(skfuncv)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
+        datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+'; '.join(skfuncv)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
         print(datastring)
-        f = open("abalation_original.csv", "a")
+        f = open("abalation_study.csv", "a")
         f.write(datastring)
         f.close()
     else:

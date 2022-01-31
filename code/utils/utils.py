@@ -280,7 +280,7 @@ class utils():
         # training_samples = training_samples.repeat(2, 1)
         # add random noise to get fractional samples
         training_samples = torch.cat([
-            self.add_noise((training_samples)) for _ in range(1000)
+            self.add_noise((training_samples)) for _ in range(3)
             ])
         training_samples = training_samples.to(torch.double)
 
@@ -615,7 +615,7 @@ class utils():
     def prepare_cnf_content(self, verilog, Xvar, Yvar, Xvar_map, Yvar_map, pos_unate, neg_unate):
 
         cnffile = verilog.split(".v")[0] + ".cnf"
-        print("prep cnf: ", Yvar, Yvar_map)
+        # print("prep cnf: ", Yvar, Yvar_map)
 
         # to add c ind and positive and negative unate in cnf
         unates = []

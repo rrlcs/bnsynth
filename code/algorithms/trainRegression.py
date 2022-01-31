@@ -41,7 +41,7 @@ def train_regressor(
     # Set regularizers
     lambda1 = 1e-2
     lambda2 = 1e-2
-    print("train reg: ", num_of_outputs)
+    # print("train reg: ", num_of_outputs)
 
     # Initialize network
     gcln = GCLN(input_size, num_of_outputs, K, device, P).to(device)
@@ -73,12 +73,12 @@ def train_regressor(
             # print("model: ", gcln_.G1, gcln_.G2)
             out_ = gcln_(inps)
             train_size += out.shape[0]
-            print("out shape, tgts shape: ", out.shape, tgts.shape)
+            # print("out shape, tgts shape: ", out.shape, tgts.shape)
             l = []
             for i in range(num_of_outputs):
                 l.append(criterion(out[:, i], tgts[:, i]))
             t_loss = sum(l)
-            print("loss: ", t_loss)
+            # print("loss: ", t_loss)
             # print("target and input shapes: ", out.squeeze().shape, tgts[:, current_output].shape)
 
             # check network output:
@@ -197,4 +197,4 @@ def train_regressor(
             # if ret == 0:
             #     return gcln, train_loss, valid_loss
 
-    return gcln, train_loss, valid_loss, total_accuracy
+    return gcln, train_loss, valid_loss, total_accuracy, epoch-1
