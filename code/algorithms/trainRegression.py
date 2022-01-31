@@ -86,7 +86,7 @@ def train_regressor(
             # t_loss = (criterion(out, tgts))
             # print("loss: ", t_loss)
             train_epoch_loss += t_loss.item()/num_of_outputs
-            t_loss = t_loss + lambda1*torch.sum(1-gcln.G2)
+            # t_loss = t_loss + lambda1*torch.sum(1-gcln.G2)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
             #     lambda2*torch.linalg.norm(gcln.G2, 1)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \

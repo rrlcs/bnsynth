@@ -43,9 +43,9 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------------------------------------
     # TO DO:
     # 1. USE THE UNATES TO CONSTRUCT UNATE_SKOLEMFORMULA
-    result = util.check_unates(pos_unate, neg_unate, Xvar, Yvar, args.verilog_spec[:-2])
-    if result:
-        print("All Unates!")
+    # result = util.check_unates(pos_unate, neg_unate, Xvar, Yvar, args.verilog_spec[:-2])
+    # if result:
+    #     print("All Unates!")
     # ----------------------------------------------------------------------------------------------------------
 
 
