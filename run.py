@@ -65,10 +65,10 @@ if __name__ == "__main__":
 
     # Repeat or add noise to get larger dataset
     
-    samples = np.array([[1,0],[0,1]])
+    samples = np.array([[0,1],[1,1]])
     # training_samples = util.make_dataset_larger(samples)
     training_samples = torch.from_numpy(samples).to(torch.double)
-    # print(training_samples)
+    print(training_samples)
 
     # Get train test split
     training_set, validation_set = util.get_train_test_split(training_samples)

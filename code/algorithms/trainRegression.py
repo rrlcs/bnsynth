@@ -38,8 +38,8 @@ def train_regressor(
     early_stop = 0
 
     # Set regularizers
-    lambda1 = 1e-2
-    lambda2 = 1e-2
+    lambda1 = 1e+1
+    lambda2 = 1e+1
 
     # Initialize network
     gcln = GCLN(input_size, num_of_outputs, K, device, P).to(device)
@@ -81,7 +81,9 @@ def train_regressor(
             print("comparing nw out: ", out, tgts)
             t_loss = (criterion(out, tgts[:, current_output].unsqueeze(-1)))
             train_epoch_loss += t_loss.item()/num_of_outputs
-            t_loss = t_loss + lambda1*torch.sum(1-gcln.G2)
+            # t_loss = t_loss + lambda1*torch.sum(1-gcln.G2)
+            # t_loss = t_loss + lambda2*torch.sum(gcln.G1)
+            
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
             #     lambda2*torch.linalg.norm(gcln.G2, 1)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \

@@ -51,7 +51,7 @@ def check_validity():
 	i_0 ,i_1 = Bools('i_0 i_1')
 	
 	out = Bool('out')
-	nn_out0 = simplify((Not(i_0)))
+	nn_out0 = simplify((Or((i_0),Not(i_0),)))
 	
 	out = (Or((i_0),(i_1),))
 	z = Exists([i_1], out)
