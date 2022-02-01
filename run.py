@@ -44,7 +44,18 @@ if __name__ == "__main__":
     # 1. USE THE UNATES TO CONSTRUCT UNATE_SKOLEMFORMULA
     # result = util.check_unates(pos_unate, neg_unate, Xvar, Yvar, args.verilog_spec[:-2])
     # if result:
+    #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All Unates"+"\n"
+    #     f = open("unates.csv", "a")
+    #     f.write(unate_data)
+    #     f.close()
     #     exit("All Unates!")
+    # else:
+    #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All not Unates"+"\n"
+    #     f = open("unates.csv", "a")
+    #     f.write(unate_data)
+    #     f.close()
+    #     exit("All not Unates!")
+        
     # ----------------------------------------------------------------------------------------------------------
 
 
@@ -62,11 +73,12 @@ if __name__ == "__main__":
         max_samples=args.training_size
         )
     
-    print("samples: ", samples)
+    # print("samples: ", samples)
 
     # Repeat or add noise to get larger dataset
-    # training_samples = util.make_dataset_larger(samples)
+    # 
     # samples = np.array([[1,0],[0,1]])
+    # training_samples = util.make_dataset_larger(samples)
     training_samples = torch.from_numpy(samples).to(torch.double)
     print(training_samples.shape)
 
@@ -150,9 +162,9 @@ if __name__ == "__main__":
 
     if any(v=='()\n' or v == '\n' for v in skfunc):
         t = time.time() - start_time
-        datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(0)+", "+str(skfunc)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
+        datastring = str(args.verilog_spec)+", "+str(args.epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+str(skfunc)+", "+"Empty String"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
         print(datastring)
-        f = open("abalation_study.csv", "a")
+        f = open("multi_output_results.csv", "a")
         f.write(datastring)
         f.close()
         exit("No Skolem Function Learned!! Try Again.")
@@ -195,9 +207,9 @@ if __name__ == "__main__":
         skfunc = [sk.replace('\n', '') for sk in skfunc]
         print("==============", '; '.join(skfunc))
         t = time.time() - start_time
-        datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(0)+", "+'; '.join(skfunc)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
+        datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+'; '.join(skfunc)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
         print(datastring)
-        f = open("abalation_study.csv", "a")
+        f = open("multi_output_results.csv", "a")
         f.write(datastring)
         f.close()
     # else:

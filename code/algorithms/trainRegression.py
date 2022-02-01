@@ -4,6 +4,7 @@ from code.utils import plot as pt
 
 import torch
 import torch.nn as nn
+from torch.optim.lr_scheduler import StepLR
 
 
 def save_checkpoint(state, filename="model.pth.tar"):
@@ -38,7 +39,7 @@ def train_regressor(
     early_stop = 0
 
     # Set regularizers
-    lambda1 = 1e-2
+    lambda1 = 1e+1
     lambda2 = 1e-2
 
     # Initialize network
@@ -47,6 +48,7 @@ def train_regressor(
     # Loss and Optimizer
     criterion = nn.MSELoss(reduction='mean')
     optimizer = torch.optim.SGD(list(gcln.parameters()), lr=learning_rate)
+    scheduler = StepLR(optimizer, step_size=10, gamma=0.1)
     if flag:
         load_checkpoint(torch.load('model.pth.tar'), gcln, optimizer)
     
@@ -68,7 +70,7 @@ def train_regressor(
             gcln_.layer_and_weights = torch.nn.Parameter(gcln_.layer_and_weights.round())
             out_ = gcln_(inps).squeeze(-1).T
             # print("outs, tgts", outs.shape, tgts.shape)
-            print("comparing nw out: ",inps, out_, tgts)
+            # print("comparing nw out: ",inps, out_, tgts)
             l = []
             for i in range(num_of_outputs):
                 l.append(criterion(outs[:, i], tgts[:, i]))
@@ -101,13 +103,13 @@ def train_regressor(
             # print("outs, out_, tgts: ", inps, outs, out_, tgts)
             # print((out_.round()==tgts).sum())
             accuracy += (out_.round()==tgts).sum()
-        print(len(train_loader.sampler))
+        # print(len(train_loader.sampler))
         train_loss.append(train_epoch_loss)
-        print(len(train_loader)*32*num_of_outputs, num_of_outputs)
+        # print(len(train_loader)*32*num_of_outputs, num_of_outputs)
         total_accuracy = accuracy.item()/(train_size*num_of_outputs)
         print("Accuracy: ", total_accuracy)
         print(total_accuracy==1)
-        print(t_loss)
+        # print(t_loss)
         if total_accuracy != 1:
             max_epochs += 1
 
@@ -115,16 +117,18 @@ def train_regressor(
                 epoch, round(t_loss.item(), 4))
             )
         
-        print("Training Loss: ", t_loss.item())
+        # print("Training Loss: ", t_loss.item())
         epoch += 1
-        print("G1: ", gcln.layer_or_weights.data)
-        print("G2: ", gcln.layer_and_weights.data)
+        # print("G1: ", gcln.layer_or_weights.data)
+        # print("G2: ", gcln.layer_and_weights.data)
 
-        print("Gradient for G1: ", gcln.layer_or_weights.grad)
-        print("Gradient for G2: ", gcln.layer_and_weights.grad)
+        # print("Gradient for G1: ", gcln.layer_or_weights.grad)
+        # print("Gradient for G2: ", gcln.layer_and_weights.grad)
 
         util.store_losses(train_loss, valid_loss)
         pt.plot()
+        # if epoch % 10==0:
+        #     scheduler.step()
         # gcln.eval()
         # valid_epoch_loss = 0
         # for batch_idx, (inps, tgts) in enumerate(validation_loader):

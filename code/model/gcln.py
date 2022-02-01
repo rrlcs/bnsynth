@@ -21,14 +21,14 @@ class GCLN(torch.nn.Module):
         self.layer_or_weights = torch.nn.Parameter(
                 torch.Tensor(
                     self.input_size, num_of_output_var * K
-                ).uniform_(0.0, 1.0).to(dtype=torch.double).to(self.device)
+                ).uniform_(0., 1.0).to(dtype=torch.double).to(self.device)
             )
-        # self.layer_or_weights.data = torch.tensor([[0.0], [0.0]])
+        # self.layer_or_weights.data = torch.tensor([[1.0], [0.0]])
         # self.G2.shape: num_of_output_var * K x 1
         self.layer_and_weights = torch.nn.Parameter(
                 torch.Tensor(
                     num_of_output_var * K, 1
-                ).uniform_(0.0, 1.0).to(dtype=torch.double).to(self.device)
+                ).uniform_(0., 1.0).to(dtype=torch.double).to(self.device)
             )
         # self.layer_and_weights.data = torch.tensor([[0.0]])
         # self.b1.shape: 2 * no_input_var x K
@@ -75,7 +75,7 @@ class GCLN(torch.nn.Module):
         for i in range(self.output_size):
             gated_or = self.apply_gates(self.layer_and_weights[i*self.K:(i+1)*self.K, :], or_res[i, :, :, :])
             gated_or_res.append(torch.add(gated_or, 1 - self.layer_and_weights[i*self.K:(i+1)*self.K, :], alpha=1))
-            gated_or_res.append(gated_or)
+            # gated_or_res.append(gated_or)
         gated_or_res = torch.stack(gated_or_res)
         # gated_or_res = self.apply_bias(gated_or_res, self.b2)
 

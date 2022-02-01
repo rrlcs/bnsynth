@@ -1,3 +1,4 @@
+#!/bin/sh
 python3 run.py \
 --th=0.5 \
 --P=$1 \
