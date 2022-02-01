@@ -39,7 +39,7 @@ def train_regressor(
     early_stop = 0
 
     # Set regularizers
-    lambda1 = 1e-2
+    lambda1 = 1e+2
     lambda2 = 1e-2
     # print("train reg: ", num_of_outputs)
 

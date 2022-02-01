@@ -69,9 +69,9 @@ if __name__ == "__main__":
     
     # samples = np.array([[0., 1., 0.], [0., 0., 1.], [1., 1., 1.],
     #     [1., 0., 0.]])
-    samples = np.array([[1,0],[0,1]])
-    training_samples = util.make_dataset_larger(samples)
-    # training_samples = torch.from_numpy(samples).to(torch.double)
+    # samples = np.array([[1,0],[0,1]])
+    # training_samples = util.make_dataset_larger(samples)
+    training_samples = torch.from_numpy(samples).to(torch.double)
     # print(training_samples)
 
     # Get train test split
