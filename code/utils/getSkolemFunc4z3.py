@@ -34,6 +34,7 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
     gated_ored_clauses = []
     for i in range(num_of_outputs):
         mask = G2[:, i] > threshold
+        # ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
         gated_ored_clauses.append(
             np.unique(ored_clauses[mask]))
 

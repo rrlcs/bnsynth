@@ -615,7 +615,7 @@ class utils():
     def prepare_cnf_content(self, verilog, Xvar, Yvar, Xvar_map, Yvar_map, pos_unate, neg_unate):
 
         cnffile = verilog.split(".v")[0] + ".cnf"
-        print("prep cnf: ", Yvar, Yvar_map)
+        # print("prep cnf: ", Yvar, Yvar_map)
 
         # to add c ind and positive and negative unate in cnf
         unates = []

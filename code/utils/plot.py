@@ -12,5 +12,5 @@ def plot():
 	# f.close()
 	# valid_loss = [float(i) for i in valid_loss]
 	# plt.plot(valid_loss, label="valid_loss")
-	plt.legend()
+	# plt.legend()
 	plt.savefig("train_valid_loss_plot.png")

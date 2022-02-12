@@ -1,5 +1,6 @@
 import copy
 import importlib
+from code.train import train
 from code.utils import plot as pt
 
 import torch
@@ -59,6 +60,7 @@ def train_regressor(
         optimizer.zero_grad()
         train_epoch_loss = 0
         accuracy = 0
+        datalen = 0
         train_size = 0
         for batch_idx, (inps, tgts) in enumerate(train_loader):
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
@@ -71,6 +73,8 @@ def train_regressor(
             # print("model: ", gcln_.G1, gcln_.G2)
             out_ = gcln_(inps)
             train_size += out.shape[0]
+# <<<<<<< HEAD
+# For single output
             # l = []
             # for i in range(num_of_outputs):
             #     l.append(criterion(out[:, i], tgts[:, i]))
@@ -78,12 +82,29 @@ def train_regressor(
             # print("target and input shapes: ", out.squeeze().shape, tgts[:, current_output].shape)
 
             # check network output:
-            print("comparing nw out: ", out, tgts)
-            t_loss = (criterion(out, tgts[:, current_output].unsqueeze(-1)))
-            train_epoch_loss += t_loss.item()/num_of_outputs
+            # print("comparing nw out: ", out, tgts)
+            # t_loss = (criterion(out, tgts[:, current_output].unsqueeze(-1)))
+            # train_epoch_loss += t_loss.item()/num_of_outputs
             # t_loss = t_loss + lambda1*torch.sum(1-gcln.G2)
             # t_loss = t_loss + lambda2*torch.sum(gcln.G1)
-            
+
+# For single output     
+# =======
+            # print("out shape, tgts shape: ", out.shape, tgts.shape)
+            l = []
+            for i in range(num_of_outputs):
+                l.append(criterion(out[:, i], tgts[:, i]))
+            t_loss = sum(l)
+            # print("loss: ", t_loss)
+            # print("target and input shapes: ", out.squeeze().shape, tgts[:, current_output].shape)
+
+            # check network output:
+            # print("comparing nw out: ",inps, out, tgts)
+            # t_loss = (criterion(out, tgts))
+            # print("loss: ", t_loss)
+            train_epoch_loss += t_loss.item()/num_of_outputs
+            t_loss = t_loss + lambda1*torch.sum(1-gcln.G2)
+# >>>>>>> shared
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
             #     lambda2*torch.linalg.norm(gcln.G2, 1)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
@@ -98,13 +119,23 @@ def train_regressor(
             # print("Loss: ", t_loss.item())
             # print("G1: ", gcln.G1.data)
             # print("G2: ", gcln.G2.data)
+# <<<<<<< HEAD
+# For single output
+        #     accuracy += (out_.round()==tgts).sum()
+        # print(accuracy, train_size)
+        # total_accuracy = accuracy.item()/(train_size)
+# For single output
+# =======
+            # train_epoch_loss += t_loss.item()*inps.size(0)
+            # print(out, out_, tgts)
             accuracy += (out_.round()==tgts).sum()
-        print(accuracy, train_size)
-        total_accuracy = accuracy.item()/(train_size)
+        total_accuracy = accuracy.item()/(train_size*num_of_outputs)
+# >>>>>>> shared
         print("Accuracy: ", total_accuracy)
         print(total_accuracy==1)
         if total_accuracy != 1:
             max_epochs += 1
+        
         train_loss.append(train_epoch_loss)
 
         print('epoch {}, train loss {}'.format(
@@ -115,7 +146,8 @@ def train_regressor(
         epoch += 1
         util.store_losses(train_loss, valid_loss)
         pt.plot()
-
+        # if gcln.G1[1,0] > 0.5:
+        #     return gcln, train_loss, valid_loss
         # gcln.eval()
         # valid_epoch_loss = 0
         # for batch_idx, (inps, tgts) in enumerate(validation_loader):
@@ -148,13 +180,13 @@ def train_regressor(
 
         if epoch % 1 == 0:
             print('epoch {}, train loss {}'.format(
-                epoch, round(t_loss.item(), 4))
+                epoch-1, round(t_loss.item(), 4))
             )
             print("Gradient for G1: ", gcln.G1.grad)
             print("Gradient for G2: ", gcln.G2.grad)
             checkpoint = {'state_dict': gcln.state_dict(), 'optimizer':optimizer.state_dict()}
             save_checkpoint(checkpoint)
-            
+        
             # Extract and Check
             # skfunc = skfz3.get_skolem_function(
             #     gcln, num_of_vars,
