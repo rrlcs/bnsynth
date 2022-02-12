@@ -472,7 +472,7 @@ class utils():
 
     def preprocess_manthan(self, varlistfile,verilog,Xvar_tmp,Yvar_tmp):
         inputfile_name = verilog.split(".v")[0]
-        cmd = "./dependencies/preprocess -b %s -v %s > /dev/null 2>&1 " % (
+        cmd = "./dependencies/preprocess2 -b %s -v %s > /dev/null 2>&1 " % (
             verilog, varlistfile)
         os.system(cmd)
         pos_unate = []
@@ -538,12 +538,14 @@ class utils():
             cmd = "./dependencies/file_generation_cnf %s %s.cnf %s_mapping.txt  > /dev/null 2>&1" % (
                 verilog, inputfile_name, inputfile_name)
             os.system(cmd)
+            print("cmd: ", cmd)
             with open(inputfile_name + "_mapping.txt", 'r') as f:
                 lines = f.readlines()
             f.close()
             for line in lines:
                 allvar_map = line.strip(" \n").split(" ")
-            os.unlink(inputfile_name + "_mapping.txt")
+            print("allvars: ", allvar_map)
+            # os.unlink(inputfile_name + "_mapping.txt")
             allvar_map = np.array(allvar_map).astype(int)
             Xvar_map = dict(zip(Xvar_tmp, allvar_map[Xvar]))
             Yvar_map = dict(zip(Yvar_tmp, allvar_map[Yvar]))
@@ -659,7 +661,7 @@ class utils():
             cnf_content += line + "\n"
         cnf_content = cnf_content.strip("\n")
         cnf_content = indStr + cnf_content + "\n" + fixedvar.rstrip(' \n')
-        os.unlink(cnffile)
+        # os.unlink(cnffile)
 
         return cnf_content, allvar_map
     
