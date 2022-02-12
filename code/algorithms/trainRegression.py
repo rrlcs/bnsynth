@@ -40,7 +40,7 @@ def train_regressor(
 
     # Set regularizers
     lambda1 = 1e+1
-    lambda2 = 1e-2
+    lambda2 = 1e-1
 
     # Initialize network
     gcln = GCLN(input_size, num_of_outputs, K, device, P).to(device)
@@ -65,6 +65,7 @@ def train_regressor(
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
             tgts = tgts.round()
             outs = gcln(inps).squeeze(-1).T.to(device)
+            # print("gcln out: ", outs)
             gcln_ = copy.deepcopy(gcln)
             gcln_.layer_or_weights = torch.nn.Parameter(gcln_.layer_or_weights.round())
             gcln_.layer_and_weights = torch.nn.Parameter(gcln_.layer_and_weights.round())
@@ -83,6 +84,7 @@ def train_regressor(
             train_size += outs.shape[0]
             # t_loss = (criterion(outs, tgts))
             t_loss = t_loss + lambda1*torch.sum(1-gcln.layer_and_weights)
+            # t_loss = t_loss + lambda2*torch.sum(1-gcln.layer_or_weights)
             # print("loss: ", t_loss)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 1) + \
             #     lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)

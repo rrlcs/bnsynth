@@ -15,6 +15,7 @@ def get_skolem_function(gcln, no_of_input_var, input_var_idx, num_of_outputs, ou
 
     literals = []
     neg_literals = []
+    print("io dict: ", io_dict)
     for i in input_var_idx:
         literals.append(io_dict.get(i.item()))
         neg_literals.append("~"+io_dict.get(i.item()))

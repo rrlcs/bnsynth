@@ -944,13 +944,104 @@ class utils():
         f.write(skolemcontent)
         f.write(skolemcontent_write)
         f.close()
+    
+    def createSkolem(self, candidateSkf, Xvar, Yvar, UniqueVars, UniqueDef, inputfile_name):
+        tempOutputFile = tempfile.gettempdir() + '/' + inputfile_name + "_skolem.v"  # F(X,Y')
+        inputstr = 'module SKOLEMFORMULA ('
+        declarestr = ''
+        assignstr = ''
+        wirestr = 'wire zero;\nwire one;\n'
+        wirestr += "assign zero = 0;\nassign one = 1;\n"
+        outstr = ''
+        itr = 1
+        wtlist = []
+        
+        for var in Xvar:
+            declarestr += "input i%s;\n" % (var)
+            inputstr += "i%s, " % (var)
+        for var in Yvar:
+            flag = 0
+            declarestr += "input o%s;\n" % (var)
+            inputstr += "o%s, " % (var)
+            wirestr += "wire w%s;\n" % (var)
+            if var not in UniqueVars:
+                assignstr += 'assign w%s = (' % (var)
+                assignstr += candidateSkf[var].replace(" 1 ", " one ").replace(" 0 ", " zero ") +");\n"
+            
+            outstr += "(~(w%s ^ o%s)) & " % (var,var)
+            if itr % 10 == 0:
+                flag = 1
+                outstr = outstr.strip("& ")
+                wirestr += "wire wt%s;\n" % (itr)
+                assignstr += "assign wt%s = %s;\n" % (itr, outstr)
+                wtlist.append(itr)
+                outstr = ''
+            itr += 1
+        if(flag == 0):
+            outstr = outstr.strip("& ")
+            wirestr += "wire wt%s;\n" % (itr)
+            assignstr += "assign wt%s = %s;\n" % (itr, outstr)
+            wtlist.append(itr)
+        assignstr += "assign out = "
+        for i in wtlist:
+            assignstr += "wt%s & " % (i)
+        assignstr = assignstr.strip("& ") + ";\n"
+        inputstr += " out );\n"
+        declarestr += "output out ;\n"
+        f = open(tempOutputFile, "w")
+        f.write(inputstr + declarestr + wirestr)
+        # f.write(UniqueDef.strip("\n")+"\n")
+        f.write(assignstr + "endmodule")
+        f.close()
+    
+    def createErrorFormula(self, Xvar, Yvar, UniqueVars, verilog_formula):
+        inputformula = '('
+        inputskolem = '('
+        inputerrorx = 'module MAIN ('
+        inputerrory = ''
+        inputerroryp = ''
+        declarex = ''
+        declarey = ''
+        declareyp = ''
+        for var in Xvar:
+            inputformula += "%s, " % (var)
+            inputskolem += "%s, " % (var)
+            inputerrorx += "%s, " % (var)
+            declarex += "input %s ;\n" % (var)
+        for var in Yvar:
+            inputformula += "%s, " % (var)
+            inputerrory += "%s, " % (var)
+            declarey += "input %s ;\n" % (var) 
+            inputerroryp += "ip%s, " % (var)
+            declareyp += "input ip%s ;\n" % (var)
+            if var in UniqueVars:
+                inputskolem += "%s, " %(var)
+            else:
+                inputskolem += "ip%s, " %(var)
+        inputformula += "out1 );\n"
+        inputformula_sk = inputskolem + "out3 );\n"
+        inputskolem += "out2 );\n"
+        inputerrorx = inputerrorx + inputerrory + inputerroryp + "out );\n"
+        declare = declarex + declarey + declareyp + 'output out;\n' + \
+            "wire out1;\n" + "wire out2;\n" + "wire out3;\n"
+        formula_call = "FORMULA F1 " + inputformula
+        skolem_call = "SKOLEMFORMULA F2 " + inputskolem
+        formulask_call = "FORMULA F2 " + inputformula_sk
+        error_content = inputerrorx + declare + \
+            formula_call + skolem_call + formulask_call
+        error_content += "assign out = ( out1 & out2 & ~(out3) );\n" + \
+            "endmodule\n"
+        error_content += verilog_formula
+        return error_content
 
     def write_error_formula(self, verilog_spec, verilog, verilog_formula, skfunc, Xvar, Yvar, pos_unate, neg_unate):
         candidateskf = self.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
-        self.create_skolem_function(
-            verilog_spec.split('.v')[0], candidateskf, Xvar, Yvar)
-        error_content, refine_var_log = self.create_error_formula(
-            Xvar, Yvar, verilog_formula)
+        # self.create_skolem_function(
+        #     verilog_spec.split('.v')[0], candidateskf, Xvar, Yvar)
+        self.createSkolem(candidateskf, Xvar, Yvar, [], [], verilog_spec.split('.qdimacs')[0])
+        # error_content, refine_var_log = self.create_error_formula(
+        #     Xvar, Yvar, verilog_formula)
+        error_content = self.createErrorFormula(Xvar, Yvar, [], verilog_formula)
         self.add_skolem_to_errorformula(error_content, [], verilog)
 
     def verify(self, Xvar, Yvar, verilog):

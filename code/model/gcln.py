@@ -21,16 +21,16 @@ class GCLN(torch.nn.Module):
         self.layer_or_weights = torch.nn.Parameter(
                 torch.Tensor(
                     self.input_size, num_of_output_var * K
-                ).uniform_(0., 1.0).to(dtype=torch.double).to(self.device)
+                ).uniform_(0.4, 0.6).to(dtype=torch.double).to(self.device)
             )
-        # self.layer_or_weights.data = torch.tensor([[1.0], [0.0]])
+        # self.layer_or_weights.data = torch.tensor([[1.0], [1.0]])
         # self.G2.shape: num_of_output_var * K x 1
         self.layer_and_weights = torch.nn.Parameter(
                 torch.Tensor(
                     num_of_output_var * K, 1
-                ).uniform_(0., 1.0).to(dtype=torch.double).to(self.device)
+                ).uniform_(0.5, 0.6).to(dtype=torch.double).to(self.device)
             )
-        # self.layer_and_weights.data = torch.tensor([[0.0]])
+        # self.layer_and_weights.data = torch.tensor([[1.0]])
         # self.b1.shape: 2 * no_input_var x K
         self.b1 = torch.nn.Parameter(torch.randn(
             (self.input_size, K)).to(self.device))
