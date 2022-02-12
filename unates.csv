@@ -177,3 +177,157 @@ ctrl.e_1.a_3.E_130.A_48.c_.w_7.s_11.asp.v, 130, 48, All not Unates
 stmt41_336_385.v, 265, 246, All not Unates
 sortnetsort9.AE.stepl.012.v, 9223, 0, All Unates
 small-swap2-fixpoint-10.v, 660, 600, All Unates
+small-bug1-fixpoint-10.v, 32, 29, All not Unates
+ltl2dpa_C26_comp2_REAL.sat.v, 327, 325, All not Unates
+itc-b13-fixpoint-10.v, 606, 569, All Unates
+stmt21_71_354.v, 260, 85, All not Unates
+bobtuint31neg_all_bit_differing_from_cycle.v, 432, 205, All not Unates
+bobtuint24neg_all_bit_differing_from_cycle.v, 432, 205, All not Unates
+equalization256.v, 1876, 0, All Unates
+bobtuint15neg_all_bit_differing_from_cycle.v, 432, 205, All not Unates
+ceiling64.v, 128, 263, All not Unates
+stmt21_84_215.v, 176, 107, All Unates
+min128.v, 256, 467, All not Unates
+GuidanceService.v, 69, 329, All not Unates
+GuidanceService2.v, 69, 329, All not Unates
+query31_eequery_1344n.v, 66, 822, All not Unates
+equalization128.v, 934, 0, All Unates
+stmt17_62_78.v, 392, 305, All not Unates
+query58_query42_1344n.v, 136, 3422, All not Unates
+stmt28_68_69.v, 334, 305, All not Unates
+query11_query42_1344n.v, 74, 943, All not Unates
+sortnetsort8.AE.stepl.006.v, 672, 2849, All not Unates
+stmt21_143_403.v, 280, 131, All not Unates
+stmt22_320_370.v, 260, 235, All not Unates
+stmt19_313_412.v, 280, 235, All not Unates
+subtraction256.v, 512, 466, All not Unates
+driver_a9n.sat.v, 423, 409, All not Unates
+sortnetsort9.AE.stepl.005.v, 740, 3114, All not Unates
+max256.v, 512, 935, All not Unates
+small-pipeline-fixpoint-5.v, 1445, 1188, All not Unates
+small-dyn-partition-fixpoint-4.v, 40, 32, All Unates
+small-pipeline-fixpoint-8.v, 2216, 1959, All not Unates
+stmt21_84_364.v, 260, 107, All not Unates
+rankfunc48_unsigned_64.v, 640, 907, All not Unates
+stmt19_133_217.v, 176, 132, All Unates
+driver_a10y.sat.v, 423, 409, All not Unates
+stmt17_70_86.v, 450, 334, All not Unates
+trivial_query42_1344n.v, 82, 1938, All not Unates
+subtraction64.v, 128, 112, All not Unates
+ctrl.e_1.a_3.E_120.A_48.c_.w_3.s_3.asp.v, 120, 48, All not Unates
+bobtuint07neg_all_bit_differing_from_cycle.v, 432, 205, All not Unates
+rankfunc48_unsigned_16.v, 160, 235, All not Unates
+query60_query33_1344n.v, 126, 2928, All not Unates
+bobsynth11neg_all_bit_differing_from_cycle.v, 6156, 98, All not Unates
+query48_exquery_1344n.v, 84, 1872, All not Unates
+stmt19_83_412.v, 280, 107, All not Unates
+query04_query42_1344n.v, 74, 641, All not Unates
+bobtuint17neg_all_bit_differing_from_cycle.v, 432, 205, All not Unates
+Q_2-3_v-80-100_r-13.1.v, 80, 100, All not Unates
+stmt21_310_360.v, 260, 235, All not Unates
+mult_bool_matrix_10_9_11.sat.v, 172, 111, All not Unates
+subtraction512.v, 1024, 938, All not Unates
+stmt28_68_73.v, 363, 305, All not Unates
+usb-phy-fixpoint-5.v, 1002, 835, All not Unates
+load_2c_comp_comp7_REAL.sat.v, 454, 453, All not Unates
+stmt31_276_328.v, 244, 219, All not Unates
+query05_query42_1344n.v, 74, 641, All not Unates
+sortnetsort7.AE.stepl.007.v, 567, 2430, All not Unates
+ceiling1024.v, 2048, 4343, All not Unates
+axquery_query42_1344n.v, 62, 539, All not Unates
+stmt41_262_275.v, 180, 38, All Unates
+mult_bool_matrix_17_17_17.sat.v, 579, 290, All not Unates
+stmt17_70_78.v, 392, 334, All not Unates
+stmt9_445_446.v, 54, 54, All Unates
+rankfunc59_unsigned_64.v, 640, 1095, All not Unates
+bobsmfpu_all_bit_differing_from_cycle.v, 1957, 117, All not Unates
+sdlx-fixpoint-8.v, 633, 559, All not Unates
+max512.v, 1024, 1874, All not Unates
+stmt19_65_95.v, 508, 305, All not Unates
+small-pipeline-fixpoint-3.v, 931, 674, All not Unates
+decomposition256.v, 256, 746, All not Unates
+small-pipeline-fixpoint-9.v, 2473, 2216, All not Unates
+cycle_sched_4_7_1.sat.v, 198, 203, All not Unates
+Q_2-3_v-80-100_r-11.4.v, 80, 100, All not Unates
+bobtuint13neg_all_bit_differing_from_cycle.v, 432, 205, All not Unates
+stmt47_290_340.v, 249, 224, All not Unates
+query31_query50_1344n.v, 66, 790, All not Unates
+bobtuint06neg_all_bit_differing_from_cycle.v, 432, 205, All not Unates
+query71_query42_1344n.v, 118, 3262, All not Unates
+bobtuint11neg_all_bit_differing_from_cycle.v, 432, 205, All not Unates
+nxquery_query50_1344n.v, 54, 238, All not Unates
+Q_2-3_v-80-100_r-13.7.v, 80, 100, All not Unates
+ctrl.e_1.a_3.E_128.A_48.c_.w_9.s_1.asp.v, 128, 48, All not Unates
+small-equiv-fixpoint-3.v, 128, 320, All not Unates
+decomposition512.v, 512, 1498, All not Unates
+stmt2_976_999.v, 1143, 1143, All Unates
+usb-phy-fixpoint-2.v, 501, 334, All not Unates
+bobtuint19neg_all_bit_differing_from_cycle.v, 432, 205, All not Unates
+ltl2dba_E6_comp2_REAL.sat.v, 1347, 1342, All not Unates
+itc-b13-fixpoint-1.v, 102, 47, All Unates
+sortnetsort9.AE.stepl.010.v, 1480, 6209, All not Unates
+query23_query42_1344n.v, 82, 878, All not Unates
+stmt17_86_98.v, 537, 450, All not Unates
+bs128y.sat.v, 137, 131, All not Unates
+Q_2-3_v-80-100_r-11.3.v, 80, 100, All not Unates
+small-seq-fixpoint-10.v, 2222, 2039, All Unates
+bobtuint26neg_all_bit_differing_from_cycle.v, 432, 205, All not Unates
+intermediate128.v, 256, 638, All not Unates
+ctrl.e_1.a_3.E_128.A_48.c_.w_3.s_17.asp.v, 128, 48, All not Unates
+rankfunc56_unsigned_64.v, 256, 388, All not Unates
+cycle_sched_4_4_2.sat.v, 144, 150, All not Unates
+query05_query31_1344n.v, 66, 528, All not Unates
+bobsynth12neg_all_bit_differing_from_cycle.v, 6121, 133, All not Unates
+stmt21_71_413.v, 280, 85, All not Unates
+bobsmhdlc3_all_bit_differing_from_cycle.v, 613, 48, All not Unates
+sortnetsort10.AE.stepl.006.v, 1134, 4737, All not Unates
+Q_2-3_v-80-100_r-13.8.v, 80, 100, All not Unates
+stmt21_181_218.v, 176, 157, All not Unates
+stmt27_149_224.v, 178, 141, All not Unates
+stmt27_16_224.v, 178, 71, All Unates
+small-dyn-partition-fixpoint-3.v, 32, 24, All Unates
+rankfunc53_signed_64.v, 384, 965, All not Unates
+sortnetsort9.AE.stepl.006.v, 888, 3733, All not Unates
+rankfunc61_signed_64.v, 384, 774, All not Unates
+cache-coherence-2-fixpoint-2.v, 414, 276, All Unates
+ctrl.e_1.a_3.E_134.A_48.c_.w_9.s_40.asp.v, 134, 48, All not Unates
+ctrl.e_1.a_3.E_128.A_48.c_.w_3.s_1.asp.v, 128, 48, All not Unates
+sdlx-fixpoint-2.v, 189, 115, All not Unates
+kenflashp02_all_bit_differing_from_cycle.v, 70, 33, All not Unates
+bobtuint23neg_all_bit_differing_from_cycle.v, 432, 205, All not Unates
+kenflashp04_all_bit_differing_from_cycle.v, 130, 63, All not Unates
+mult_bool_matrix_dyn_9_5.sat.v, 57, 62, All not Unates
+subtraction128.v, 256, 230, All not Unates
+neclaftp2001_all_bit_differing_from_cycle.v, 10062, 32, All not Unates
+cycle_sched_6_7_1.sat.v, 294, 301, All not Unates
+stmt19_75_83.v, 421, 363, All not Unates
+stmt23_66_67.v, 305, 276, All not Unates
+add20y.sat.v, 43, 23, All not Unates
+small-pipeline-fixpoint-4.v, 1188, 931, All not Unates
+driver_c9y.sat.v, 109, 105, All not Unates
+bobtuint21neg_all_bit_differing_from_cycle.v, 432, 205, All not Unates
+rankfunc38_unsigned_64.v, 128, 129, All not Unates
+query04_query25_1344n.v, 66, 372, All not Unates
+stmt29_275_376.v, 263, 219, All not Unates
+ctrl.e_1.a_3.E_112.A_48.c_.w_5.s_27.asp.v, 112, 48, All not Unates
+rankfunc2_unsigned_64.v, 256, 390, All not Unates
+stmt23_88_92.v, 479, 450, All not Unates
+rankfunc31_signed_64.v, 512, 1674, All not Unates
+rankfunc55_unsigned_64.v, 256, 388, All not Unates
+genbuf9b4n.sat.v, 64, 68, All not Unates
+stmt19_66_214.v, 176, 107, All Unates
+stmt17_82_94.v, 508, 421, All not Unates
+stmt19_352_359.v, 260, 260, All not Unates
+rankfunc58_unsigned_64.v, 512, 902, All not Unates
+eequery_query42_1344n.v, 74, 935, All not Unates
+rankfunc35_signed_64.v, 512, 779, All not Unates
+bobsynth01neg_all_bit_differing_from_cycle.v, 6156, 98, All not Unates
+stmt25_52_53.v, 229, 229, All Unates
+pdtpmsmiim_all_bit_differing_from_cycle.v, 419, 40, All not Unates
+ctrl.e_1.a_3.E_128.A_48.c_.w_7.s_7.asp.v, 128, 48, All not Unates
+stmt17_82_98.v, 537, 421, All not Unates
+sortnetsort8.AE.stepl.009.v, 1008, 4265, All not Unates
+rankfunc55_signed_64.v, 256, 388, All not Unates
+IssueServiceImpl.v, 77, 352, All not Unates
+sortnetsort10.AE.stepl.011.v, 10746, 0, All Unates
+nreachq_query42_1344n.v, 8922, 0, All Unates

@@ -33,29 +33,35 @@ if __name__ == "__main__":
               Yvar, Xvar_map, Yvar_map = util.preprocess_wrapper(
                   args.verilog_spec, args.verilog_spec_location
                   )
-    pre_t_e = time.time()
+    
     # End Preprocessing
-    print("Preprocessing Time: ", pre_t_e - pre_t_s)
+    
+    # info = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All Unates"+", "+str(pre_t_e - pre_t_s)+"\n"
+    # f = open("qdimacsinfo.csv", "a")
+    # f.write(info)
+    # f.close()
+    # print(output_varlist, total_vars)
     # ----------------------------------------------------------------------------------------------------------
-
+    # exit()
 
     # ----------------------------------------------------------------------------------------------------------
     # TO DO:
     # 1. USE THE UNATES TO CONSTRUCT UNATE_SKOLEMFORMULA
-    # result = util.check_unates(pos_unate, neg_unate, Xvar, Yvar, args.verilog_spec[:-2])
-    # if result:
-    #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All Unates"+"\n"
-    #     f = open("unates.csv", "a")
-    #     f.write(unate_data)
-    #     f.close()
-    #     exit("All Unates!")
-    # else:
-    #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All not Unates"+"\n"
-    #     f = open("unates.csv", "a")
-    #     f.write(unate_data)
-    #     f.close()
-    #     exit("All not Unates!")
+    result = util.check_unates(pos_unate, neg_unate, Xvar, Yvar, args.verilog_spec[:-2])
+    if result:
+        # unate_data = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All Unates"+"\n"
+        # f = open("unates.csv", "a")
+        # f.write(unate_data)
+        # f.close()
+        print("All Unates!")
+    else:
+        # unate_data = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All not Unates"+"\n"
+        # f = open("unates.csv", "a")
+        # f.write(unate_data)
+        # f.close()
+        print("All not Unates!")
         
+    
     # ----------------------------------------------------------------------------------------------------------
 
 
@@ -66,7 +72,9 @@ if __name__ == "__main__":
     cnf_content, allvar_map = util.prepare_cnf_content(
         verilog, Xvar, Yvar, Xvar_map, Yvar_map, pos_unate, neg_unate
         )
-    
+    pre_t_e = time.time()
+    print("Preprocessing Time: ", pre_t_e - pre_t_s)
+    exit()
     # generate sample
     samples = util.generate_samples(
         cnf_content, Xvar, Yvar, Xvar_map, Yvar_map, allvar_map,verilog,
@@ -162,7 +170,7 @@ if __name__ == "__main__":
 
     if any(v=='()\n' or v == '\n' for v in skfunc):
         t = time.time() - start_time
-        datastring = str(args.verilog_spec)+", "+str(args.epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+str(skfunc)+", "+"Empty String"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
+        datastring = str(args.verilog_pec)+", "+str(args.epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+str(skfunc)+", "+"Empty String"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
         print(datastring)
         f = open("multi_output_results.csv", "a")
         f.write(datastring)
