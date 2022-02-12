@@ -45,7 +45,13 @@ def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
 		parser = Verilog2001Parser(tokenStream)
 		tree = parser.mintypmax_expression()
 		visitor = verilogVisitor(verilog_spec, verilog_spec_location, num_of_ouputs)
-		nnOut = visitor.visit(tree)
+		data[i] = data[i].replace("(", "").replace(")", "")
+		print("data: ", data[i])
+		if data[i] != '':
+			nnOut = visitor.visit(tree)
+		else:
+			nnOut = '()'
+		print("nn out: ", nnOut)
 		with open('benchmarks/z3ValidityChecker.py', 'r') as file :
 			filedata = file.read()
 			file.close()

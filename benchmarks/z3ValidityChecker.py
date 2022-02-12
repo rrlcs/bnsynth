@@ -48,6 +48,7 @@ def generate_all_counterexamples(input_formula):
 #     print(all_counterexamples)
 
 def check_validity():
+<<<<<<< HEAD
 	x_0, i_1, i_2, i_3, x_4, x_5, x_6, i_7, i_8, i_9, i_10, i_11, i_12 = Bools('x_0 i_1 i_2 i_3 x_4 x_5 x_6 i_7 i_8 i_9 i_10 i_11 i_12')
 	c1 = Bool('c1')
 	carry1 = Bool('carry1')
@@ -122,6 +123,31 @@ def check_validity():
 	out = (And(((And(((And(((And(((And(((And((a1),(a2),))),(a3),))),(a4),))),(a5),))),(a6),))),(a7),))
 	z9 = out
 	formula = z==z9
+=======
+	i_0 ,i_1 ,i_2 = Bools('i_0 i_1 i_2')
+	w1 = Bool('w1')
+	
+<<<<<<< HEAD
+	out = Bool('out')
+	nn_out0 = simplify((Or((i_0),Not(i_0),)))
+=======
+	o_1 = Bool('o_1')
+	nn_out0 = simplify(And(((i_0)),(Not(i_0)),))
+	nn_out1 = simplify(((i_0)))
+>>>>>>> shared
+	
+	w1 = (Xor((i_0),(i_1),))
+	o_1 = (Xor((w1),(i_2),))
+	z = Exists([i_1, i_2], o_1)
+	
+	i_1 = nn_out0
+	i_2 = nn_out1
+	
+	w1 = (Xor((i_0),(i_1),))
+	o_1 = (Xor((w1),(i_2),))
+	z2 = o_1
+	formula = z==z2
+>>>>>>> trial
 	all_counterexamples = generate_all_counterexamples(formula)
 	print('all_counterexamples', all_counterexamples)
 	if len(all_counterexamples) == 0:

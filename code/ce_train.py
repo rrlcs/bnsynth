@@ -1,5 +1,5 @@
 def ce_train_loop(
-    training_samples, io_dict, io_dictz3, ret, model,
+    training_samples, io_dict, io_dictz3, ret, ce,
     num_of_vars, num_of_outputs, input_size,
 	start_time, pos_unate, neg_unate, training_size,
 	input_var_idx, output_var_idx, P, threshold, batch_size,
@@ -28,9 +28,10 @@ def ce_train_loop(
     ce_time = 0
     ce_data_time = 0
     n = 5000
-    while ret and loop < 50:
+    start = time.time()
+    while ret and loop < 100:
         loop += 1
-        print("Counter Example Loop: ", loop)
+        print("Counter Example Loop: ", loop, ce)
         s = time.time()
         ce = model
         ce = torch.cat([util.add_noise(ce) for _ in range(1000)]).to(torch.double)
@@ -58,50 +59,49 @@ def ce_train_loop(
             input_var_idx, output_var_idx,
             num_of_outputs, threshold, batch_size
         )
-        validation_loader = dataLoader(
-            validation_set, training_size, P,
-            input_var_idx, output_var_idx,
-            num_of_outputs, threshold, batch_size
-        )
+        # validation_loader = dataLoader(
+        #     validation_set, training_size, P,
+        #     input_var_idx, output_var_idx,
+        #     num_of_outputs, threshold, batch_size
+        # )
+        validation_loader = []
 
         flag = 0
         # args.epochs += 5
-        gcln, train_loss, valid_loss = train(
-        P, 
-        train, 
-        train_loader, 
-        validation_loader, 
-        learning_rate, 
-        epochs, 
-        input_size, 
-        num_of_outputs, 
-        K, 
-        device, 
-        num_of_vars, 
-        input_var_idx, 
-        output_var_idx, 
-        io_dict, 
-        io_dictz3, 
-        threshold, 
-        verilog_spec, 
-        verilog_spec_location, 
-        Xvar, 
-        Yvar, 
-        verilog_formula, 
-        verilog, 
-        pos_unate, 
-        neg_unate
-        )
+        skf_dict_z3 = {}
+        skf_dict_verilog = {}
+        for i in range(len(Yvar)):
+            current_output = i
+            print("Current Output: ", current_output)
+            gcln, train_loss, valid_loss = train(
+            P, train, train_loader, validation_loader, learning_rate, epochs, 
+            input_size, num_of_outputs, current_output, K, device, num_of_vars, 
+            input_var_idx, output_var_idx, io_dict, io_dictz3, threshold, 
+            verilog_spec, verilog_spec_location, Xvar, Yvar, verilog_formula, 
+            verilog, pos_unate, neg_unate
+            )
         
-        # Extract and Check
-        s = time.time()
-        skfunc = skfz3.get_skolem_function(
-            gcln, num_of_vars,
-            input_var_idx, num_of_outputs, output_var_idx, io_dictz3,
-            threshold, K
-        )
-        e = time.time()
-        print("Formula Extraction Time: ", e-s)
+            # Extract and Check
+            s = time.time()
+            skfunc = skfz3.get_skolem_function(
+                gcln, num_of_vars,
+                input_var_idx, num_of_outputs, output_var_idx, io_dictz3,
+                threshold, K
+            )
+            skf_dict_z3[Yvar[i]] = skfunc[0]
+
+            skfunc = skf.get_skolem_function(
+                gcln, num_of_vars,
+                input_var_idx, num_of_outputs, output_var_idx, io_dict,
+                threshold, K
+            )
+            skf_dict_verilog[Yvar[i]] = skfunc[0]
+            e = time.time()
+            # print("Formula Extraction Time: ", e-s)
+
+        if any(v=='()\n' or v == '\n' for v in skf_dict_z3.values()):
+            print("No Skolem Function Learned!! Try Again.")
+            continue
 
         # Run the Z3 Validity Checker
         # util.store_nn_output(num_of_outputs, skfunc)
@@ -113,18 +113,9 @@ def ce_train_loop(
         # else:
         #     print("Z3: Not Valid")
 
-        # skfunc = [s.replace("_", "") for s in skfunc]
-        skfunc = skf.get_skolem_function(
-            gcln, num_of_vars,
-            input_var_idx, num_of_outputs, output_var_idx, io_dict,
-            threshold, K
-        )
-        candidateskf = util.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
-        util.create_skolem_function(
-            verilog_spec.split('.v')[0], candidateskf, Xvar, Yvar)
-        error_content, refine_var_log = util.create_error_formula(
-            Xvar, Yvar, verilog_formula)
-        util.add_skolem_to_errorformula(error_content, [], verilog)
+        # Write the error formula in verilog
+        print("@@@@@@@@@@@@@@@@@@@@@@@@@@skf manthan: ", skf_dict_verilog)
+        util.write_error_formula(verilog_spec, verilog, verilog_formula, list(skf_dict_verilog.values()), Xvar, Yvar, pos_unate, neg_unate)
 
         # sat call to errorformula:
         check, sigma, ret = util.verify(Xvar, Yvar, verilog)
@@ -138,6 +129,12 @@ def ce_train_loop(
         
         if ret == 0:
             print('error formula unsat.. skolem functions generated')
+            t = time.time() - start
+            datastring = str(epochs)+", "+str(K)+", "+str(loop)+", "+str(skf_dict_z3)+", "+"Valid"+", "+str(t)+"\n"
+            print(datastring)
+            f = open("abalation_original.csv", "a")
+            f.write(datastring)
+            f.close()
             break
         else:
             print(check, sigma.modelx, sigma.modely, sigma.modelyp, ret)
@@ -147,6 +144,13 @@ def ce_train_loop(
                     ).reshape((1, num_of_vars))
                 ).to(torch.double)
 
+        if loop == 99:
+            t = time.time() - start
+            datastring = str(epochs)+", "+str(K)+", "+str(100)+", "+str(skf_dict_z3)+", "+"Counter Example Loop Exceeded"+", "+str(t)+"\n"
+            print(datastring)
+            f = open("abalation_original.csv", "a")
+            f.write(datastring)
+            f.close()
         util.store_losses(train_loss, valid_loss)
         pt.plot()
         # Run the Validity Checker

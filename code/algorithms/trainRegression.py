@@ -1,5 +1,6 @@
 import copy
 import importlib
+from code.train import train
 from code.utils import plot as pt
 
 import torch
@@ -18,7 +19,7 @@ def load_checkpoint(checkpoint, gcln, optimizer):
 
 def train_regressor(
     train_loader, validation_loader, learning_rate,
-    max_epochs, input_size, num_of_outputs, K,
+    max_epochs, input_size, num_of_outputs, current_output, K,
     device, P, flag, num_of_vars, input_var_idx,
     output_var_idx, io_dict, io_dictz3, threshold,
     verilog_spec, verilog_spec_location,
@@ -44,13 +45,16 @@ def train_regressor(
 
     # Initialize network
     gcln = GCLN(input_size, num_of_outputs, K, device, P).to(device)
-
+    print("Network")
+    print(gcln)
     # Loss and Optimizer
     criterion = nn.MSELoss(reduction='mean')
     optimizer = torch.optim.SGD(list(gcln.parameters()), lr=learning_rate)
     scheduler = StepLR(optimizer, step_size=10, gamma=0.1)
     if flag:
         load_checkpoint(torch.load('model.pth.tar'), gcln, optimizer)
+    # if flag:
+    #     load_checkpoint(torch.load('model.pth.tar'), gcln, optimizer)
     
     # Train network
     max_epochs = max_epochs+1
@@ -60,6 +64,7 @@ def train_regressor(
         optimizer.zero_grad()
         train_epoch_loss = 0
         accuracy = 0
+        datalen = 0
         train_size = 0
         for batch_idx, (inps, tgts) in enumerate(train_loader):
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
@@ -166,9 +171,11 @@ def train_regressor(
             print('epoch {}, train loss {}'.format(
                 epoch, round(t_loss.item(), 4))
             )
+            print("Gradient for G1: ", gcln.G1.grad)
+            print("Gradient for G2: ", gcln.G2.grad)
             checkpoint = {'state_dict': gcln.state_dict(), 'optimizer':optimizer.state_dict()}
             save_checkpoint(checkpoint)
-            
+        
             # Extract and Check
             # skfunc = skfz3.get_skolem_function(
             #     gcln, num_of_vars,

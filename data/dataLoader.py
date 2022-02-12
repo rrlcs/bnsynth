@@ -12,5 +12,5 @@ def dataLoader(training_samples, training_size, P, input_var_idx, output_var_idx
 		tgts = (tgts > threshold).double()
 	print(inps.shape, tgts.shape)
 	dataset = TensorDataset(inps, tgts)
-	train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+	train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 	return train_loader

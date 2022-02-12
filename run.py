@@ -10,7 +10,6 @@ from code.utils import plot as pt
 from code.utils.generateSamples import *
 from code.utils.preprocess import *
 from code.utils.utils import util
-from turtle import ycor
 
 import networkx as nx
 import numpy as np
@@ -109,13 +108,13 @@ if __name__ == "__main__":
     # exit("success")
     # Start Preprocessing
 # MANTHAN 1 PREPROCESSOR WRAPPER
-    start_time = time.time()
-    pre_t_s = time.time()
-    verilog, output_varlist, total_vars, total_varsz3,\
-         verilog_formula, pos_unate, neg_unate, Xvar,\
-              Yvar, Xvar_map, Yvar_map = util.preprocess_wrapper(
-                  args.verilog_spec, args.verilog_spec_location
-                  )
+    # start_time = time.time()
+    # pre_t_s = time.time()
+    # verilog, output_varlist, total_vars, total_varsz3,\
+    #      verilog_formula, pos_unate, neg_unate, Xvar,\
+    #           Yvar, Xvar_map, Yvar_map = util.preprocess_wrapper(
+    #               args.verilog_spec, args.verilog_spec_location
+    #               )
     
     # End Preprocessing
     
@@ -261,6 +260,7 @@ if __name__ == "__main__":
     # f = open("benchmarks/sample_examples/ex4.v", "r")
     # verilogformula = f.read()
     # print("verilogformula: ", verilogformula)
+    # print("Num of unates: ", len(pos_unate)+len(neg_unate))
 
     # ----------------------------------------------------------------------------------------------------------
     # TO DO:
@@ -286,18 +286,20 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------------------------------------
     # to sample, we need a cnf file and variable mapping coressponding to
     # varilog variables
-    data_t_s = time.time()
+    # FROM TRIAL
+    # data_t_s = time.time()
 
-    cnf_content, allvar_map = util.prepare_cnf_content(
-        verilog, Xvar, Yvar, Xvar_map, Yvar_map, pos_unate, neg_unate
-        )
-    pre_t_e = time.time()
-    print("Preprocessing Time: ", pre_t_e - pre_t_s)
+    # cnf_content, allvar_map = util.prepare_cnf_content(
+    #     verilog, Xvar, Yvar, Xvar_map, Yvar_map, pos_unate, neg_unate
+    #     )
+    # pre_t_e = time.time()
+    # print("Preprocessing Time: ", pre_t_e - pre_t_s)
     # exit()
 
     # cnf_content, allvar_map = util.prepare_cnf_content(
     #     verilog, Xvar, Yvar, Xvar_map, Yvar_map, pos_unate, neg_unate
     #     )
+    # FROM TRIAL
     maxsamples = 0
     sampling_cnf = cnfcontent
     if not maxsamples:
@@ -344,6 +346,7 @@ if __name__ == "__main__":
 
     # samples = np.array([[1, 0], [0, 1]])
     
+# <<<<<<< HEAD
     # print(samples, Xvar)
     Xvar_tmp = [i-1 for i in Xvar]
     x_data, indices = np.unique(samples[:, Xvar_tmp], axis=0, return_index=True)
@@ -368,6 +371,17 @@ if __name__ == "__main__":
     # training_samples = util.make_dataset_larger(samples)
     training_samples = torch.from_numpy(samples[:100, :]).to(torch.double)
     print(training_samples.shape)
+# =======
+# FROM TRIAL
+    # print("samples: ", samples.shape)
+
+    # Repeat or add noise to get larger dataset
+    
+    # samples = np.array([[0,1],[1,1]])
+    # training_samples = util.make_dataset_larger(samples)
+    # training_samples = torch.from_numpy(samples).to(torch.double)
+    # print(training_samples)
+# >>>>>>> trial
 
     # Get train test split
     training_set, validation_set = util.get_train_test_split(training_samples)
@@ -375,7 +389,7 @@ if __name__ == "__main__":
           training_set.shape, validation_set.shape)
 
     data_t_e = time.time()
-    print("Data Sampling Time: ", data_t_e - data_t_s)
+    # print("Data Sampling Time: ", data_t_e - data_t_s)
 
     num_of_vars, num_out_vars = len(Xvar)+len(Yvar), len(Yvar)
 
@@ -392,7 +406,9 @@ if __name__ == "__main__":
     # Obtain variable indices
     var_indices, input_var_idx, output_var_idx = util.get_var_indices(num_of_vars, output_varlist, io_dict)
     input_size = 2*len(input_var_idx)
-    # exit()
+    print("Input size: ", input_size)
+    print("Output size: ", len(output_var_idx))
+
     # store_preprocess_time(args.verilog_spec, num_of_vars, num_out_vars, num_of_eqns, 
     # args.epochs, args.no_of_samples, preprocess_time)
     
@@ -401,7 +417,7 @@ if __name__ == "__main__":
     else:
         num_of_outputs = 1
     # ----------------------------------------------------------------------------------------------------------
-
+    print("out size: ", num_of_outputs)
 
     # ----------------------------------------------------------------------------------------------------------
     # load data
@@ -419,9 +435,25 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------------------------------------
     # TRAINING MODEL
     train_t_s = time.time()
+# <<<<<<< HEAD
+# =======
+    # num_of_outputs = 1
+    skf_dict_z3 = {}
+    skf_dict_verilog = {}
+# For single output
+    # final_accuracy = 0
+    # final_epochs = 0
+    # for i in range(len(Yvar)):
+    # i=0
+# For single output
+# =======
+    i = 0
+# >>>>>>> shared
+    current_output = i
+# >>>>>>> trial
     gcln, train_loss, valid_loss, accuracy, epochs = train(
         args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs, 
-        input_size, num_of_outputs, args.K, device, num_of_vars, input_var_idx, output_var_idx, 
+        input_size, num_of_outputs, current_output, args.K, device, num_of_vars, input_var_idx, output_var_idx, 
         io_dict, io_dictz3, args.threshold, args.verilog_spec, args.verilog_spec_location, 
         Xvar, Yvar, verilog_formula=[], verilog=[], pos_unate=[], neg_unate=[]
         )
@@ -429,9 +461,15 @@ if __name__ == "__main__":
     print("Training Time: ", train_t_e - train_t_s)
     print("accuracy run: ", accuracy)
     # ----------------------------------------------------------------------------------------------------------
+# For single output
+    # final_accuracy += accuracy
+    # final_epochs += epochs
+# For single output
+# =======
 
     final_loss = train_loss[-1]
     loss_drop = train_loss[0] - train_loss[-1]
+# <<<<<<< HEAD
 
     # ----------------------------------------------------------------------------------------------------------
     # Checking Skolem Function using Z3
@@ -445,10 +483,76 @@ if __name__ == "__main__":
     print("-----------------------------------------------------------------------------")
     # print("skolem function run: ", skfunc)
     print("-----------------------------------------------------------------------------")
+# =======
 
+# # >>>>>>> shared
+#     util.store_losses(train_loss, valid_loss)
+#     pt.plot()
+
+#     # ----------------------------------------------------------------------------------------------------------
+#     # Checking Skolem Function using Z3
+#     extract_t_s = time.time()
+#     # Skolem function in z3py format
+# # <<<<<<< HEAD
+# # For single output
+#     # skfunc = skfz3.get_skolem_function(
+#     #     gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dictz3, args.threshold, args.K
+#     #     )
+#     # skf_dict_z3[Yvar[i]] = skfunc[0]
+
+#     # Skolem function in verilog format
+#     # skfunc = skf.get_skolem_function(
+#     #     gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
+#     # skf_dict_verilog[Yvar[i]] = skfunc[0]
+# # For single output
+# # =======
+#     skfuncz3 = skfz3.get_skolem_function(
+#         gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dictz3, args.threshold, args.K
+#         )
+#     # skf_dict_z3[Yvar[i]] = skfunc[0]
+# >>>>>>> trial
+
+    # Skolem function in verilog format
+    skfuncv = skf.get_skolem_function(
+        gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
+    # skf_dict_verilog[Yvar[i]] = skfunc[0]
+# >>>>>>> shared
+    
+    extract_t_e = time.time()
+    # print("Formula Extraction Time: ", extract_t_e - extract_t_s)
+    # print("-----------------------------------------------------------------------------")
+# <<<<<<< HEAD
+# For single output
+    # print("skolem function run: ", skfunc)
+    # print("-----------------------------------------------------------------------------")
+    # print(skf_dict_z3)
+    # final_accuracy = final_accuracy / num_of_outputs
+    # final_loss = train_loss[-1]
+    # loss_drop = train_loss[0] - train_loss[-1]
+    # if any(v=='()\n' or v == '\n' for v in skf_dict_z3.values()):
+    #     t = time.time() - start_time
+    #     datastring = str(args.verilog_spec)+", "+str(final_epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+str(skf_dict_z3)+", "+"empty string"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(final_accuracy)+"\n"
+# For single output
+# =======
+#     print("skolem function run: ", skfuncz3)
+#     # print("-----------------------------------------------------------------------------")
+#     print("start loss: ", train_loss[0])
+#     print("end loss: ", train_loss[-1])
+
+#     print(skf_dict_z3)
+#     if any(v=='()\n' or v == '\n' for v in skfuncz3):
+#         t = time.time() - start_time
+#         datastring = str(args.verilog_spec)+", "+str(args.epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+str(skfuncz3)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
+# # >>>>>>> shared
+#         print(datastring)
+#         f = open("abalation_study.csv", "a")
+#         f.write(datastring)
+#         f.close()
+#         exit("No Skolem Function Learned!! Try Again.")
+    # print("hello")
+    # exit()
     # Store train and test losses in a file
-    util.store_losses(train_loss, valid_loss)
-    pt.plot()
+    
 
 # VERILOG VERSION
     # if any(v=='()\n' or v == '\n' for v in skfunc):
@@ -462,8 +566,14 @@ if __name__ == "__main__":
 
 
     # Run the Z3 Validity Checker
-    # util.store_nn_output(num_of_outputs, skfunc)
-    # preparez3(args.verilog_spec, args.verilog_spec_location, num_of_outputs)
+# <<<<<<< HEAD
+#     # util.store_nn_output(num_of_outputs, skfunc)
+#     # preparez3(args.verilog_spec, args.verilog_spec_location, num_of_outputs)
+# =======
+#     # num_of_outputs = len(skf_dict_z3)
+#     util.store_nn_output(len(skfuncz3), skfuncz3)
+#     # preparez3(args.verilog_spec, args.verilog_spec_location, len(skfuncz3))
+# >>>>>>> trial
     # importlib.reload(z3)
     # result, _ = z3.check_validity()
     # if result:
@@ -474,12 +584,20 @@ if __name__ == "__main__":
     # print("io dict: ", io_dict)
 
     # ----------------------------------------------------------------------------------------------------------
+# <<<<<<< HEAD
     # Skolem function in verilog format
     skfunc = skf.get_skolem_function(
         gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
     print("skfunc veri: ", skfunc)
     # Write the error formula in verilog
     util.write_error_formula(args.verilog_spec, verilog, verilogformula, skfunc, Xvar, Yvar, PosUnate, NegUnate)
+# =======
+
+
+#     # Write the error formula in verilog
+#     # print("@@@@@@@@@@@@@@@@@@@@@@@@@@skf manthan: ", skfuncv)
+#     util.write_error_formula(args.verilog_spec, verilog, verilog_formula, skfuncv, Xvar, Yvar, pos_unate, neg_unate)
+# >>>>>>> trial
 
     # Run Manthan's Validity Checker
     # sat call to errorformula:
@@ -496,6 +614,7 @@ if __name__ == "__main__":
     if ret == 0:
         print('error formula unsat.. skolem functions generated')
         print("success")
+# <<<<<<< HEAD
         skfunc = [sk.replace('\n', '') for sk in skfunc]
         print("==============", '; '.join(skfunc))
         t = time.time() - start_time
@@ -520,6 +639,42 @@ if __name__ == "__main__":
     #         verilog_formula, verilog, args.learning_rate, args.epochs, args.K, device
     #         )
     # os.system('rm /tmp/*.v')
+# =======
+#         skfuncv = [sk.replace('\n', '') for sk in skfuncv]
+#         t = time.time() - start_time
+# # <<<<<<< HEAD
+# # For single output
+#         # datastring = str(args.verilog_spec)+", "+str(final_epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+str(skf_dict_z3)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
+# # For single output
+# # =======
+#         datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+'; '.join(skfuncv)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
+# # >>>>>>> shared
+#         print(datastring)
+#         f = open("abalation_study.csv", "a")
+#         f.write(datastring)
+#         f.close()
+#         # inputfile_name = args.verilog_spec[:-2]
+#         # skolemformula = tempfile.gettempdir(
+#         #     ) + '/' + inputfile_name + "_skolem.v"
+#         # print("self sub: ", ref.selfsub)
+#         # sub_skolem(skolemformula, Xvar, Yvar, Yvar_order, verilog_formula, ref.selfsub)
+#     else:
+#         counter_examples = torch.from_numpy(
+#             np.concatenate(
+#                 (sigma.modelx, sigma.modely)
+#                 ).reshape((1, num_of_vars))
+#             )
+#         # print("ce shape: ", counter_examples.shape)
+#         # # Counter example loop
+#         # print("\nCounter Example Guided Trainig Loop\n", counter_examples)
+#         # ret, ce_time2, ce_data_time = ce_train_loop(
+#         #     training_samples, io_dict, io_dictz3, ret, counter_examples, num_of_vars, num_of_outputs, input_size, 
+#         #     start_time, pos_unate, neg_unate, args.training_size, input_var_idx, output_var_idx, args.P, 
+#         #     args.threshold, args.batch_size, args.verilog_spec, args.verilog_spec_location, Xvar, Yvar, 
+#         #     verilog_formula, verilog, args.learning_rate, args.epochs, args.K, device
+#         #     )
+
+# >>>>>>> trial
     end_time = time.time()
     total_time = int(end_time - start_time)
     print("Time = ", end_time - start_time)
