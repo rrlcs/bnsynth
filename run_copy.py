@@ -31,71 +31,71 @@ from data.dataLoader import dataLoader
     start_time = time.time()
     # ----------------------------------------------------------------------------------------------------------
     # Manthan 2 Preprocessor
-    Xvar, Yvar, qdimacs_list = parse("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
-    print("count X variables", len(Xvar))
-    print("count Y variables", len(Yvar))
+    # Xvar, Yvar, qdimacs_list = parse("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
+    # print("count X variables", len(Xvar))
+    # print("count Y variables", len(Yvar))
     # print(qdimacs_list)
     # print(Xvar, Yvar)
     
-    all_var = Xvar + Yvar
-    total_vars = ["i"+str(v) for v in all_var]
-    output_varlist = ["i"+str(v) for v in Yvar]
+    # all_var = Xvar + Yvar
+    # total_vars = ["i"+str(v) for v in all_var]
+    # output_varlist = ["i"+str(v) for v in Yvar]
 
-    inputfile_name = args.verilog_spec[:-8]
-    cnffile_name = tempfile.gettempdir()+"/"+inputfile_name+".cnf"
+    # inputfile_name = args.verilog_spec[:-8]
+    # cnffile_name = tempfile.gettempdir()+"/"+inputfile_name+".cnf"
 
-    cnfcontent = convertcnf("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, cnffile_name)
-    cnfcontent = cnfcontent.strip("\n")+"\n"
+    # cnfcontent = convertcnf("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, cnffile_name)
+    # cnfcontent = cnfcontent.strip("\n")+"\n"
 
-    # finding unates:
-    print("preprocessing: finding unates (constant functions)")
-    start_t = time.time()
-    if len(Yvar) > 0:
-        PosUnate, NegUnate = preprocess(cnffile_name)
-    else:
-        print("too many Y variables, let us proceed with Unique extraction\n")
-        PosUnate = []
-        NegUnate = []
-    end_t = time.time()
-    print("preprocessing time:", str(end_t-start_t))
+    # # finding unates:
+    # print("preprocessing: finding unates (constant functions)")
+    # start_t = time.time()
+    # if len(Yvar) > 0:
+    #     PosUnate, NegUnate = preprocess(cnffile_name)
+    # else:
+    #     print("too many Y variables, let us proceed with Unique extraction\n")
+    #     PosUnate = []
+    #     NegUnate = []
+    # end_t = time.time()
+    # print("preprocessing time:", str(end_t-start_t))
 
-    print("count of positive unates", len(PosUnate))
-    print("count of negative unates", len(NegUnate))
-    print("positive unates", PosUnate)
-    print("negative unates", NegUnate)
+    # print("count of positive unates", len(PosUnate))
+    # print("count of negative unates", len(NegUnate))
+    # print("positive unates", PosUnate)
+    # print("negative unates", NegUnate)
 
-    Unates = PosUnate + NegUnate
+    # Unates = PosUnate + NegUnate
 
-    for yvar in PosUnate:
-        qdimacs_list.append([yvar])
-        cnfcontent += "%s 0\n" % (yvar)
+    # for yvar in PosUnate:
+    #     qdimacs_list.append([yvar])
+    #     cnfcontent += "%s 0\n" % (yvar)
 
-    for yvar in NegUnate:
-        qdimacs_list.append([-1 * int(yvar)])
-        cnfcontent += "-%s 0\n" % (yvar)
+    # for yvar in NegUnate:
+    #     qdimacs_list.append([-1 * int(yvar)])
+    #     cnfcontent += "-%s 0\n" % (yvar)
 
-    end_time = time.time()
-    if len(Unates) == len(Yvar):
-        print(PosUnate)
-        print(NegUnate)
-        print("all Y variables are unates and have constant functions")
-        info = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All Unates"+", "+str(end_time-start_time)+"\n"
-        f = open("qdimacsinfo.csv", "a")
-        f.write(info)
-        f.close()
-        # exit()
-        # skolemfunction_preprocess(
-        #     Xvar, Yvar, PosUnate, NegUnate, [], '', inputfile_name)
+    # end_time = time.time()
+    # if len(Unates) == len(Yvar):
+    #     print(PosUnate)
+    #     print(NegUnate)
+    #     print("all Y variables are unates and have constant functions")
+    #     info = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All Unates"+", "+str(end_time-start_time)+"\n"
+    #     f = open("qdimacsinfo.csv", "a")
+    #     f.write(info)
+    #     f.close()
+    #     # exit()
+    #     # skolemfunction_preprocess(
+    #     #     Xvar, Yvar, PosUnate, NegUnate, [], '', inputfile_name)
     
-        # logtime(inputfile_name, "totaltime:"+str(end_time-start_time))
-        # exit()
-    print("Preprocessing Time: ", end_time-start_time)
+    #     # logtime(inputfile_name, "totaltime:"+str(end_time-start_time))
+    #     # exit()
+    # print("Preprocessing Time: ", end_time-start_time)
     
-    # Logging
-    info = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"Not All Unates"+", "+str(end_time-start_time)+"\n"
-    f = open("qdimacsinfo.csv", "a")
-    f.write(info)
-    f.close()
+    # # Logging
+    # info = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"Not All Unates"+", "+str(end_time-start_time)+"\n"
+    # f = open("qdimacsinfo.csv", "a")
+    # f.write(info)
+    # f.close()
     # exit("success")
     
     # ==========================================================================================
@@ -119,110 +119,110 @@ from data.dataLoader import dataLoader
     # ----------------------------------------------------------------------------------------------------------
     # exit()
 
-    def convert_verilog(input,cluster,dg):
-        # ng = nx.Graph() # used only if args.multiclass
+    # def convert_verilog(input,cluster,dg):
+    #     # ng = nx.Graph() # used only if args.multiclass
 
-        with open(input, 'r') as f:
-            lines = f.readlines()
-        f.close()
-        itr = 1
-        declare = 'module FORMULA( '
-        declare_input = ''
-        declare_wire = ''
-        assign_wire = ''
-        tmp_array = []
+    #     with open(input, 'r') as f:
+    #         lines = f.readlines()
+    #     f.close()
+    #     itr = 1
+    #     declare = 'module FORMULA( '
+    #     declare_input = ''
+    #     declare_wire = ''
+    #     assign_wire = ''
+    #     tmp_array = []
 
-        for line in lines:
-            line = line.strip(" ")
-            if (line == "") or (line == "\n"):
-                continue
-            if line.startswith("c "):
-                continue
+    #     for line in lines:
+    #         line = line.strip(" ")
+    #         if (line == "") or (line == "\n"):
+    #             continue
+    #         if line.startswith("c "):
+    #             continue
 
-            if line.startswith("p "):
-                continue
+    #         if line.startswith("p "):
+    #             continue
 
 
-            if line.startswith("a"):
-                a_variables = line.strip("a").strip("\n").strip(" ").split(" ")[:-1]
-                for avar in a_variables:
-                    declare += "%s," %(avar)
-                    declare_input += "input %s;\n" %(avar)
-                continue
+    #         if line.startswith("a"):
+    #             a_variables = line.strip("a").strip("\n").strip(" ").split(" ")[:-1]
+    #             for avar in a_variables:
+    #                 declare += "%s," %(avar)
+    #                 declare_input += "input %s;\n" %(avar)
+    #             continue
 
-            if line.startswith("e"):
-                e_variables = line.strip("e").strip("\n").strip(" ").split(" ")[:-1]
-                for evar in e_variables:
-                    tmp_array.append(int(evar))
-                    declare += "%s," %(evar)
-                    declare_input += "input %s;\n" %(evar)
-                    if int(evar) not in list(dg.nodes):
-                        dg.add_node(int(evar))
-                continue
+    #         if line.startswith("e"):
+    #             e_variables = line.strip("e").strip("\n").strip(" ").split(" ")[:-1]
+    #             for evar in e_variables:
+    #                 tmp_array.append(int(evar))
+    #                 declare += "%s," %(evar)
+    #                 declare_input += "input %s;\n" %(evar)
+    #                 if int(evar) not in list(dg.nodes):
+    #                     dg.add_node(int(evar))
+    #             continue
 
-            declare_wire += "wire t_%s;\n" %(itr)
-            assign_wire += "assign t_%s = " %(itr)
-            itr += 1
+    #         declare_wire += "wire t_%s;\n" %(itr)
+    #         assign_wire += "assign t_%s = " %(itr)
+    #         itr += 1
 
-            clause_variable = line.strip(" \n").split(" ")[:-1]
-            for var in clause_variable:
-                if int(var) < 0:
-                    assign_wire += "~%s | " %(abs(int(var)))
-                else:
-                    assign_wire += "%s | " %(abs(int(var)))
+    #         clause_variable = line.strip(" \n").split(" ")[:-1]
+    #         for var in clause_variable:
+    #             if int(var) < 0:
+    #                 assign_wire += "~%s | " %(abs(int(var)))
+    #             else:
+    #                 assign_wire += "%s | " %(abs(int(var)))
 
-            assign_wire = assign_wire.strip("| ")+";\n"
+    #         assign_wire = assign_wire.strip("| ")+";\n"
             
-            ### if args.multiclass, then add an edge between variables of the clause ###
+    #         ### if args.multiclass, then add an edge between variables of the clause ###
 
-            # if cluster:
-            #     for literal1 in clause_variable:
-            #         literal1 = abs(int(literal1))
-            #         if literal1 in tmp_array:
-            #             if literal1 not in list(ng.nodes):
-            #                 ng.add_node(literal1)
-            #             for literal2 in clause_variable:
-            #                 literal2 = abs(int(literal2))
-            #                 if (literal1 != abs(literal2)) and (literal2 in tmp_array):
-            #                     if literal2 not in list(ng.nodes):
-            #                         ng.add_node(literal2)
-            #                     if not ng.has_edge(literal1, literal2):
-            #                         ng.add_edge(literal1,literal2)
-
-
-
-        count_tempvariable = itr
-
-        declare += "out);\n"
-        declare_input += "output out;\n"
-
-        temp_assign = ''
-        outstr = ''
-
-        itr = 1
-        while itr < count_tempvariable:
-            temp_assign += "t_%s & " %(itr)
-            if itr % 100 == 0:
-                declare_wire += "wire tcount_%s;\n" %(itr)
-                assign_wire += "assign tcount_%s = %s;\n" %(itr,temp_assign.strip("& "))
-                outstr += "tcount_%s & " %(itr)
-                temp_assign = ''
-            itr += 1
-
-        if temp_assign != "":
-            declare_wire += "wire tcount_%s;\n" %(itr)
-            assign_wire += "assign tcount_%s = %s;\n" %(itr,temp_assign.strip("& "))
-            outstr += "tcount_%s;\n" %(itr)
-        outstr = "assign out = %s" %(outstr)
+    #         # if cluster:
+    #         #     for literal1 in clause_variable:
+    #         #         literal1 = abs(int(literal1))
+    #         #         if literal1 in tmp_array:
+    #         #             if literal1 not in list(ng.nodes):
+    #         #                 ng.add_node(literal1)
+    #         #             for literal2 in clause_variable:
+    #         #                 literal2 = abs(int(literal2))
+    #         #                 if (literal1 != abs(literal2)) and (literal2 in tmp_array):
+    #         #                     if literal2 not in list(ng.nodes):
+    #         #                         ng.add_node(literal2)
+    #         #                     if not ng.has_edge(literal1, literal2):
+    #         #                         ng.add_edge(literal1,literal2)
 
 
-        verilogformula = declare + declare_input + declare_wire + assign_wire + outstr +"endmodule\n"
 
-        return verilogformula
-    dg = nx.Graph()
-    verilogformula = convert_verilog("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, 0, dg)
-    inputfile_name = ("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec).split('/')[-1][:-8]
-    verilog = inputfile_name+".v"
+    #     count_tempvariable = itr
+
+    #     declare += "out);\n"
+    #     declare_input += "output out;\n"
+
+    #     temp_assign = ''
+    #     outstr = ''
+
+    #     itr = 1
+    #     while itr < count_tempvariable:
+    #         temp_assign += "t_%s & " %(itr)
+    #         if itr % 100 == 0:
+    #             declare_wire += "wire tcount_%s;\n" %(itr)
+    #             assign_wire += "assign tcount_%s = %s;\n" %(itr,temp_assign.strip("& "))
+    #             outstr += "tcount_%s & " %(itr)
+    #             temp_assign = ''
+    #         itr += 1
+
+    #     if temp_assign != "":
+    #         declare_wire += "wire tcount_%s;\n" %(itr)
+    #         assign_wire += "assign tcount_%s = %s;\n" %(itr,temp_assign.strip("& "))
+    #         outstr += "tcount_%s;\n" %(itr)
+    #     outstr = "assign out = %s" %(outstr)
+
+
+    #     verilogformula = declare + declare_input + declare_wire + assign_wire + outstr +"endmodule\n"
+
+    #     return verilogformula
+    # dg = nx.Graph()
+    # verilogformula = convert_verilog("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, 0)
+    # inputfile_name = ("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec).split('/')[-1][:-8]
+    # verilog = inputfile_name+".v"
     # f = open(verilog, "r")
     # verilogformula = f.readlines()
     # verilogformula = ''.join(verilogformula[1:])
@@ -260,59 +260,59 @@ from data.dataLoader import dataLoader
     #     )
 
 
-    maxsamples = 0
-    sampling_cnf = cnfcontent
-    if not maxsamples:
-        if len(Xvar) > 4000:
-            num_samples = 1000
-        if (len(Xvar) > 1200) and (len(Xvar) <= 4000):
-            num_samples = 5000
-        if len(Xvar) <= 1200:
-            num_samples = 10000
-    else:
-        num_samples = maxsamples
+    # maxsamples = 0
+    # sampling_cnf = cnfcontent
+    # if not maxsamples:
+    #     if len(Xvar) > 4000:
+    #         num_samples = 1000
+    #     if (len(Xvar) > 1200) and (len(Xvar) <= 4000):
+    #         num_samples = 5000
+    #     if len(Xvar) <= 1200:
+    #         num_samples = 10000
+    # else:
+    #     num_samples = maxsamples
     
-    weighted = 1
-    adaptivesample = 0
+    # weighted = 1
+    # adaptivesample = 0
 
-    if weighted:
-        sampling_weights_y_1 = ''
-        sampling_weights_y_0 = ''
-        for xvar in Xvar:
-            sampling_cnf += "w %s 0.5\n" % (xvar)
-        for yvar in Yvar:
-            # if yvar in UniqueVars:
-            #     sampling_cnf += "w %s 0.5\n" % (yvar)
-            #     continue
-            if (yvar in PosUnate) or (yvar in NegUnate):
-                continue
+    # if weighted:
+    #     sampling_weights_y_1 = ''
+    #     sampling_weights_y_0 = ''
+    #     for xvar in Xvar:
+    #         sampling_cnf += "w %s 0.5\n" % (xvar)
+    #     for yvar in Yvar:
+    #         # if yvar in UniqueVars:
+    #         #     sampling_cnf += "w %s 0.5\n" % (yvar)
+    #         #     continue
+    #         if (yvar in PosUnate) or (yvar in NegUnate):
+    #             continue
 
-            sampling_weights_y_1 += "w %s 0.5\n" % (yvar)
-            sampling_weights_y_0 += "w %s 0.1\n" % (yvar)
+    #         sampling_weights_y_1 += "w %s 0.5\n" % (yvar)
+    #         sampling_weights_y_0 += "w %s 0.1\n" % (yvar)
 
-        if adaptivesample:
-            weighted_sampling_cnf = computeBias(
-                Xvar, Yvar, sampling_cnf, sampling_weights_y_1, sampling_weights_y_0, inputfile_name, Unates, args)
-        else:
-            weighted_sampling_cnf = sampling_cnf + sampling_weights_y_1
-        # print(weighted_sampling_cnf)
-        print("generating weighted samples")
-        samples = generatesample(
-            args, num_samples, weighted_sampling_cnf, inputfile_name, 1)
-    else:
-        print("generating uniform samples")
-        samples = generatesample(
-            args, num_samples, sampling_cnf, inputfile_name, 0)
+    #     if adaptivesample:
+    #         weighted_sampling_cnf = computeBias(
+    #             Xvar, Yvar, sampling_cnf, sampling_weights_y_1, sampling_weights_y_0, inputfile_name, Unates, args)
+    #     else:
+    #         weighted_sampling_cnf = sampling_cnf + sampling_weights_y_1
+    #     # print(weighted_sampling_cnf)
+    #     print("generating weighted samples")
+    #     samples = generatesample(
+    #         args, num_samples, weighted_sampling_cnf, inputfile_name, 1)
+    # else:
+    #     print("generating uniform samples")
+    #     samples = generatesample(
+    #         args, num_samples, sampling_cnf, inputfile_name, 0)
 
     # samples = np.array([[1, 0], [0, 1]])
     
 # <<<<<<< HEAD
     # print(samples, Xvar)
-    Xvar_tmp = [i-1 for i in Xvar]
-    x_data, indices = np.unique(samples[:, Xvar_tmp], axis=0, return_index=True)
-    samples = samples[indices, :]
-    print("samples: ", samples.shape)
-    print(samples)
+    # Xvar_tmp = [i-1 for i in Xvar]
+    # x_data, indices = np.unique(samples[:, Xvar_tmp], axis=0, return_index=True)
+    # samples = samples[indices, :]
+    # print("samples: ", samples.shape)
+    # print(samples)
     # end_t = time.time()
     # exit()
 
@@ -329,19 +329,19 @@ from data.dataLoader import dataLoader
     # samples = np.array([[0,1],[1,1]])
     # print(samples)
     # training_samples = util.make_dataset_larger(samples)
-    training_samples = torch.from_numpy(samples[:100, :]).to(torch.double)
-    print(training_samples.shape)
+    # training_samples = torch.from_numpy(samples[:100, :]).to(torch.double)
+    # print(training_samples.shape)
 # =======
 
     # Get train test split
-    training_set, validation_set = util.get_train_test_split(training_samples)
-    print("Total, Train, and Valid shapes", training_samples.shape,
-          training_set.shape, validation_set.shape)
+    # training_set, validation_set = util.get_train_test_split(training_samples)
+    # print("Total, Train, and Valid shapes", training_samples.shape,
+    #       training_set.shape, validation_set.shape)
 
     data_t_e = time.time()
     # print("Data Sampling Time: ", data_t_e - data_t_s)
 
-    num_of_vars, num_out_vars = len(Xvar)+len(Yvar), len(Yvar)
+    # num_of_vars, num_out_vars = len(Xvar)+len(Yvar), len(Yvar)
 
     # num_of_vars, num_out_vars, num_of_eqns = util.get_var_counts(Xvar, Yvar, verilog)
     # print("No. of vars: {}, No. of output vars: {}, No. of eqns: {}".format(num_of_vars, num_out_vars, num_of_eqns))
@@ -349,38 +349,38 @@ from data.dataLoader import dataLoader
 
     
     # ----------------------------------------------------------------------------------------------------------
-    # Prepare input output dictionaries
-    io_dict, io_dictz3 = util.prepare_io_dicts(total_vars, total_varsz3=[])
+    # # Prepare input output dictionaries
+    # io_dict, io_dictz3 = util.prepare_io_dicts(total_vars, total_varsz3=[])
     # print("io dict: ", io_dict)
 
-    # Obtain variable indices
-    var_indices, input_var_idx, output_var_idx = util.get_var_indices(num_of_vars, output_varlist, io_dict)
-    input_size = 2*len(input_var_idx)
-    print("Input size: ", input_size)
-    print("Output size: ", len(output_var_idx))
+    # # Obtain variable indices
+    # var_indices, input_var_idx, output_var_idx = util.get_var_indices(num_of_vars, output_varlist, io_dict)
+    # input_size = 2*len(input_var_idx)
+    # print("Input size: ", input_size)
+    # print("Output size: ", len(output_var_idx))
 
     # store_preprocess_time(args.verilog_spec, num_of_vars, num_out_vars, num_of_eqns, 
     # args.epochs, args.no_of_samples, preprocess_time)
     
-    if args.run_for_all_outputs == 1:
-        num_of_outputs = len(output_var_idx)
-    else:
-        num_of_outputs = 1
+    # if args.run_for_all_outputs == 1:
+    #     num_of_outputs = len(output_var_idx)
+    # else:
+    #     num_of_outputs = 1
     # ----------------------------------------------------------------------------------------------------------
-    print("out size: ", num_of_outputs)
+    # print("out size: ", num_of_outputs)
 
     # ----------------------------------------------------------------------------------------------------------
     # load data
-    train_loader = dataLoader(training_set, args.training_size, args.P, input_var_idx,
-                              output_var_idx, num_of_outputs, args.threshold, args.batch_size)
+    # train_loader = dataLoader(training_set, args.training_size, args.P, input_var_idx,
+    #                           output_var_idx, num_of_outputs, args.threshold, args.batch_size)
     # validation_loader = dataLoader(validation_set, args.training_size, args.P, input_var_idx,
     #                                output_var_idx, num_of_outputs, args.threshold, args.batch_size)
-    validation_loader = []
+    # validation_loader = []
     # ----------------------------------------------------------------------------------------------------------
 
 
     # Initialize skolem funcition with empty string
-    skolem_functions = ""
+    # skolem_functions = ""
 
     # ----------------------------------------------------------------------------------------------------------
     # TRAINING MODEL

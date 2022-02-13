@@ -412,7 +412,7 @@ class utils():
         input_var_idx = torch.tensor(
             [x for x in var_indices if x not in output_var_idx])
 
-        return var_indices, input_var_idx, output_var_idx
+        return input_var_idx, output_var_idx
 
 
     def get_train_test_split(self, training_samples):
