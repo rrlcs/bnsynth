@@ -20,8 +20,8 @@ def ce_train_loop(
 
     import numpy as np
     import torch
-    from benchmarks import z3ValidityChecker as z3
-    from benchmarks.verilog2z3 import preparez3
+    # from benchmarks import z3ValidityChecker as z3
+    # from benchmarks.verilog2z3 import preparez3
     from data.dataLoader import dataLoader
     
     loop = 0
@@ -33,7 +33,6 @@ def ce_train_loop(
         loop += 1
         print("Counter Example Loop: ", loop, ce)
         s = time.time()
-        ce = model
         ce = torch.cat([util.add_noise(ce) for _ in range(1000)]).to(torch.double)
         # print("ce shape: ", ce.shape)
         e = time.time()

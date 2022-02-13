@@ -31,8 +31,8 @@ def train_regressor(
     from code.utils import getSkolemFunc4z3 as skfz3
     from code.utils.utils import util
 
-    from benchmarks import z3ValidityChecker as z3
-    from benchmarks.verilog2z3 import preparez3
+    # from benchmarks import z3ValidityChecker as z3
+    # from benchmarks.verilog2z3 import preparez3
     train_loss = []
     valid_loss = []
     best_loss = float('inf')
@@ -53,8 +53,6 @@ def train_regressor(
     scheduler = StepLR(optimizer, step_size=10, gamma=0.1)
     if flag:
         load_checkpoint(torch.load('model.pth.tar'), gcln, optimizer)
-    # if flag:
-    #     load_checkpoint(torch.load('model.pth.tar'), gcln, optimizer)
     
     # Train network
     max_epochs = max_epochs+1
@@ -93,8 +91,6 @@ def train_regressor(
             # print("loss: ", t_loss)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 1) + \
             #     lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)
-            # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
-            #     lambda2*torch.linalg.norm(gcln.G2, 2)
             # print("G1: ", gcln.layer_or_weights.data)
             # print("G2: ", gcln.layer_and_weights.data)
             # print(len(train_loader))

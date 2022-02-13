@@ -15,8 +15,8 @@ import networkx as nx
 import numpy as np
 import torch
 
-from benchmarks import z3ValidityChecker as z3
-from benchmarks.verilog2z3 import preparez3
+# from benchmarks import z3ValidityChecker as z3
+# from benchmarks.verilog2z3 import preparez3
 from data.dataLoader import dataLoader
 
 if __name__ == "__main__":
@@ -32,8 +32,6 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------------------------------------
     # Manthan 2 Preprocessor
     Xvar, Yvar, qdimacs_list = parse("benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
-    # Xvar[0] = 0
-    # Yvar[0] = 1
     print("count X variables", len(Xvar))
     print("count Y variables", len(Yvar))
     # print(qdimacs_list)
@@ -49,41 +47,33 @@ if __name__ == "__main__":
     cnfcontent = convertcnf("benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, cnffile_name)
     cnfcontent = cnfcontent.strip("\n")+"\n"
 
-    # if args.preprocess:
-    if 1==1:
-        print("preprocessing: finding unates (constant functions)")
-        start_t = time.time()
-        if len(Yvar) > 0:
-            PosUnate, NegUnate = preprocess(cnffile_name)
-        else:
-            print("too many Y variables, let us proceed with Unique extraction\n")
-            PosUnate = []
-            NegUnate = []
-        end_t = time.time()
-        print("preprocessing time:", str(end_t-start_t))
-        # logtime(inputfile_name, "preprocessing time:"+str(end_t-start_t))
-
-        # if args.verbose:
-        print("count of positive unates", len(PosUnate))
-        print("count of negative unates", len(NegUnate))
-            # if args.verbose >= 2:
-        print("positive unates", PosUnate)
-        print("negative unates", NegUnate)
-
-        Unates = PosUnate + NegUnate
-
-        for yvar in PosUnate:
-            qdimacs_list.append([yvar])
-            cnfcontent += "%s 0\n" % (yvar)
-
-        for yvar in NegUnate:
-            qdimacs_list.append([-1 * int(yvar)])
-            cnfcontent += "-%s 0\n" % (yvar)
+    # finding unates:
+    print("preprocessing: finding unates (constant functions)")
+    start_t = time.time()
+    if len(Yvar) > 0:
+        PosUnate, NegUnate = preprocess(cnffile_name)
     else:
-        Unates = []
+        print("too many Y variables, let us proceed with Unique extraction\n")
         PosUnate = []
         NegUnate = []
-        print("preprocessing is disabled. To do preprocessing, please use --preprocess")
+    end_t = time.time()
+    print("preprocessing time:", str(end_t-start_t))
+
+    print("count of positive unates", len(PosUnate))
+    print("count of negative unates", len(NegUnate))
+    print("positive unates", PosUnate)
+    print("negative unates", NegUnate)
+
+    Unates = PosUnate + NegUnate
+
+    for yvar in PosUnate:
+        qdimacs_list.append([yvar])
+        cnfcontent += "%s 0\n" % (yvar)
+
+    for yvar in NegUnate:
+        qdimacs_list.append([-1 * int(yvar)])
+        cnfcontent += "-%s 0\n" % (yvar)
+
     end_time = time.time()
     if len(Unates) == len(Yvar):
         print(PosUnate)
@@ -100,14 +90,17 @@ if __name__ == "__main__":
         # logtime(inputfile_name, "totaltime:"+str(end_time-start_time))
         # exit()
     print("Preprocessing Time: ", end_time-start_time)
+    
+    # Logging
     info = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"Not All Unates"+", "+str(end_time-start_time)+"\n"
     f = open("qdimacsinfo.csv", "a")
     f.write(info)
     f.close()
-    # exit()
     # exit("success")
+    
+    # ==========================================================================================
     # Start Preprocessing
-# MANTHAN 1 PREPROCESSOR WRAPPER
+    # MANTHAN 1 PREPROCESSOR WRAPPER
     # start_time = time.time()
     # pre_t_s = time.time()
     # verilog, output_varlist, total_vars, total_varsz3,\
@@ -125,29 +118,6 @@ if __name__ == "__main__":
     # print(output_varlist, total_vars)
     # ----------------------------------------------------------------------------------------------------------
     # exit()
-# MANTHAN 1 PREPROCESSOR WRAPPER
-    # start_time = time.time()
-    # pre_t_s = time.time()
-    # verilog, output_varlist, total_vars, total_varsz3,\
-    #      verilog_formula, pos_unate, neg_unate, Xvar,\
-    #           Yvar, Xvar_map, Yvar_map = util.preprocess_wrapper(
-    #               "small-dyn-partition-fixpoint-1.v", "verilog"
-    #               )
-    # pre_t_e = time.time()
-    # print(len(Xvar), len(Yvar))
-    # print(Xvar, Yvar)
-    # print(output_varlist, total_vars, total_varsz3)
-    # End Preprocessing
-    # print("Preprocessing Time: ", pre_t_e - pre_t_s)
-    # ----------------------------------------------------------------------------------------------------------
-
-    # def convert_verilog(input):
-    #     cmd = "./dependencies/readCnf %s > /dev/null 2>&1 " % (input)
-    #     os.system(cmd)
-    #     inputfile_name = input.split('/')[-1][:-8]
-    #     os.remove(inputfile_name+"_dep.txt")
-    #     os.system("rm *.noUnary")
-    #     return inputfile_name+".v" , inputfile_name+"_var.txt"
 
     def convert_verilog(input,cluster,dg):
         # ng = nx.Graph() # used only if args.multiclass
@@ -257,9 +227,6 @@ if __name__ == "__main__":
     # verilogformula = f.readlines()
     # verilogformula = ''.join(verilogformula[1:])
     # f.close()
-    # f = open("benchmarks/sample_examples/ex4.v", "r")
-    # verilogformula = f.read()
-    # print("verilogformula: ", verilogformula)
     # print("Num of unates: ", len(pos_unate)+len(neg_unate))
 
     # ----------------------------------------------------------------------------------------------------------
@@ -288,18 +255,11 @@ if __name__ == "__main__":
     # varilog variables
     # FROM TRIAL
     # data_t_s = time.time()
-
     # cnf_content, allvar_map = util.prepare_cnf_content(
     #     verilog, Xvar, Yvar, Xvar_map, Yvar_map, pos_unate, neg_unate
     #     )
-    # pre_t_e = time.time()
-    # print("Preprocessing Time: ", pre_t_e - pre_t_s)
-    # exit()
 
-    # cnf_content, allvar_map = util.prepare_cnf_content(
-    #     verilog, Xvar, Yvar, Xvar_map, Yvar_map, pos_unate, neg_unate
-    #     )
-    # FROM TRIAL
+
     maxsamples = 0
     sampling_cnf = cnfcontent
     if not maxsamples:
@@ -372,16 +332,6 @@ if __name__ == "__main__":
     training_samples = torch.from_numpy(samples[:100, :]).to(torch.double)
     print(training_samples.shape)
 # =======
-# FROM TRIAL
-    # print("samples: ", samples.shape)
-
-    # Repeat or add noise to get larger dataset
-    
-    # samples = np.array([[0,1],[1,1]])
-    # training_samples = util.make_dataset_larger(samples)
-    # training_samples = torch.from_numpy(samples).to(torch.double)
-    # print(training_samples)
-# >>>>>>> trial
 
     # Get train test split
     training_set, validation_set = util.get_train_test_split(training_samples)
@@ -469,21 +419,6 @@ if __name__ == "__main__":
 
     final_loss = train_loss[-1]
     loss_drop = train_loss[0] - train_loss[-1]
-# <<<<<<< HEAD
-
-    # ----------------------------------------------------------------------------------------------------------
-    # Checking Skolem Function using Z3
-    # extract_t_s = time.time()
-    # # Skolem function in z3py format
-    # skfunc = skfz3.get_skolem_function(
-    #     gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dictz3, args.threshold, args.K
-    #     )
-    # extract_t_e = time.time()
-    # print("Formula Extraction Time: ", extract_t_e - extract_t_s)
-    print("-----------------------------------------------------------------------------")
-    # print("skolem function run: ", skfunc)
-    print("-----------------------------------------------------------------------------")
-# =======
 
 # # >>>>>>> shared
 #     util.store_losses(train_loss, valid_loss)
@@ -491,7 +426,7 @@ if __name__ == "__main__":
 
 #     # ----------------------------------------------------------------------------------------------------------
 #     # Checking Skolem Function using Z3
-#     extract_t_s = time.time()
+    extract_t_s = time.time()
 #     # Skolem function in z3py format
 # # <<<<<<< HEAD
 # # For single output
@@ -505,12 +440,6 @@ if __name__ == "__main__":
 #     #     gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dict, args.threshold, args.K)
 #     # skf_dict_verilog[Yvar[i]] = skfunc[0]
 # # For single output
-# # =======
-#     skfuncz3 = skfz3.get_skolem_function(
-#         gcln, num_of_vars, input_var_idx, num_of_outputs, output_var_idx, io_dictz3, args.threshold, args.K
-#         )
-#     # skf_dict_z3[Yvar[i]] = skfunc[0]
-# >>>>>>> trial
 
     # Skolem function in verilog format
     skfuncv = skf.get_skolem_function(
@@ -519,7 +448,7 @@ if __name__ == "__main__":
 # >>>>>>> shared
     
     extract_t_e = time.time()
-    # print("Formula Extraction Time: ", extract_t_e - extract_t_s)
+    print("Formula Extraction Time: ", extract_t_e - extract_t_s)
     # print("-----------------------------------------------------------------------------")
 # <<<<<<< HEAD
 # For single output
@@ -536,22 +465,9 @@ if __name__ == "__main__":
 # =======
 #     print("skolem function run: ", skfuncz3)
 #     # print("-----------------------------------------------------------------------------")
-#     print("start loss: ", train_loss[0])
-#     print("end loss: ", train_loss[-1])
+    print("start loss: ", train_loss[0])
+    print("end loss: ", train_loss[-1])
 
-#     print(skf_dict_z3)
-#     if any(v=='()\n' or v == '\n' for v in skfuncz3):
-#         t = time.time() - start_time
-#         datastring = str(args.verilog_spec)+", "+str(args.epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+str(skfuncz3)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
-# # >>>>>>> shared
-#         print(datastring)
-#         f = open("abalation_study.csv", "a")
-#         f.write(datastring)
-#         f.close()
-#         exit("No Skolem Function Learned!! Try Again.")
-    # print("hello")
-    # exit()
-    # Store train and test losses in a file
     
 
 # VERILOG VERSION
@@ -593,12 +509,6 @@ if __name__ == "__main__":
     util.write_error_formula(args.verilog_spec, verilog, verilogformula, skfunc, Xvar, Yvar, PosUnate, NegUnate)
 # =======
 
-
-#     # Write the error formula in verilog
-#     # print("@@@@@@@@@@@@@@@@@@@@@@@@@@skf manthan: ", skfuncv)
-#     util.write_error_formula(args.verilog_spec, verilog, verilog_formula, skfuncv, Xvar, Yvar, pos_unate, neg_unate)
-# >>>>>>> trial
-
     # Run Manthan's Validity Checker
     # sat call to errorformula:
     check, sigma, ret = util.verify(Xvar, Yvar, verilog)
@@ -623,36 +533,8 @@ if __name__ == "__main__":
         f = open("multi_output_results.csv", "a")
         f.write(datastring)
         f.close()
-    # else:
-    #     counter_examples = torch.from_numpy(
-    #         np.concatenate(
-    #             (sigma.modelx, sigma.modely)
-    #             ).reshape((1, num_of_vars))
-    #         )
-    #     print("ce shape: ", counter_examples.shape)
-    #     # Counter example loop
-    #     print("\nCounter Example Guided Trainig Loop\n", counter_examples)
-    #     ret, ce_time2, ce_data_time = ce_train_loop(
-    #         training_samples, io_dict, io_dictz3, ret, counter_examples, num_of_vars, num_of_outputs, input_size, 
-    #         start_time, pos_unate, neg_unate, args.training_size, input_var_idx, output_var_idx, args.P, 
-    #         args.threshold, args.batch_size, args.verilog_spec, args.verilog_spec_location, Xvar, Yvar, 
-    #         verilog_formula, verilog, args.learning_rate, args.epochs, args.K, device
-    #         )
     # os.system('rm /tmp/*.v')
 # =======
-#         skfuncv = [sk.replace('\n', '') for sk in skfuncv]
-#         t = time.time() - start_time
-# # <<<<<<< HEAD
-# # For single output
-#         # datastring = str(args.verilog_spec)+", "+str(final_epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+str(skf_dict_z3)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
-# # For single output
-# # =======
-#         datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+'; '.join(skfuncv)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
-# # >>>>>>> shared
-#         print(datastring)
-#         f = open("abalation_study.csv", "a")
-#         f.write(datastring)
-#         f.close()
 #         # inputfile_name = args.verilog_spec[:-2]
 #         # skolemformula = tempfile.gettempdir(
 #         #     ) + '/' + inputfile_name + "_skolem.v"
@@ -680,7 +562,3 @@ if __name__ == "__main__":
     print("Time = ", end_time - start_time)
     print("Result:", ret==0)
 
-    # line = args.verilog_spec+","+str(num_of_vars)+","+str(args.epochs)+","+str(args.no_of_samples)+","+result+","+str(total_time)+"\n"
-    # f = open("results.csv", "a")
-    # f.write(line)
-    # f.close()

@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 from run import util
-from torch._C import dtype
 
 
 # Gated CLN
