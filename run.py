@@ -31,7 +31,7 @@ if __name__ == "__main__":
     start_time = time.time()
     # ----------------------------------------------------------------------------------------------------------
     # Manthan 2 Preprocessor
-    Xvar, Yvar, qdimacs_list = parse("benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
+    Xvar, Yvar, qdimacs_list = parse("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
     print("count X variables", len(Xvar))
     print("count Y variables", len(Yvar))
     # print(qdimacs_list)
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     inputfile_name = args.verilog_spec[:-8]
     cnffile_name = tempfile.gettempdir()+"/"+inputfile_name+".cnf"
 
-    cnfcontent = convertcnf("benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, cnffile_name)
+    cnfcontent = convertcnf("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, cnffile_name)
     cnfcontent = cnfcontent.strip("\n")+"\n"
 
     # finding unates:
@@ -220,8 +220,8 @@ if __name__ == "__main__":
 
         return verilogformula
     dg = nx.Graph()
-    verilogformula = convert_verilog("benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, 0, dg)
-    inputfile_name = ("benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec).split('/')[-1][:-8]
+    verilogformula = convert_verilog("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, 0, dg)
+    inputfile_name = ("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec).split('/')[-1][:-8]
     verilog = inputfile_name+".v"
     # f = open(verilog, "r")
     # verilogformula = f.readlines()

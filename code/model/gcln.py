@@ -7,10 +7,9 @@ from run import util
 class GCLN(torch.nn.Module):
     literal_pairs = []
 
-    def __init__(self, input_size, num_of_output_var, K, device, P):
+    def __init__(self, input_size, num_of_output_var, K, device):
         super(GCLN, self).__init__()
         self.device = device
-        self.P = P
         self.K = K
         self.input_size = input_size
         self.output_size = num_of_output_var
