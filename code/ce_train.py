@@ -10,7 +10,7 @@ def ce_train_loop(
 
     import importlib
     import time
-    from code.train import train
+    from code.training import train
     from code.utils import getSkolemFunc as skf
     from code.utils import getSkolemFunc4z3 as skfz3
     from code.utils import plot as pt

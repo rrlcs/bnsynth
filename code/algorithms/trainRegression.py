@@ -1,6 +1,6 @@
 import copy
 import importlib
-from code.train import train
+from code.training import train
 from code.utils import plot as pt
 
 import torch
