@@ -12,4 +12,5 @@ python3 run.py \
 --epochs=$3 \
 --batch_size=4 \
 --K=$4 \
---preprocessor=2
+--preprocessor=2 \
+--architecture=3

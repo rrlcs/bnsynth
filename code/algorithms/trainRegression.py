@@ -1,7 +1,9 @@
 import copy
 import importlib
-from code.training import train
+from code.model.gcln import GCLN_Arch1, GCLN_Arch3
+# from code.training import train
 from code.utils import plot as pt
+from code.utils.utils import util
 
 import torch
 import torch.nn as nn
@@ -17,19 +19,14 @@ def load_checkpoint(checkpoint, gcln, optimizer):
     gcln.load_state_dict(checkpoint['state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer'])
 
-def train_regressor(
-    train_loader, validation_loader, learning_rate,
-    max_epochs, input_size, num_of_outputs, current_output, K,
-    device, num_of_vars, input_var_idx,
-    output_var_idx, io_dict, io_dictz3, threshold,
-    verilog_spec, verilog_spec_location,
-    Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate
-):
-
-    from code.model.gcln import GCLN
-    from code.utils import getSkolemFunc as skf
-    from code.utils import getSkolemFunc4z3 as skfz3
-    from code.utils.utils import util
+def train_regressor(architecture,
+        train_loader, validation_loader, learning_rate,
+        max_epochs, input_size, num_of_outputs, K,
+        device, num_of_vars, input_var_idx,
+        output_var_idx, current_output, io_dict, io_dictz3, threshold,
+        verilog_spec, verilog_spec_location,
+        Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate
+    ):
 
     # from benchmarks import z3ValidityChecker as z3
     # from benchmarks.verilog2z3 import preparez3
@@ -45,7 +42,12 @@ def train_regressor(
 
     # Initialize network
     print("No of outputs: ", num_of_outputs, K, input_size)
-    gcln = GCLN(input_size, num_of_outputs, K, device).to(device)
+    if architecture==1:
+        gcln = GCLN_Arch1(input_size, num_of_outputs, K, device).to(device)
+    elif architecture==2:
+        pass
+    elif architecture==3:
+        gcln = GCLN_Arch3(input_size, num_of_outputs, K, device).to(device)
     print("Network")
     print(gcln)
     # Loss and Optimizer
@@ -69,19 +71,28 @@ def train_regressor(
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
             tgts = tgts.round()
             outs = gcln(inps).squeeze(-1).T.to(device)
-            # print("gcln out: ", outs)
+
             gcln_ = copy.deepcopy(gcln)
             gcln_.layer_or_weights = torch.nn.Parameter(gcln_.layer_or_weights.round())
             gcln_.layer_and_weights = torch.nn.Parameter(gcln_.layer_and_weights.round())
             out_ = gcln_(inps).squeeze(-1).T
-            # print("outs, tgts", outs.shape, tgts.shape)
-            # print("comparing nw out: ",inps, out_, tgts)
-            l = []
-            for i in range(num_of_outputs):
-                l.append(criterion(outs[:, i], tgts[:, i]))
-            # print("loss list: ", l)
-            t_loss = sum(l)
-            train_epoch_loss += t_loss.item()/num_of_outputs
+            if architecture == 1:
+                t_loss = criterion(outs, tgts[:, current_output])
+                train_epoch_loss += t_loss.item()
+            elif architecture == 2:
+                l = []
+                for i in range(num_of_outputs):
+                    l.append(criterion(outs[:, i], tgts[:, i]))
+                # print("loss list: ", l)
+                t_loss = sum(l)
+                train_epoch_loss += t_loss.item()/num_of_outputs
+            elif architecture == 3:
+                l = []
+                for i in range(num_of_outputs):
+                    l.append(criterion(outs[:, i], tgts[:, i]))
+                # print("loss list: ", l)
+                t_loss = sum(l)
+                train_epoch_loss += t_loss.item()/num_of_outputs
             # print("loss sum: ", t_loss)
             # print("loss: ", t_loss)
             # print(outs.shape, tgts.shape)
@@ -106,11 +117,17 @@ def train_regressor(
             
             # print("outs, out_, tgts: ", inps, outs, out_, tgts)
             # print((out_.round()==tgts).sum())
-            accuracy += (out_.round()==tgts).sum()
+            if architecture == 1:
+                accuracy += (out_.round()==tgts[:, current_output]).sum()
+            elif architecture > 1:
+                accuracy += (out_.round()==tgts).sum()
         # print(len(train_loader.sampler))
         train_loss.append(train_epoch_loss)
         # print(len(train_loader)*32*num_of_outputs, num_of_outputs)
-        total_accuracy = accuracy.item()/(train_size*num_of_outputs)
+        if architecture > 1:
+            total_accuracy = accuracy.item()/(train_size*num_of_outputs)
+        elif architecture == 1:
+            total_accuracy = accuracy.item()/(train_size)
         print("Accuracy: ", total_accuracy)
         print(total_accuracy==1)
         # print(t_loss)

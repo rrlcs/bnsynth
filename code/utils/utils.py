@@ -257,6 +257,8 @@ class utils():
                             type=int, default=0, help="1/0")
         parser.add_argument("--preprocessor",
                             type=int, default=1, help="1 for manthan1 2 for manthan2")
+        parser.add_argument("--architecture",
+                            type=int, default=1, help="1: Arch 1; 2: Arch 2; 3: Arch 3")
         parser.add_argument("--verilog_spec", type=str,
                             default="sample1", help="Enter file name")
         parser.add_argument("--verilog_spec_location", type=str,
