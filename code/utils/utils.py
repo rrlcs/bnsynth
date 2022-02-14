@@ -531,9 +531,9 @@ class utils():
     def prepare_file_names(self, verilog_spec, verilog_spec_location):
 
         filename = verilog_spec.split(".v")[0]+"_varstoelim.txt"
-        varlistfile = "benchmarks/"+\
+        varlistfile = "data/benchmarks/"+\
             verilog_spec_location+"/Yvarlist/"+filename
-        verilog = "benchmarks/"+\
+        verilog = "data/benchmarks/"+\
             verilog_spec_location+"/"+verilog_spec
         
         return verilog, varlistfile
@@ -576,7 +576,7 @@ class utils():
 
     def preprocess_manthan(self, varlistfile,verilog,Xvar_tmp,Yvar_tmp):
         inputfile_name = verilog.split(".v")[0]
-        cmd = "./dependencies/preprocess2 -b %s -v %s > /dev/null 2>&1 " % (
+        cmd = "./dependencies/preprocess -b %s -v %s > /dev/null 2>&1 " % (
             verilog, varlistfile)
         os.system(cmd)
         pos_unate = []

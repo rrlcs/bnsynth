@@ -20,7 +20,7 @@ def process():
         #Manthan 1 code
         print("Starting Manthan1 Preprocessor")
         verilog, output_varlist, total_vars, total_varsz3,\
-         verilogformula, pos_unate, neg_unate, Xvar,\
+         verilogformula, PosUnate, NegUnate, Xvar,\
               Yvar, Xvar_map, Yvar_map = util.preprocess_wrapper(
                   args.verilog_spec, args.verilog_spec_location
                   )
@@ -41,7 +41,7 @@ def process():
         # exit() 
 
         cnf_content, allvar_map = util.prepare_cnf_content(
-            verilog, Xvar, Yvar, Xvar_map, Yvar_map, pos_unate, neg_unate
+            verilog, Xvar, Yvar, Xvar_map, Yvar_map, PosUnate, NegUnate
         )
 
         # generate sample
@@ -83,7 +83,7 @@ def process():
                                        output_var_idx, num_of_outputs, args.threshold, args.batch_size)
     else:
         #Manthan 2 code
-        print("Starting Manthan1 Preprocessor")
+        print("Starting Manthan2 Preprocessor")
         Xvar, Yvar, qdimacs_list = parse("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
         print("count X variables", len(Xvar))
         print("count Y variables", len(Yvar))
@@ -130,10 +130,10 @@ def process():
             print(PosUnate)
             print(NegUnate)
             print("all Y variables are unates and have constant functions")
-            info = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All Unates"+", "+str(end_time-start_time)+"\n"
-            f = open("qdimacsinfo.csv", "a")
-            f.write(info)
-            f.close()
+            # info = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All Unates"+", "+str(end_time-start_time)+"\n"
+            # f = open("qdimacsinfo.csv", "a")
+            # f.write(info)
+            # f.close()
             # exit()
             # skolemfunction_preprocess(
             #     Xvar, Yvar, PosUnate, NegUnate, [], '', inputfile_name)
