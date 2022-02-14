@@ -11,4 +11,5 @@ python3 run.py \
 --training_size=10000 \
 --epochs=$3 \
 --batch_size=4 \
---K=$4
+--K=$4 \
+--preprocessor=2

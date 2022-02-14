@@ -7,107 +7,6 @@ import torch
 from data.dataLoader import dataLoader
 
 
-def convert_verilog(input,cluster):
-        # ng = nx.Graph() # used only if args.multiclass
-
-        with open(input, 'r') as f:
-            lines = f.readlines()
-        f.close()
-        itr = 1
-        declare = 'module FORMULA( '
-        declare_input = ''
-        declare_wire = ''
-        assign_wire = ''
-        tmp_array = []
-
-        for line in lines:
-            line = line.strip(" ")
-            if (line == "") or (line == "\n"):
-                continue
-            if line.startswith("c "):
-                continue
-
-            if line.startswith("p "):
-                continue
-
-
-            if line.startswith("a"):
-                a_variables = line.strip("a").strip("\n").strip(" ").split(" ")[:-1]
-                for avar in a_variables:
-                    declare += "%s," %(avar)
-                    declare_input += "input %s;\n" %(avar)
-                continue
-
-            if line.startswith("e"):
-                e_variables = line.strip("e").strip("\n").strip(" ").split(" ")[:-1]
-                for evar in e_variables:
-                    tmp_array.append(int(evar))
-                    declare += "%s," %(evar)
-                    declare_input += "input %s;\n" %(evar)
-                    # if int(evar) not in list(dg.nodes):
-                    #     dg.add_node(int(evar))
-                continue
-
-            declare_wire += "wire t_%s;\n" %(itr)
-            assign_wire += "assign t_%s = " %(itr)
-            itr += 1
-
-            clause_variable = line.strip(" \n").split(" ")[:-1]
-            for var in clause_variable:
-                if int(var) < 0:
-                    assign_wire += "~%s | " %(abs(int(var)))
-                else:
-                    assign_wire += "%s | " %(abs(int(var)))
-
-            assign_wire = assign_wire.strip("| ")+";\n"
-            
-            ### if args.multiclass, then add an edge between variables of the clause ###
-
-            # if cluster:
-            #     for literal1 in clause_variable:
-            #         literal1 = abs(int(literal1))
-            #         if literal1 in tmp_array:
-            #             if literal1 not in list(ng.nodes):
-            #                 ng.add_node(literal1)
-            #             for literal2 in clause_variable:
-            #                 literal2 = abs(int(literal2))
-            #                 if (literal1 != abs(literal2)) and (literal2 in tmp_array):
-            #                     if literal2 not in list(ng.nodes):
-            #                         ng.add_node(literal2)
-            #                     if not ng.has_edge(literal1, literal2):
-            #                         ng.add_edge(literal1,literal2)
-
-
-
-        count_tempvariable = itr
-
-        declare += "out);\n"
-        declare_input += "output out;\n"
-
-        temp_assign = ''
-        outstr = ''
-
-        itr = 1
-        while itr < count_tempvariable:
-            temp_assign += "t_%s & " %(itr)
-            if itr % 100 == 0:
-                declare_wire += "wire tcount_%s;\n" %(itr)
-                assign_wire += "assign tcount_%s = %s;\n" %(itr,temp_assign.strip("& "))
-                outstr += "tcount_%s & " %(itr)
-                temp_assign = ''
-            itr += 1
-
-        if temp_assign != "":
-            declare_wire += "wire tcount_%s;\n" %(itr)
-            assign_wire += "assign tcount_%s = %s;\n" %(itr,temp_assign.strip("& "))
-            outstr += "tcount_%s;\n" %(itr)
-        outstr = "assign out = %s" %(outstr)
-
-
-        verilogformula = declare + declare_input + declare_wire + assign_wire + outstr +"endmodule\n"
-
-        return verilogformula
-
 def process():
     # Get Argument Parser
     parser = util.make_arg_parser()
@@ -115,9 +14,11 @@ def process():
 
     # Set device
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # print(args.preprocessor)
 
     if args.preprocessor == 1:
         #Manthan 1 code
+        print("Starting Manthan1 Preprocessor")
         verilog, output_varlist, total_vars, total_varsz3,\
          verilogformula, pos_unate, neg_unate, Xvar,\
               Yvar, Xvar_map, Yvar_map = util.preprocess_wrapper(
@@ -182,6 +83,7 @@ def process():
                                        output_var_idx, num_of_outputs, args.threshold, args.batch_size)
     else:
         #Manthan 2 code
+        print("Starting Manthan1 Preprocessor")
         Xvar, Yvar, qdimacs_list = parse("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
         print("count X variables", len(Xvar))
         print("count Y variables", len(Yvar))
@@ -246,7 +148,7 @@ def process():
         # f.write(info)
         # f.close()
 
-        verilogformula = convert_verilog("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, 0)
+        verilogformula = util.convert_verilog("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, 0)
         inputfile_name = ("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec).split('/')[-1][:-8]
         verilog = inputfile_name+".v"
 

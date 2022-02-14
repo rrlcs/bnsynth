@@ -253,6 +253,8 @@ class utils():
                             help="1/0; 0 loads the saved model")
         parser.add_argument("--correlated_sampling",
                             type=int, default=0, help="1/0")
+        parser.add_argument("--preprocessor",
+                            type=int, default=1, help="1 for manthan1 2 for manthan2")
         parser.add_argument("--verilog_spec", type=str,
                             default="sample1", help="Enter file name")
         parser.add_argument("--verilog_spec_location", type=str,
@@ -272,6 +274,107 @@ class utils():
             )
         return verilog, output_varlist, total_vars, total_varsz3, verilog_formula, pos_unate, neg_unate, Xvar, Yvar, Xvar_map, Yvar_map
 
+    def convert_verilog(self, input,cluster):
+        # ng = nx.Graph() # used only if args.multiclass
+
+        with open(input, 'r') as f:
+            lines = f.readlines()
+        f.close()
+        itr = 1
+        declare = 'module FORMULA( '
+        declare_input = ''
+        declare_wire = ''
+        assign_wire = ''
+        tmp_array = []
+
+        for line in lines:
+            line = line.strip(" ")
+            if (line == "") or (line == "\n"):
+                continue
+            if line.startswith("c "):
+                continue
+
+            if line.startswith("p "):
+                continue
+
+
+            if line.startswith("a"):
+                a_variables = line.strip("a").strip("\n").strip(" ").split(" ")[:-1]
+                for avar in a_variables:
+                    declare += "%s," %(avar)
+                    declare_input += "input %s;\n" %(avar)
+                continue
+
+            if line.startswith("e"):
+                e_variables = line.strip("e").strip("\n").strip(" ").split(" ")[:-1]
+                for evar in e_variables:
+                    tmp_array.append(int(evar))
+                    declare += "%s," %(evar)
+                    declare_input += "input %s;\n" %(evar)
+                    # if int(evar) not in list(dg.nodes):
+                    #     dg.add_node(int(evar))
+                continue
+
+            declare_wire += "wire t_%s;\n" %(itr)
+            assign_wire += "assign t_%s = " %(itr)
+            itr += 1
+
+            clause_variable = line.strip(" \n").split(" ")[:-1]
+            for var in clause_variable:
+                if int(var) < 0:
+                    assign_wire += "~%s | " %(abs(int(var)))
+                else:
+                    assign_wire += "%s | " %(abs(int(var)))
+
+            assign_wire = assign_wire.strip("| ")+";\n"
+            
+            ### if args.multiclass, then add an edge between variables of the clause ###
+
+            # if cluster:
+            #     for literal1 in clause_variable:
+            #         literal1 = abs(int(literal1))
+            #         if literal1 in tmp_array:
+            #             if literal1 not in list(ng.nodes):
+            #                 ng.add_node(literal1)
+            #             for literal2 in clause_variable:
+            #                 literal2 = abs(int(literal2))
+            #                 if (literal1 != abs(literal2)) and (literal2 in tmp_array):
+            #                     if literal2 not in list(ng.nodes):
+            #                         ng.add_node(literal2)
+            #                     if not ng.has_edge(literal1, literal2):
+            #                         ng.add_edge(literal1,literal2)
+
+
+
+        count_tempvariable = itr
+
+        declare += "out);\n"
+        declare_input += "output out;\n"
+
+        temp_assign = ''
+        outstr = ''
+
+        itr = 1
+        while itr < count_tempvariable:
+            temp_assign += "t_%s & " %(itr)
+            if itr % 100 == 0:
+                declare_wire += "wire tcount_%s;\n" %(itr)
+                assign_wire += "assign tcount_%s = %s;\n" %(itr,temp_assign.strip("& "))
+                outstr += "tcount_%s & " %(itr)
+                temp_assign = ''
+            itr += 1
+
+        if temp_assign != "":
+            declare_wire += "wire tcount_%s;\n" %(itr)
+            assign_wire += "assign tcount_%s = %s;\n" %(itr,temp_assign.strip("& "))
+            outstr += "tcount_%s;\n" %(itr)
+        outstr = "assign out = %s" %(outstr)
+
+
+        verilogformula = declare + declare_input + declare_wire + assign_wire + outstr +"endmodule\n"
+
+        return verilogformula
+    
     def make_dataset_larger(self, samples):
         
         # tensor dataset
