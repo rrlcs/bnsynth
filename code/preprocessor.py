@@ -1,6 +1,6 @@
 import time
 from code.utils.generateSamples_manthan import *
-from code.utils.preprocess_manthan import *
+# from code.utils.preprocess_manthan import *
 from code.utils.utils import util
 
 import torch
@@ -84,7 +84,7 @@ def process():
     else:
         #Manthan 2 code
         print("Starting Manthan2 Preprocessor")
-        Xvar, Yvar, qdimacs_list = parse("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
+        Xvar, Yvar, qdimacs_list = util.parse("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
         print("count X variables", len(Xvar))
         print("count Y variables", len(Yvar))
 
@@ -95,14 +95,14 @@ def process():
         inputfile_name = args.verilog_spec[:-8]
         cnffile_name = tempfile.gettempdir()+"/"+inputfile_name+".cnf"
 
-        cnfcontent = convertcnf("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, cnffile_name)
+        cnfcontent = util.convertcnf("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, cnffile_name)
         cnfcontent = cnfcontent.strip("\n")+"\n"
 
         # finding unates:
         print("preprocessing: finding unates (constant functions)")
         start_t = time.time()
         if len(Yvar) > 0:
-            PosUnate, NegUnate = preprocess(cnffile_name)
+            PosUnate, NegUnate = util.preprocess(cnffile_name)
         else:
             print("too many Y variables, let us proceed with Unique extraction\n")
             PosUnate = []
