@@ -4,12 +4,15 @@ import os
 import signal
 import tempfile
 from math import floor
+from platform import architecture
+from statistics import mode
 from subprocess import PIPE, Popen, check_output
 from typing import OrderedDict
 
 import numpy as np
 import pandas as pd
 import torch
+from numpy import count_nonzero
 from numpy.core.numeric import indices
 
 
@@ -256,6 +259,8 @@ class utils():
         parser.add_argument("--correlated_sampling",
                             type=int, default=0, help="1/0")
         parser.add_argument("--preprocessor",
+                            type=int, default=1, help="1 for manthan1 2 for manthan2")
+        parser.add_argument("--postprocessor",
                             type=int, default=1, help="1 for manthan1 2 for manthan2")
         parser.add_argument("--architecture",
                             type=int, default=1, help="1: Arch 1; 2: Arch 2; 3: Arch 3")
@@ -516,9 +521,9 @@ class utils():
     def get_var_indices(self, num_of_vars, output_varlist, io_dict):
         output_var_idx = [list(io_dict.values()).index(output_varlist[i]) for i in range(len(output_varlist)) if output_varlist[i] in io_dict.values()]
         var_indices = [i for i in range(num_of_vars)]
-        input_var_idx = torch.tensor(
-            [x for x in var_indices if x not in output_var_idx])
-
+        input_var_idx = [x for x in var_indices if x not in output_var_idx]
+        # input_var_idx = [i-1 for i in input_var_idx]
+        # output_var_idx = [i-1 for i in output_var_idx]
         return input_var_idx, output_var_idx
 
 
@@ -530,6 +535,76 @@ class utils():
         training_set = training_samples[:, :]
 
         return training_set, validation_set
+    
+    def get_skolem_function(self, args, gcln, no_of_input_var, input_var_idx, num_of_outputs, output_var_idx, io_dict):
+        '''
+        Input: Learned model parameters
+        Output: Skolem Functions
+        Functionality: Reads the model weights (layer_or_weights, layer_and_weights) and builds the skolem function based on it.
+        '''
+
+        # sigmoid = nn.Sigmoid()
+        layer_or_weights = gcln.layer_or_weights.cpu().detach().numpy() # input_size x K
+        layer_and_weights = gcln.layer_and_weights.cpu().detach().numpy() # K x num_of_outputs
+
+        threshold = args.threshold
+        K = args.K
+        architecture = args.architecture
+
+        literals = []
+        neg_literals = []
+        for i in input_var_idx:
+            literals.append(io_dict.get(i))
+            neg_literals.append("~"+io_dict.get(i))
+            # literals.append("i"+str(i.item()))
+            # neg_literals.append("~i"+str(i.item()))
+
+        clause = np.array(literals + neg_literals)
+
+        clauses = []
+        if architecture == 1:
+            for j in range(K):
+                mask = layer_or_weights[:, j] > threshold
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+        elif architecture == 2:
+            for j in range(K):
+                mask = layer_or_weights[:, j] > threshold
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+        elif architecture == 3:
+            for j in range(num_of_outputs * K):
+                mask = layer_or_weights[:, j] > threshold
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+
+        ored_clauses = []
+        for j in range(len(clauses)):
+            ored_clauses.append("("+" | ".join(clauses[j])+")")
+        ored_clauses = np.array(ored_clauses)
+
+        gated_ored_clauses = []
+        for i in range(num_of_outputs):
+            mask = layer_and_weights[i*K:(i+1)*K, :] > threshold
+            ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
+            gated_ored_clauses.append(
+                np.unique(ored_clause[mask]))
+
+        skfs = []
+        for i in range(num_of_outputs):
+            skf = " & ".join(gated_ored_clauses[i])+"\n"
+            if " & ()" in skf:
+                skf = skf.replace(" & ()", "")
+            if "() & " in skf:
+                skf = skf.replace("() & ", "")
+            skfs.append(skf)
+
+        # print("-----------------------------------------------------------------------------")
+        print("skolem function in getSkolemFunc.py: ", skfs)
+        # print("-----------------------------------------------------------------------------")
+
+        return skfs
+
 
     # MANTHAN MODULES:
     def prepare_file_names(self, verilog_spec, verilog_spec_location):
@@ -1146,11 +1221,11 @@ class utils():
         error_content += verilog_formula
         return error_content
 
-    def write_error_formula(self, verilog_spec, verilog, verilog_formula, skfunc, Xvar, Yvar, pos_unate, neg_unate):
+    def write_error_formula(self, inputfile_name, verilog, verilog_formula, skfunc, Xvar, Yvar, pos_unate, neg_unate):
         candidateskf = self.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
         # self.create_skolem_function(
         #     verilog_spec.split('.v')[0], candidateskf, Xvar, Yvar)
-        self.createSkolem(candidateskf, Xvar, Yvar, [], [], verilog_spec.split('.qdimacs')[0])
+        self.createSkolem(candidateskf, Xvar, Yvar, [], [], inputfile_name)
         # error_content, refine_var_log = self.create_error_formula(
         #     Xvar, Yvar, verilog_formula)
         error_content = self.createErrorFormula(Xvar, Yvar, [], verilog_formula)
@@ -1322,6 +1397,80 @@ class utils():
                     print("preprocessing error .. contining ")
                     exit()
                 return PosUnate, NegUnate
+
+
+    # generate samples manthan 2
+    def computeBias(self, Xvar, Yvar,sampling_cnf, sampling_weights_y_1, sampling_weights_y_0, inputfile_name, SkolemKnown, args):
+        samples_biased_one = self.generatesample( args, 500, sampling_cnf + sampling_weights_y_1, inputfile_name, 1)
+        samples_biased_zero = self.generatesample( args, 500, sampling_cnf + sampling_weights_y_0, inputfile_name, 1)
+
+        bias = ""
+
+        for yvar in Yvar:
+            if yvar in SkolemKnown:
+                continue
+            count_one = count_nonzero(samples_biased_one[:,yvar-1])
+            p = round(float(count_one)/500,2)
+
+            count_zero = count_nonzero(samples_biased_zero[:,yvar-1])
+            q = round(float(count_zero)/500,2)
+
+            if 0.35 < p < 0.65 and 0.35 < q < 0.65:
+                bias += "w %s %s\n" %(yvar,p)
+            elif q <= 0.35:
+                if float(q) == 0.0:
+                    q = 0.001
+                bias += "w %s %s\n" %(yvar,q)
+            else:
+                if float(p) == 1.0:
+                    p = 0.99
+                bias += "w %s %s\n" %(yvar,p)
+        
+        return sampling_cnf + bias
+            
+
+    def generatesample(self, args, num_samples, sampling_cnf, inputfile_name, weighted):
+        tempcnffile = tempfile.gettempdir() + '/' + inputfile_name + "_sample.cnf"
+        with open (tempcnffile,"w") as f:
+            f.write(sampling_cnf)
+        f.close()
+
+        tempoutputfile = tempfile.gettempdir() + '/' + inputfile_name + "_.txt"
+        seed = 10
+        if weighted:
+            cmd = "./dependencies/cryptominisat5 -n1 --sls 0 --comps 0"
+            cmd += " --restart luby  --nobansol --maple 0 --presimp 0"
+            cmd += " --polar weight --freq 0.9999 --verb 0 --scc 0"
+            cmd += " --random %s --maxsol %s > /dev/null 2>&1" % (seed, int(num_samples))
+            cmd += " %s" % (tempcnffile)
+            cmd += " --dumpresult %s " % (tempoutputfile)
+        else:
+            cmd = "./dependencies/cryptominisat5 --restart luby"
+            cmd += " --maple 0 --verb 0 --nobansol"
+            cmd += " --scc 1 -n1 --presimp 0 --polar rnd --freq 0.9999"
+            cmd += " --random %s --maxsol %s" % (seed, int(num_samples))
+            cmd += " %s" % (tempcnffile)
+            cmd += " --dumpresult %s > /dev/null 2>&1" % (tempoutputfile)
+        
+        os.system(cmd)
+
+        with open(tempoutputfile,"r") as f:
+            content = f.read()
+        f.close()
+        os.unlink(tempoutputfile)
+        os.unlink(tempcnffile)
+        content = content.replace("SAT\n","").replace("\n"," ").strip(" \n").strip(" ")
+        models = content.split(" ")
+        models = np.array(models)
+        if models[len(models)-1] != "0":
+            models = np.delete(models, len(models) - 1, axis=0)
+        if len(np.where(models == "0")[0]) > 0:
+            index = np.where(models == "0")[0][0]
+            var_model = np.reshape(models, (-1, index+1)).astype(np.int)
+            var_model = var_model > 0
+            var_model = np.delete(var_model, index, axis=1)
+            var_model = var_model.astype(np.int)
+        return var_model
 
 # Init utilities
 util = utils()

@@ -83,6 +83,7 @@ def trainer(args, train_loader, validation_loader, num_of_vars, input_size,
     if args.architecture == 1:
         final_accuracy = 0
         final_epochs = 0
+        model_list = []
         for i in range(num_of_outputs):
             current_output = i
             gcln, train_loss, valid_loss, accuracy, epochs = train(args.architecture,
@@ -93,8 +94,8 @@ def trainer(args, train_loader, validation_loader, num_of_vars, input_size,
             )
             final_accuracy += accuracy
             final_epochs += epochs
-        
-        return gcln, train_loss, valid_loss, final_accuracy, final_epochs
+            model_list.append(gcln)
+        return model_list, train_loss, valid_loss, final_accuracy, final_epochs
     elif args.architecture == 2 or args.architecture == 3:
         current_output = 0
         gcln, train_loss, valid_loss, final_accuracy, final_epochs = train(args.architecture,

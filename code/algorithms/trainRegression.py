@@ -1,6 +1,6 @@
 import copy
 import importlib
-from code.model.gcln import GCLN_Arch1, GCLN_Arch3
+from code.model.gcln import GCLN_Arch1, GCLN_Arch2, GCLN_Arch3
 # from code.training import train
 from code.utils import plot as pt
 from code.utils.utils import util
@@ -45,7 +45,7 @@ def train_regressor(architecture,
     if architecture==1:
         gcln = GCLN_Arch1(input_size, num_of_outputs, K, device).to(device)
     elif architecture==2:
-        pass
+        gcln = GCLN_Arch2(input_size, num_of_outputs, K, device).to(device)
     elif architecture==3:
         gcln = GCLN_Arch3(input_size, num_of_outputs, K, device).to(device)
     print("Network")
@@ -70,23 +70,33 @@ def train_regressor(architecture,
         for batch_idx, (inps, tgts) in enumerate(train_loader):
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
             tgts = tgts.round()
-            outs = gcln(inps).squeeze(-1).T.to(device)
-
+            # print(inps, tgts[:, 0], tgts[:, 1])
+            outs = gcln(inps).to(device)
+            # print("outs, tgts: ", outs.shape, tgts.shape)
+            # print("outs: ", inps, outs, tgts)
+            for name, param in gcln.named_parameters():
+                if param.requires_grad:
+                    print(name, param.data)
             gcln_ = copy.deepcopy(gcln)
             gcln_.layer_or_weights = torch.nn.Parameter(gcln_.layer_or_weights.round())
             gcln_.layer_and_weights = torch.nn.Parameter(gcln_.layer_and_weights.round())
-            out_ = gcln_(inps).squeeze(-1).T
+            out_ = gcln_(inps)
             if architecture == 1:
                 t_loss = criterion(outs, tgts[:, current_output])
                 train_epoch_loss += t_loss.item()
             elif architecture == 2:
-                l = []
-                for i in range(num_of_outputs):
-                    l.append(criterion(outs[:, i], tgts[:, i]))
-                # print("loss list: ", l)
-                t_loss = sum(l)
-                train_epoch_loss += t_loss.item()/num_of_outputs
+                # l = []
+                # for i in range(num_of_outputs):
+                #     l.append(criterion(outs[:, i], tgts[:, i]))
+                # # print("loss list: ", l)
+                # t_loss = sum(l)/num_of_outputs
+                # print("tloss: ", t_loss)
+                t_loss = criterion(outs, tgts)
+                # print(t_loss)
+                train_epoch_loss += t_loss.item()
             elif architecture == 3:
+                outs = outs.squeeze(-1).T
+                out_ = out_.squeeze(-1).T
                 l = []
                 for i in range(num_of_outputs):
                     l.append(criterion(outs[:, i], tgts[:, i]))
@@ -99,7 +109,7 @@ def train_regressor(architecture,
             train_size += outs.shape[0]
             # t_loss = (criterion(outs, tgts))
             t_loss = t_loss + lambda1*torch.sum(1-gcln.layer_and_weights)
-            # t_loss = t_loss + lambda2*torch.sum(1-gcln.layer_or_weights)
+            t_loss = t_loss + lambda2*torch.sum(1-gcln.layer_or_weights)
             # print("loss: ", t_loss)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 1) + \
             #     lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)
@@ -115,12 +125,13 @@ def train_regressor(architecture,
             # print("Gradient for G2: ", gcln.layer_and_weights.grad)
             # print(inps.size(0))
             
-            # print("outs, out_, tgts: ", inps, outs, out_, tgts)
+            # print("out_, tgts: ", out_, tgts)
             # print((out_.round()==tgts).sum())
             if architecture == 1:
                 accuracy += (out_.round()==tgts[:, current_output]).sum()
             elif architecture > 1:
                 accuracy += (out_.round()==tgts).sum()
+                # print("acc: ", accuracy)
         # print(len(train_loader.sampler))
         train_loss.append(train_epoch_loss)
         # print(len(train_loader)*32*num_of_outputs, num_of_outputs)
@@ -224,4 +235,7 @@ def train_regressor(architecture,
             # if ret == 0:
             #     return gcln, train_loss, valid_loss
 
-    return gcln, train_loss, valid_loss, total_accuracy, epoch-1
+    with torch.no_grad():
+        gcln_.layer_or_weights.data.clamp_(0.0, 1.0)
+        gcln_.layer_and_weights.data.clamp_(0.0, 1.0)
+    return gcln_, train_loss, valid_loss, total_accuracy, epoch-1

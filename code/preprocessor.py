@@ -1,8 +1,10 @@
+import tempfile
 import time
-from code.utils.generateSamples_manthan import *
+# from code.utils.generateSamples_manthan import *
 # from code.utils.preprocess_manthan import *
 from code.utils.utils import util
 
+import numpy as np
 import torch
 from data.dataLoader import dataLoader
 
@@ -180,28 +182,29 @@ def process():
                 if (yvar in PosUnate) or (yvar in NegUnate):
                     continue
 
-                sampling_weights_y_1 += "w %s 0.5\n" % (yvar)
+                sampling_weights_y_1 += "w %s 0.9\n" % (yvar)
                 sampling_weights_y_0 += "w %s 0.1\n" % (yvar)
 
             if adaptivesample:
-                weighted_sampling_cnf = computeBias(
+                weighted_sampling_cnf = util.computeBias(
                     Xvar, Yvar, sampling_cnf, sampling_weights_y_1, sampling_weights_y_0, inputfile_name, Unates, args)
             else:
                 weighted_sampling_cnf = sampling_cnf + sampling_weights_y_1
             # print(weighted_sampling_cnf)
             print("generating weighted samples")
-            samples = generatesample(
+            samples = util.generatesample(
                 args, num_samples, weighted_sampling_cnf, inputfile_name, 1)
         else:
             print("generating uniform samples")
-            samples = generatesample(
+            samples = util.generatesample(
                 args, num_samples, sampling_cnf, inputfile_name, 0)
 
+        # print("all samples: ", samples[:10, :])
         
         Xvar_tmp = [i-1 for i in Xvar]
         _, indices = np.unique(samples[:, Xvar_tmp], axis=0, return_index=True)
         samples = samples[indices, :]
-        print("samples: ", samples.shape)
+        print("samples on unique inputs: ", samples.shape)
         print(samples)
 
         training_samples = torch.from_numpy(samples[:100, :]).to(torch.double)
@@ -221,6 +224,7 @@ def process():
         input_size = 2*len(input_var_idx)
         print("Input size: ", input_size)
         print("Output size: ", len(output_var_idx))
+        print("indices: ", input_var_idx, output_var_idx)
 
         if args.run_for_all_outputs == 1:
             num_of_outputs = len(output_var_idx)

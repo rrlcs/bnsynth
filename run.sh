@@ -10,7 +10,8 @@ python3 run.py \
 --verilog_spec=$2 \
 --training_size=10000 \
 --epochs=$3 \
---batch_size=4 \
+--batch_size=1 \
 --K=$4 \
---preprocessor=2 \
---architecture=3
+--preprocessor=1 \
+--postprocessor=1 \
+--architecture=1
