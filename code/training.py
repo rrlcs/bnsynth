@@ -15,18 +15,18 @@ import torch.nn as nn
 	2: Classification 2
 	3: Classification 3
 '''
-def train(architecture, P, train, train_loader, validation_loader, learning_rate, epochs, 
+def train(architecture, cnf, P, train, train_loader, validation_loader, learning_rate, epochs, 
 				input_size, num_of_outputs, K, device, num_of_vars, input_var_idx,
-                output_var_idx, current_output, io_dict, io_dictz3, threshold,
+                output_var_idx, current_output, io_dict, threshold,
                 verilog_spec, verilog_spec_location,
                 Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate):
     
 
     if P == 0:
         if train:
-            gcln, train_loss, valid_loss, accuracy, epoch = train_regressor(architecture,
+            gcln, train_loss, valid_loss, accuracy, epoch = train_regressor(architecture, cnf,
                 train_loader, validation_loader, learning_rate, epochs, input_size, num_of_outputs, K, device, num_of_vars, input_var_idx,
-                output_var_idx, current_output, io_dict, io_dictz3, threshold,
+                output_var_idx, current_output, io_dict, threshold,
                 verilog_spec, verilog_spec_location,
                 Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate)
         else:
@@ -79,17 +79,17 @@ def train(architecture, P, train, train_loader, validation_loader, learning_rate
 Select Architecture and Train using:
 '''
 def trainer(args, train_loader, validation_loader, num_of_vars, input_size, 
-            num_of_outputs, input_var_idx, output_var_idx, io_dict, io_dictz3, Xvar, Yvar, device):
+            num_of_outputs, input_var_idx, output_var_idx, io_dict, Xvar, Yvar, device):
     if args.architecture == 1:
         final_accuracy = 0
         final_epochs = 0
         model_list = []
         for i in range(num_of_outputs):
             current_output = i
-            gcln, train_loss, valid_loss, accuracy, epochs = train(args.architecture,
+            gcln, train_loss, valid_loss, accuracy, epochs = train(args.architecture, args.cnf,
                 args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs, 
                 input_size, num_of_outputs, args.K, device, num_of_vars, input_var_idx, output_var_idx, current_output,
-                io_dict, io_dictz3, args.threshold, args.verilog_spec, args.verilog_spec_location, 
+                io_dict, args.threshold, args.verilog_spec, args.verilog_spec_location, 
                 Xvar, Yvar, verilog_formula=[], verilog=[], pos_unate=[], neg_unate=[]
             )
             final_accuracy += accuracy
@@ -98,10 +98,10 @@ def trainer(args, train_loader, validation_loader, num_of_vars, input_size,
         return model_list, train_loss, valid_loss, final_accuracy, final_epochs
     elif args.architecture == 2 or args.architecture == 3:
         current_output = 0
-        gcln, train_loss, valid_loss, final_accuracy, final_epochs = train(args.architecture,
+        gcln, train_loss, valid_loss, final_accuracy, final_epochs = train(args.architecture, args.cnf,
                 args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs, 
                 input_size, num_of_outputs, args.K, device, num_of_vars, input_var_idx, output_var_idx, current_output,
-                io_dict, io_dictz3, args.threshold, args.verilog_spec, args.verilog_spec_location, 
+                io_dict, args.threshold, args.verilog_spec, args.verilog_spec_location, 
                 Xvar, Yvar, verilog_formula=[], verilog=[], pos_unate=[], neg_unate=[]
             )
         

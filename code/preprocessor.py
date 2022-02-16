@@ -1,7 +1,5 @@
 import tempfile
 import time
-# from code.utils.generateSamples_manthan import *
-# from code.utils.preprocess_manthan import *
 from code.utils.utils import util
 
 import numpy as np
@@ -9,7 +7,7 @@ import torch
 from data.dataLoader import dataLoader
 
 
-def process():
+def preprocess():
     # Get Argument Parser
     parser = util.make_arg_parser()
     args = parser.parse_args()
@@ -27,16 +25,16 @@ def process():
                   args.verilog_spec, args.verilog_spec_location
                   )
         
-        # result = util.check_unates(pos_unate, neg_unate, Xvar, Yvar, args.verilog_spec[:-2])
+        result = util.check_unates(PosUnate, NegUnate, Xvar, Yvar, args.verilog_spec[:-2])
         # if result:
         #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All Unates"+"\n"
-        #     f = open("unates.csv", "a")
+        #     f = open("experiments/unates.csv", "a")
         #     f.write(unate_data)
         #     f.close()
         #     exit("All Unates!")
         # else:
         #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All not Unates"+"\n"
-        #     f = open("unates.csv", "a")
+        #     f = open("experiments/unates.csv", "a")
         #     f.write(unate_data)
         #     f.close()
         #     exit("All not Unates!")
@@ -65,7 +63,7 @@ def process():
         print("No. of vars: {}, No. of output vars: {}, No. of eqns: {}".format(num_of_vars, num_out_vars, num_of_eqns))
 
         # Prepare input output dictionaries
-        io_dict, io_dictz3 = util.prepare_io_dicts(total_vars, total_varsz3=[])
+        io_dict = util.prepare_io_dicts(total_vars)
 
          # Obtain variable indices
         input_var_idx, output_var_idx = util.get_var_indices(num_of_vars, output_varlist, io_dict)
@@ -238,5 +236,5 @@ def process():
 
     
     return args, train_loader, validation_loader, input_size, num_of_outputs,\
-         num_of_vars, input_var_idx, output_var_idx, io_dict, io_dictz3, Xvar,\
+         num_of_vars, input_var_idx, output_var_idx, io_dict, Xvar,\
               Yvar, verilogformula, verilog, PosUnate, NegUnate, device

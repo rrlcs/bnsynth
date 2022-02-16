@@ -1,3 +1,4 @@
+import os
 import time
 from code.utils.utils import util
 
@@ -20,7 +21,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
 		inputfile_name = args.verilog_spec.split('.v')[0]
 		
 		# Write the error formula in verilog
-		util.write_error_formula(inputfile_name, args.verilog_spec, verilogformula, skf_list, Xvar, Yvar, PosUnate, NegUnate)
+		util.write_error_formula1(inputfile_name, args.verilog_spec, verilogformula, skf_list, Xvar, Yvar, PosUnate, NegUnate)
 
 		# sat call to errorformula:
 		check, sigma, ret = util.verify(Xvar, Yvar, args.verilog_spec)
@@ -29,20 +30,21 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
 			print("Skolem functions not generated")
 			print("not solved !!")
 			is_valid = 0
-			exit()
+			# exit()
 		
 		if ret == 0:
 			print('error formula unsat.. skolem functions generated')
 			print("success")
 			is_valid = 1
 			skfunc = [sk.replace('\n', '') for sk in skf_list]
-			# print("==============", '; '.join(skfunc))
 			t = time.time() - start_time
 			datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+'; '.join(skfunc)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
 			print(datastring)
 			f = open("multi_output_results.csv", "a")
 			f.write(datastring)
 			f.close()
+
+			os.system('rm data/benchmarks/cav20_manthan_dataset/verilog/*.cnf')
 
 	elif args.postprocessor == 2:
 
@@ -52,7 +54,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
 		verilog = inputfile_name+".v"
 		
 		# Write the error formula in verilog
-		util.write_error_formula(inputfile_name, verilog, verilogformula, skf_list, Xvar, Yvar, PosUnate, NegUnate)
+		util.write_error_formula2(inputfile_name, verilog, verilogformula, skf_list, Xvar, Yvar, PosUnate, NegUnate)
 		
 		# sat call to errorformula:
 		check, sigma, ret = util.verify(Xvar, Yvar, verilog)
@@ -61,14 +63,13 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
 			print("Skolem functions not generated")
 			print("not solved !!")
 			is_valid = 0
-			exit()
+			# exit()
 		
 		if ret == 0:
 			print('error formula unsat.. skolem functions generated')
 			print("success")
 			is_valid = 1
 			skfunc = [sk.replace('\n', '') for sk in skf_list]
-			# print("==============", '; '.join(skfunc))
 			t = time.time() - start_time
 			datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+'; '.join(skfunc)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
 			print(datastring)

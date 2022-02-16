@@ -31,19 +31,27 @@ class utils():
         super(utils, self).__init__()
 
     def negation(self, x):
-        '''
-        Fuzzy alternative for Logical NOT
-        '''
-
         return 1 - x
+
+    # Continuous AND
+    def tnorm_vectorized(self, t, u):
+        if self.name == "luka":
+            return max(0, t + u - 1)
+        elif self.name == "godel":
+            return torch.minimum(t, u)
+        elif self.name == "product":
+            return torch.multiply(t, u)
+        else:
+            print("Wrong Name!")
+
+    def tconorm_vectorized(self, t, u):
+        return 1 - self.tnorm_vectorized(1-t, 1-u)
 
     # Continuous AND with n inputs
     def tnorm_n_inputs(self, inp):
-        '''
-        Fuzzy alternative for Logical AND
-        '''
-
-        if self.name == "godel":
+        if self.name == "luka":
+            return torch.max(torch.tensor(0), torch.sum(inp) - 1)
+        elif self.name == "godel":
             out, _ = torch.min(inp, dim=-2)
             return out
         elif self.name == "product":
@@ -51,22 +59,178 @@ class utils():
         else:
             print("Wrong Name!")
 
-    def add_noise(self, samples, range=0.1):
-        '''
-        Adds random noise to samples to generate fractional samples
-        '''
+    # Continuous xor definition
+    def continuous_xor(self, x, y):
+        t = self.tnorm_vectorized(1-x, y)
+        u = self.tnorm_vectorized(x, 1-y)
+        return self.tconorm_vectorized(t, u)
 
+    def continuous_xor_vectorized(self, XY_vars):
+        op1 = XY_vars[0, :]
+        for i in range(XY_vars.shape[0]-1):
+            op2 = XY_vars[i+1, :]
+            t = self.tnorm_vectorized(1-op1, op2)
+            u = self.tnorm_vectorized(op1, 1-op2)
+            res = self.tconorm_vectorized(t, u)
+            op1 = res
+        return res
+
+    def generateAllBinaryStrings(self, n, arr, i):
+        if i == n:
+            a = copy.deepcopy(arr)
+            self.res.append(a)
+            return
+        arr[i] = 0.0
+        self.generateAllBinaryStrings(n, arr, i + 1)
+        arr[i] = 1.0
+        self.generateAllBinaryStrings(n, arr, i + 1)
+
+    def proc(self, dat, range):
         return torch.where(
-            samples > 0.5,
-            torch.rand(samples.shape)*range + (1 - range),
-            torch.rand(samples.shape)*range
+            dat > 0.5,
+            torch.rand(dat.shape)*range + (1 - range),
+            torch.rand(dat.shape)*range
         )
 
-    def make_arg_parser(self):
-        '''
-        Comman Line Argument Parser
-        '''
+    def add_noise(self, samples, range=0.1):
+        return self.proc(samples, range)
 
+    # Seed based sampling from truth table
+    def seed_sampling(
+        self, 
+        no_of_samples, 
+        util, 
+        py_spec, 
+        threshold, 
+        num_of_vars
+        ):
+
+        arr = [0 for i in range(num_of_vars)]
+        self.generateAllBinaryStrings(num_of_vars, arr, 0)
+        XY_vars = torch.from_numpy(np.array(self.res).T)
+        res = py_spec.F(XY_vars, util)
+        samples = XY_vars[:, res >= threshold].T
+        df = pd.DataFrame(samples.numpy())
+        samples = torch.tensor(df.values)
+        samples.type(torch.DoubleTensor)
+        gen_new_data = torch.cat(
+            [(self.add_noise(samples.T)).T for _ in range(100)])
+        # gen_new_data = (gen_new_data * 10**2).round() / (10**2)
+        samples = gen_new_data.type(torch.DoubleTensor)
+        print("Train Data Generated: ", samples.shape, samples.dtype)
+        return samples
+
+    # Fractional Sampling
+    def fractional_sampling(
+        self, 
+        no_of_samples, 
+        util, 
+        py_spec, 
+        threshold, 
+        num_of_vars
+        ):
+
+        first_interval = np.array([0, 0.01])
+        second_interval = np.array([0.99, 1])
+        total_length = np.ptp(first_interval)+np.ptp(second_interval)
+        n = (num_of_vars, no_of_samples)
+        np.random.seed(0)
+        numbers = np.random.random(n)*total_length
+        numbers += first_interval.min()
+        numbers[numbers > first_interval.max()] += second_interval.min() - \
+            first_interval.max()
+        XY_vars = torch.from_numpy(numbers)
+        res = py_spec.F(XY_vars, util)
+        samples = XY_vars[:, res >= threshold].T
+        print("Train Data Generated: ", samples.shape)
+        return samples
+
+    # Fractional Sampling
+    def fractional_sampling_pos_and_neg(
+        self, 
+        no_of_samples, 
+        util, 
+        threshold, 
+        num_of_vars,
+        py_spec
+        ):
+
+        first_interval = np.array([0, 0.3])
+        second_interval = np.array([0.7, 1])
+
+        total_length = np.ptp(first_interval)+np.ptp(second_interval)
+        n = (num_of_vars, no_of_samples)
+        numbers = np.random.random(n)*total_length
+        numbers += first_interval.min()
+        numbers[numbers > first_interval.max()] += second_interval.min() - \
+            first_interval.max()
+
+        XY_vars = torch.from_numpy(numbers)
+        res = py_spec.F(XY_vars, util)
+        samples = XY_vars[:num_of_vars, :]
+        outs = (res > threshold).double()
+        train_samples = torch.cat((samples.T, outs.reshape(-1, 1)), dim=1)
+        sorted_data = torch.stack(
+            sorted(train_samples, key=lambda train_samples: train_samples[-1], reverse=True))
+        train_samples = sorted_data[:2*(outs == 1).sum(), :]
+        print("Train Data Generated: ", train_samples.shape)
+
+        return train_samples
+
+        # Fractional Sampling
+    # def correlated_fractional_sampling(
+    #     self, 
+    #     no_of_samples, 
+    #     util, 
+    #     threshold, 
+    #     num_of_vars
+    #     ):
+        
+    #     first_interval = np.array([0, 0.3])
+    #     second_interval = np.array([0.7, 1])
+    #     total_length = np.ptp(first_interval)+np.ptp(second_interval)
+    #     n = (num_of_vars, no_of_samples)
+    #     numbers = np.random.random(n)*total_length
+    #     numbers += first_interval.min()
+    #     numbers[numbers > first_interval.max()] += second_interval.min() - \
+    #         first_interval.max()
+    #     XY_vars = torch.from_numpy(numbers)
+    #     if num_of_vars == 1:
+    #         data = []
+    #         for i in range(XY_vars.shape[1]):
+    #             if XY_vars[0, i] > threshold:
+    #                 t1 = torch.cat([XY_vars[0, i].unsqueeze(-1),
+    #                                1-XY_vars[0, i].unsqueeze(-1)], dim=0)
+    #                 data.append(t1)
+    #                 t2 = torch.cat([XY_vars[0, i].unsqueeze(-1),
+    #                                XY_vars[0, i].unsqueeze(-1)], dim=0)
+    #                 data.append(t2)
+    #         train_samples = torch.stack(data)
+    #         res = func_spec.F(XY_vars, util)
+    #         outs = (res > threshold).double()
+    #         train_samples = torch.cat(
+    #             (train_samples[:, :num_of_vars], outs.reshape(-1, 1)), dim=1)
+    #         print("Train Data Generated: ", train_samples.shape)
+    #         return train_samples
+    #     res = self.continuous_xor_vectorized(XY_vars)
+    #     data = []
+    #     for i in range(res.shape[0]):
+    #         if res[i] > threshold:
+    #             t1 = torch.cat([XY_vars[:, i], 1-res[i].unsqueeze(-1)], dim=0)
+    #             data.append(t1)
+    #             t2 = torch.cat([XY_vars[:, i], res[i].unsqueeze(-1)], dim=0)
+    #             data.append(t2)
+    #     train_samples = torch.stack(data)
+    #     res = self.continuous_xor_vectorized(train_samples.T)
+    #     outs = (res > threshold).double()
+    #     train_samples = torch.cat(
+    #         (train_samples[:, :num_of_vars], outs.reshape(-1, 1)), dim=1)
+    #     print("Train Data Generated: ", train_samples.shape)
+
+    #     return train_samples
+
+
+    def make_arg_parser(self):
         parser = argparse.ArgumentParser()
         parser.add_argument("--threshold", metavar="--th", type=float,
                             default=0.8, help="Enter value between 0.5 <= th <= 1")
@@ -98,20 +262,13 @@ class utils():
                             type=int, default=1, help="1 for manthan1 2 for manthan2")
         parser.add_argument("--architecture",
                             type=int, default=1, help="1: Arch 1; 2: Arch 2; 3: Arch 3")
-        parser.add_argument("--cnf",
-                            type=int, default=1, help="1: for cnf; 0: for dnf")
         parser.add_argument("--verilog_spec", type=str,
                             default="sample1", help="Enter file name")
         parser.add_argument("--verilog_spec_location", type=str,
                             default="verilog", help="Enter file location")
-        
         return parser
 
     def plot(self):
-        '''
-        Plots losses against epochs
-        '''
-
         f = open("train_loss", "r")
         train_loss = f.read().split(",")
         f.close()
@@ -125,12 +282,21 @@ class utils():
         # plt.legend()
         plt.savefig("train_valid_loss_plot.png")
 
-    def convert_verilog(self, input, cluster):
-        '''
-        Converts qdimacs to verilog
-        Input: qdimacs input file
-        Output: verilog formula
-        '''
+    def preprocess_wrapper(self, verilog_spec, verilog_spec_location):
+        verilog, varlistfile = self.prepare_file_names(verilog_spec, verilog_spec_location)
+        output_varlist = self.get_output_varlist(varlistfile)  # Y variable list
+        output_varlist = ["i"+e.split("_")[1] for e in output_varlist]
+        Xvar_tmp, Yvar_tmp, total_vars = self.get_temporary_variables(verilog, output_varlist)
+        total_varsz3 = total_vars
+        total_vars = ["i"+e.split("_")[1] for e in total_vars]
+        verilog_formula = self.change_modulename(verilog)
+        pos_unate, neg_unate, Xvar, Yvar, Xvar_map, Yvar_map = self.preprocess_manthan(
+            varlistfile, verilog, Xvar_tmp, Yvar_tmp
+            )
+        return verilog, output_varlist, total_vars, total_varsz3, verilog_formula, pos_unate, neg_unate, Xvar, Yvar, Xvar_map, Yvar_map
+
+    def convert_verilog(self, input,cluster):
+        # ng = nx.Graph() # used only if args.multiclass
 
         with open(input, 'r') as f:
             lines = f.readlines()
@@ -166,6 +332,8 @@ class utils():
                     tmp_array.append(int(evar))
                     declare += "%s," %(evar)
                     declare_input += "input %s;\n" %(evar)
+                    # if int(evar) not in list(dg.nodes):
+                    #     dg.add_node(int(evar))
                 continue
 
             declare_wire += "wire t_%s;\n" %(itr)
@@ -180,8 +348,24 @@ class utils():
                     assign_wire += "%s | " %(abs(int(var)))
 
             assign_wire = assign_wire.strip("| ")+";\n"
+            
+            ### if args.multiclass, then add an edge between variables of the clause ###
 
-            # Removed code for mutliclass as it's not needed in our case.
+            # if cluster:
+            #     for literal1 in clause_variable:
+            #         literal1 = abs(int(literal1))
+            #         if literal1 in tmp_array:
+            #             if literal1 not in list(ng.nodes):
+            #                 ng.add_node(literal1)
+            #             for literal2 in clause_variable:
+            #                 literal2 = abs(int(literal2))
+            #                 if (literal1 != abs(literal2)) and (literal2 in tmp_array):
+            #                     if literal2 not in list(ng.nodes):
+            #                         ng.add_node(literal2)
+            #                     if not ng.has_edge(literal1, literal2):
+            #                         ng.add_edge(literal1,literal2)
+
+
 
         count_tempvariable = itr
 
@@ -212,33 +396,91 @@ class utils():
 
         return verilogformula
     
-    def make_dataset_larger(self, samples, N=10):
-        '''
-        Adds N points from the neighborhood of each sample point
-        '''
-
+    def make_dataset_larger(self, samples):
+        
         # tensor dataset
         training_samples = torch.from_numpy(samples)
-
+        # repeat samples n=2 times
+        # training_samples = training_samples.repeat(2, 1)
         # add random noise to get fractional samples
         training_samples = torch.cat([
-            self.add_noise((training_samples)) for _ in range(N)
+            self.add_noise((training_samples)) for _ in range(10)
             ])
         training_samples = training_samples.to(torch.double)
 
         return training_samples
 
-    def prepare_io_dicts(self, total_vars):
-        '''
-        Prepares and returns io variable dictionary
-        '''
+    def prepare_io_dicts(self, total_vars, total_varsz3):
 
         io_dict = {}
         for index, value in enumerate(total_vars):
             io_dict[index] = value
         io_dict = OrderedDict(io_dict)
+
+        io_dictz3 = {}
+        for index, value in enumerate(total_varsz3):
+            io_dictz3[index] = value
+        io_dictz3 = OrderedDict(io_dictz3)
         
-        return io_dict
+        return io_dict, io_dictz3
+
+    def prepare_ce(self, io_dict, counter_examples, num_of_vars, num_of_outputs):
+        '''
+        Takes the counter examples generated by z3 solver
+        and adds column for the bounded variable (output variable)
+        and formats it required shapes
+
+        Returns formatted counter examples
+        '''
+
+        ce1 = []
+        noce = len(counter_examples[io_dict[0]])  # number of counter examples
+
+        num_of_inputs = num_of_vars-num_of_outputs
+        for i in range(len(io_dict)):
+            if io_dict[i] in counter_examples:
+                ce1.append(np.array(counter_examples[io_dict[i]]).T)
+
+        arr = [0 for i in range(num_of_outputs)]
+        self.res = []
+        self.generateAllBinaryStrings(num_of_outputs, arr, 0)
+        out_vars = np.array(self.res)
+        out_vars = np.repeat(
+            out_vars, noce, axis=0
+        )
+        ce = np.concatenate(ce1[:]).reshape((noce, num_of_inputs))
+        ce = torch.from_numpy(np.concatenate(
+            (
+                np.repeat(
+                    ce, 2**num_of_outputs, axis=0
+                ),
+                out_vars
+            ),
+            axis=1
+        )
+        )
+        return ce.T
+    
+    def generate_counter_examples(self,
+    n, io_dict, counter_examples, py_spec, util, num_of_vars, num_of_outputs
+	):
+        '''
+        Prepares counter examples and filters it based on 
+        specification encoded in py_spec
+        ce: counter examples
+        '''
+
+        # n = 5000
+        ce = self.prepare_ce(io_dict, counter_examples, num_of_vars, num_of_outputs)
+        # print("ce shape: ", ce.shape)
+        res = py_spec.F(ce, util)
+        # print("ce:: ", ce[:, res >= 0.5].T)
+        ce = torch.cat(
+            [
+                self.add_noise((ce[:, res >= 0.5].T)) for _ in range(n)
+            ]
+        ).double()
+        return ce
     
     def store_nn_output(self, num_of_outputs, skfunc):
         '''
@@ -270,6 +512,7 @@ class utils():
         valid_loss.tofile(f, sep=",", format="%s")
         f.close()
 
+
     def store_preprocess_time(self,
         verilog_spec, num_of_vars, num_out_vars, num_of_eqns, epochs, no_of_samples, preprocess_time
         ):
@@ -279,39 +522,40 @@ class utils():
         f.write(line)
         f.close()
 
-    def get_var_indices(self, num_of_vars, output_varlist, io_dict):
-        '''
-        Creates list of indices of input and output variables
-        Input: output varlist, input output dictionary
-        Output: input_var_idx, and output_var_idx as index lists
-        '''
 
+    def load_python_spec(self, filename):
+        mod = __import__('python_specs', fromlist=[filename])
+        py_spec = getattr(mod, filename)
+
+        return py_spec
+
+
+    def get_var_indices(self, num_of_vars, output_varlist, io_dict):
         output_var_idx = [list(io_dict.values()).index(output_varlist[i]) for i in range(len(output_varlist)) if output_varlist[i] in io_dict.values()]
         var_indices = [i for i in range(num_of_vars)]
         input_var_idx = [x for x in var_indices if x not in output_var_idx]
+        # input_var_idx = [i-1 for i in input_var_idx]
+        # output_var_idx = [i-1 for i in output_var_idx]
         return input_var_idx, output_var_idx
 
 
-    def get_train_test_split(self, dataset):
-        '''
-        Performs train test split of the dataset
-        '''
-
-        data_size = dataset.shape[0]
+    def get_train_test_split(self, training_samples):
+        data_size = training_samples.shape[0]
         val_size = floor(data_size*0.5)
         train_size = data_size - val_size
-        validation_set = dataset[train_size:, :]
-        training_set = dataset[:, :]
+        validation_set = training_samples[train_size:, :]
+        training_set = training_samples[:, :]
 
         return training_set, validation_set
     
     def get_skolem_function(self, args, gcln, no_of_input_var, input_var_idx, num_of_outputs, output_var_idx, io_dict):
         '''
-        Reads the model weights (layer_or_weights, layer_and_weights) and builds the skolem function based on it.
         Input: Learned model parameters
         Output: Skolem Functions
+        Functionality: Reads the model weights (layer_or_weights, layer_and_weights) and builds the skolem function based on it.
         '''
 
+        # sigmoid = nn.Sigmoid()
         layer_or_weights = gcln.layer_or_weights.cpu().detach().numpy() # input_size x K
         layer_and_weights = gcln.layer_and_weights.cpu().detach().numpy() # K x num_of_outputs
 
@@ -368,17 +612,14 @@ class utils():
             skfs.append(skf)
 
         # print("-----------------------------------------------------------------------------")
-        # print("skolem function in getSkolemFunc.py: ", skfs)
+        print("skolem function in getSkolemFunc.py: ", skfs)
         # print("-----------------------------------------------------------------------------")
 
         return skfs
 
 
-    # MANTHAN MODULES FOR VERILOG INPUT FILES:
+    # MANTHAN MODULES:
     def prepare_file_names(self, verilog_spec, verilog_spec_location):
-        '''
-        Returns path to verilog .v and varstoelim .txt files
-        '''
 
         filename = verilog_spec.split(".v")[0]+"_varstoelim.txt"
         varlistfile = "data/benchmarks/"+\
@@ -389,18 +630,11 @@ class utils():
         return verilog, varlistfile
     
     def get_output_varlist(self, varlistfile):
-        '''
-        Reads output variables from varstoelim.txt
-        Returns output variable list
-        '''
 
         return [line.rstrip('\n')
                for line in open(varlistfile)]
     
     def get_temporary_variables(self, verilog, output_varlist):
-        '''
-        Creates temporary variables and returns them
-        '''
 
         Xvar_tmp = []
         Yvar_tmp = []
@@ -420,10 +654,6 @@ class utils():
         return Xvar_tmp, Yvar_tmp, total_var[:-1]
 
     def change_modulename(self, verilog):
-        '''
-        Changes module name in verilog file to FORMULA
-        Returns modified verilog_formula
-        '''
 
         verilog_formula = ''
         with open(verilog, 'r') as f:
@@ -436,11 +666,6 @@ class utils():
         return verilog_formula
 
     def preprocess_manthan(self, varlistfile,verilog,Xvar_tmp,Yvar_tmp):
-        '''
-        Preprocesses verilog files
-        Returns variable information and unates
-        '''
-
         inputfile_name = verilog.split(".v")[0]
         cmd = "./dependencies/preprocess -b %s -v %s > /dev/null 2>&1 " % (
             verilog, varlistfile)
@@ -530,26 +755,6 @@ class utils():
             neg_unate_list.append(list(Yvar_map.keys())[list(Yvar_map.values()).index(unate)])
         
         return pos_unate_list, neg_unate_list, Xvar, Yvar, Xvar_map, Yvar_map
-
-    def preprocess_wrapper(self, verilog_spec, verilog_spec_location):
-        '''
-        Preprocesses verilog input file and finds unates
-        Input: verilog input file
-        Output: variable information and unates
-        '''
-
-        verilog, varlistfile = self.prepare_file_names(verilog_spec, verilog_spec_location)
-        output_varlist = self.get_output_varlist(varlistfile)  # Y variable list
-        print(output_varlist)
-        output_varlist = ["i"+e.split("_")[1] for e in output_varlist if "_" in e]
-        Xvar_tmp, Yvar_tmp, total_vars = self.get_temporary_variables(verilog, output_varlist)
-        total_varsz3 = total_vars
-        total_vars = ["i"+e.split("_")[1] for e in total_vars if "_" in e]
-        verilog_formula = self.change_modulename(verilog)
-        pos_unate, neg_unate, Xvar, Yvar, Xvar_map, Yvar_map = self.preprocess_manthan(
-            varlistfile, verilog, Xvar_tmp, Yvar_tmp
-            )
-        return verilog, output_varlist, total_vars, total_varsz3, verilog_formula, pos_unate, neg_unate, Xvar, Yvar, Xvar_map, Yvar_map
 
     def unate_skolemfunction(self, Xvar, Yvar, pos_unate, neg_unate, inputfile_name):
 
@@ -1028,20 +1233,10 @@ class utils():
         error_content += verilog_formula
         return error_content
 
-    def write_error_formula1(self, inputfile_name, verilog, verilog_formula, skfunc, Xvar, Yvar, pos_unate, neg_unate):
-        candidateskf = self.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
-        self.create_skolem_function(
-            inputfile_name, candidateskf, Xvar, Yvar)
-        # self.createSkolem(candidateskf, Xvar, Yvar, [], [], inputfile_name)
-        error_content, refine_var_log = self.create_error_formula(
-            Xvar, Yvar, verilog_formula)
-        # error_content = self.createErrorFormula(Xvar, Yvar, [], verilog_formula)
-        self.add_skolem_to_errorformula(error_content, [], verilog)
-
-    def write_error_formula2(self, inputfile_name, verilog, verilog_formula, skfunc, Xvar, Yvar, pos_unate, neg_unate):
+    def write_error_formula(self, inputfile_name, verilog, verilog_formula, skfunc, Xvar, Yvar, pos_unate, neg_unate):
         candidateskf = self.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
         # self.create_skolem_function(
-        #     inputfile_name, candidateskf, Xvar, Yvar)
+        #     verilog_spec.split('.v')[0], candidateskf, Xvar, Yvar)
         self.createSkolem(candidateskf, Xvar, Yvar, [], [], inputfile_name)
         # error_content, refine_var_log = self.create_error_formula(
         #     Xvar, Yvar, verilog_formula)

@@ -14,4 +14,5 @@ python3 run.py \
 --K=$4 \
 --preprocessor=1 \
 --postprocessor=1 \
---architecture=1
+--architecture=3 \
+--cnf=1
