@@ -104,7 +104,8 @@ class utils():
                             default="sample1", help="Enter file name")
         parser.add_argument("--verilog_spec_location", type=str,
                             default="verilog", help="Enter file location")
-        
+        parser.add_argument("--output_file", type=str,
+                            default="experiments.csv", help="Enter file name for storing results") 
         return parser
 
     def plot(self):
@@ -322,10 +323,10 @@ class utils():
         literals = []
         neg_literals = []
         for i in input_var_idx:
-            literals.append(io_dict.get(i))
-            neg_literals.append("~"+io_dict.get(i))
-            # literals.append("i"+str(i.item()))
-            # neg_literals.append("~i"+str(i.item()))
+            # literals.append(io_dict.get(i))
+            # neg_literals.append("~"+io_dict.get(i))
+            literals.append("i"+str(i))
+            neg_literals.append("~i"+str(i))
 
         clause = np.array(literals + neg_literals)
 
@@ -651,7 +652,7 @@ class utils():
             cnf_content += line + "\n"
         cnf_content = cnf_content.strip("\n")
         cnf_content = indStr + cnf_content + "\n" + fixedvar.rstrip(' \n')
-        # os.unlink(cnffile)
+        os.unlink(cnffile)
 
         return cnf_content, allvar_map
     
@@ -660,6 +661,7 @@ class utils():
         seed = 10
         verbose=0
         inputfile_name = verilog.split("/")[-1][:-2]
+        print("cnf: ", cnf_content)
 
         tempcnffile = tempfile.gettempdir() + '/' + inputfile_name + ".cnf"
         f = open(tempcnffile, "w")

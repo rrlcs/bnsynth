@@ -25,6 +25,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
 
 		# sat call to errorformula:
 		check, sigma, ret = util.verify(Xvar, Yvar, args.verilog_spec)
+		print(check, ret)
 		if check == 0:
 			print("error...ABC network read fail")
 			print("Skolem functions not generated")
@@ -40,7 +41,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
 			t = time.time() - start_time
 			datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+'; '.join(skfunc)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
 			print(datastring)
-			f = open("multi_output_results.csv", "a")
+			f = open(args.output_file, "a")
 			f.write(datastring)
 			f.close()
 
@@ -58,6 +59,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
 		
 		# sat call to errorformula:
 		check, sigma, ret = util.verify(Xvar, Yvar, verilog)
+		print(check, ret)
 		if check == 0:
 			print("error...ABC network read fail")
 			print("Skolem functions not generated")
@@ -73,7 +75,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
 			t = time.time() - start_time
 			datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx))+", "+str(num_of_outputs)+", "+str(0)+", "+'; '.join(skfunc)+", "+"Valid"+", "+str(t)+", "+str(final_loss)+", "+str(loss_drop)+", "+str(accuracy)+"\n"
 			print(datastring)
-			f = open("multi_output_results.csv", "a")
+			f = open(args.output_file, "a")
 			f.write(datastring)
 			f.close()
 	

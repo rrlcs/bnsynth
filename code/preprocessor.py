@@ -49,8 +49,9 @@ def preprocess():
             cnf_content, Xvar, Yvar, Xvar_map, Yvar_map, allvar_map,verilog,
             max_samples=args.training_size
             )
+        print("samples: ", samples)
         
-        training_samples = util.make_dataset_larger(samples)
+        # training_samples = util.make_dataset_larger(samples)
         training_samples = torch.from_numpy(samples[:100, :]).to(torch.double)
         print(training_samples.shape)
 
@@ -161,12 +162,12 @@ def preprocess():
             if (len(Xvar) > 1200) and (len(Xvar) <= 4000):
                 num_samples = 5000
             if len(Xvar) <= 1200:
-                num_samples = 10000
+                num_samples = 1000
         else:
             num_samples = maxsamples
         
         weighted = 1
-        adaptivesample = 0
+        adaptivesample = 1
 
         if weighted:
             sampling_weights_y_1 = ''
@@ -191,13 +192,13 @@ def preprocess():
             # print(weighted_sampling_cnf)
             print("generating weighted samples")
             samples = util.generatesample(
-                args, num_samples, weighted_sampling_cnf, inputfile_name, 1)
+                args, num_samples, weighted_sampling_cnf, inputfile_name, weighted)
         else:
             print("generating uniform samples")
             samples = util.generatesample(
-                args, num_samples, sampling_cnf, inputfile_name, 0)
+                args, num_samples, sampling_cnf, inputfile_name, weighted)
 
-        # print("all samples: ", samples[:10, :])
+        # print("all samples: ", (samples))
         
         Xvar_tmp = [i-1 for i in Xvar]
         _, indices = np.unique(samples[:, Xvar_tmp], axis=0, return_index=True)
@@ -215,7 +216,7 @@ def preprocess():
         num_of_vars, num_out_vars = len(Xvar)+len(Yvar), len(Yvar)
 
         # Prepare input output dictionaries
-        io_dict, io_dictz3 = util.prepare_io_dicts(total_vars, total_varsz3=[])
+        io_dict = util.prepare_io_dicts(total_vars)
 
         # Obtain variable indices
         input_var_idx, output_var_idx = util.get_var_indices(num_of_vars, output_varlist, io_dict)

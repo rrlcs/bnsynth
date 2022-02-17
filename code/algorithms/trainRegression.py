@@ -32,7 +32,7 @@ def train_regressor(architecture, cnf,
 
     # Set regularizers
     lambda1 = 1e+1
-    lambda2 = 1e-1
+    lambda2 = 1e+1
 
     # Initialize network
     print("No of outputs: ", num_of_outputs, K, input_size)
