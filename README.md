@@ -20,34 +20,33 @@ pip3 install torch==1.8.1+cu102 torchvision==0.9.1+cu102 torchaudio===0.8.1 -f h
 ```
 pip3 install numpy
 ```
-
 - ArgParse
 ```
 pip3 install argparse
 ```
-
-## Switch to updated branch
-```git checkout autotest```
+<!-- - Z3
+```
+pip install z3-solver
+```
+-ANTLR4
+```
+pip install antlr4-python3-runtime
+``` -->
 
 ## To switch to writeup branch
 ```git checkout writeup```
 
-## Train GCLN and get Skolem Function:
+## Run individual examples
 ```
-python3 run.py --th=0.5 --P=0 --correlated_sampling=0 --train=1 --no_of_samples=100000 --tnorm_name=product --no_of_input_var=2 --epochs=100 --spec=1 --learning_rate=0.0001
+./run.sh 0 sample1.v 10 50 &> log.txt
 ```
-- th is threshold for boolean output (0.5)
-- P value states which Problem Formulation to run (0, 1, 2):
-	- Select Problem:
-		- 0: Regression
-		- 1: Classification 1
-		- 2: Classification 2
-		- 2: Classification 3 when ```--correlated_sampling=1```
-- train=1 train model (train=0 load saved model)
-- no_of_samples states the number of random samples to generate (keep it >= 50000)
-- tnorm_name declares the type of tnorm to be used
-- no_of_input_vars: input variables in the specification
-- spec: selects specification from the set of given specifications
+- Arg1: 0 for regression and 1 for classification
+- Arg2: Specify file name for verilog specification
+- Arg3: Epochs
+- Arg4: Number of Clauses
+
+## Run autotest on 6 samples
+```python3 scripts/script.py```
 
 ## More information on options:
 ```

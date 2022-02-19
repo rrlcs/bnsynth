@@ -1,59 +1,83 @@
 import torch
 import torch.nn as nn
 
+# import func_spec
+
 # weight init
 def init_weights(m):
     if type(m) == nn.Linear:
         torch.nn.init.xavier_uniform_(m.weight)
         m.bias.data.fill_(0.01)
 
-def train_classifier(train_loader, loss_fn, learning_rate, max_epochs, input_size, K, device, name, P, torch, CLN, util, spec):
-    lossess = []
-    lambda1 = 1e-9
-    lambda2 = 1e-9
-    cln = CLN(input_size, K, device, name, P, p=0).to(device)
-    cln.apply(init_weights)
-    optimizer = torch.optim.Adam(list(cln.parameters()), lr=learning_rate)
+def train_classifier(
+    train_loader,
+    validation_loader, 
+    loss_fn, 
+    learning_rate, 
+    max_epochs, 
+    input_size,
+    num_of_outputs, 
+    K, 
+    device, 
+    P, 
+    torch, 
+    GCLN, 
+    util, 
+    func_spec
+    ):
+
+    train_loss = []
+    valid_loss = []
+    lambda1 = 1e-2
+    lambda2 = 1e-2
+
+    gcln = GCLN(input_size, num_of_outputs, K, device, P).to(device)
+    gcln.apply(init_weights)
+    
+    optimizer = torch.optim.Adam(list(gcln.parameters()), lr=learning_rate)
     criterion = loss_fn
-    cln.train()
+    
+    gcln.train()
     optimizer.zero_grad()
     for epoch in range(max_epochs):
-        total_epoch_loss = 0
+        train_epoch_loss = 0
         for batch_idx, (inps, tgts) in enumerate(train_loader):
-            tgts = tgts.reshape((-1)).to(device)
-            out = cln(inps)
+            tgts = tgts.reshape((tgts.size(0), -1)).to(device)
+            out = gcln(inps)
             inpOut = torch.cat((inps, out), dim=1)
-            if spec == 1:
-                fOut = util.spec1(inpOut.T, name).to(device)
-            elif spec == 2:
-                fOut = util.spec2(inpOut.T, name).to(device)
-            elif spec == 3:
-                fOut = util.spec3(inpOut.T, name).to(device)
-            elif spec == 4:
-                fOut = util.spec4(inpOut.T, name).to(device)
-            elif spec == 5:
-                fOut = util.spec5(inpOut.T, name).to(device)
-            loss = criterion(fOut, tgts)
-            loss = loss + lambda1*torch.linalg.norm(cln.G1, 1) + lambda2*torch.linalg.norm(cln.G2, 1)
-            total_epoch_loss += loss
+            fOut = func_spec.F(inpOut.T, util)
+            fOut = fOut.reshape((tgts.size(0), -1)).to(device)
+            t_loss = criterion(fOut, tgts)
+            t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
+                lambda2*torch.linalg.norm(gcln.G2, 1)
+            t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
+                lambda2*torch.linalg.norm(gcln.G2, 2)
+            
             optimizer.zero_grad()
-            loss.backward()
+            t_loss.backward()
             optimizer.step()
-            # print(tgts.shape)
-        # average_loss = (total_epoch_loss/training_size) * 1000
-        # lossess.append(average_loss.item())
-        # print(len(train_loader.dataset))
-        lossess.append(total_epoch_loss.item() / len(train_loader.dataset))
-        print("total epoch loss: ", total_epoch_loss)
+            train_epoch_loss += t_loss.item()*inps.size(0)
+        train_loss.append(train_epoch_loss / len(train_loader.sampler))
+
+        gcln.eval()
+        valid_epoch_loss = 0
+        for batch_idx, (inps, tgts) in enumerate(validation_loader):
+            tgts = tgts.reshape((tgts.size(0), -1)).to(device)
+            out = gcln(inps).to(device)
+            inpOut = torch.cat((inps, out), dim=1)
+            fOut = func_spec.F(inpOut.T, util)
+            fOut = fOut.reshape((tgts.size(0), -1)).to(device)
+            v_loss = criterion(fOut, tgts)
+            v_loss = v_loss + lambda1*torch.linalg.norm(gcln.G1, 1) + \
+                lambda2*torch.linalg.norm(gcln.G2, 1)
+            v_loss = v_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
+                lambda2*torch.linalg.norm(gcln.G2, 2)
+
+            valid_epoch_loss += v_loss.item()*inps.size(0)
+        valid_loss.append(valid_epoch_loss / len(validation_loader.sampler))
+
         if epoch % 5 == 0:
-            print('epoch {}, loss {}'.format(epoch, loss.item()))
+            print('epoch {}, train loss {}, valid loss {}'.format(
+                epoch, t_loss.item(), v_loss.item()))
             # print('cln or weights grad:', cln.G1.grad.data.cpu().numpy().flatten().round(2))
-    return cln, lossess
-
-# loss_fn = nn.BCEWithLogitsLoss()
-# cln, lossess = train_classifier(train_loader, loss_fn)
-# torch.save(cln.state_dict(), "classifier")
-
-# f = open("lossess", "w")
-# lossess = np.array(lossess)
-# lossess.tofile(f, sep=",", format="%s")
+    return gcln, train_loss, valid_loss
