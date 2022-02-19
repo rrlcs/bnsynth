@@ -516,7 +516,7 @@ class utils():
             for line in lines:
                 allvar_map = line.strip(" \n").split(" ")
             print("allvars: ", allvar_map)
-            # os.unlink(inputfile_name + "_mapping.txt")
+            os.unlink(inputfile_name + "_mapping.txt")
             allvar_map = np.array(allvar_map).astype(int)
             Xvar_map = dict(zip(Xvar_tmp, allvar_map[Xvar]))
             Yvar_map = dict(zip(Yvar_tmp, allvar_map[Yvar]))
@@ -541,7 +541,7 @@ class utils():
 
         verilog, varlistfile = self.prepare_file_names(verilog_spec, verilog_spec_location)
         output_varlist = self.get_output_varlist(varlistfile)  # Y variable list
-        print(output_varlist)
+        # print(output_varlist)
         output_varlist = ["i"+e.split("_")[1] for e in output_varlist if "_" in e]
         Xvar_tmp, Yvar_tmp, total_vars = self.get_temporary_variables(verilog, output_varlist)
         total_varsz3 = total_vars
@@ -593,9 +593,9 @@ class utils():
             skolemformula = tempfile.gettempdir() + \
                 '/' + inputfile_name + "_skolem.v"
             exists = os.path.isfile(skolemformula)
-            if exists:
-                os.system("cp " + skolemformula +
-                        " ./skfs/" + inputfile_name + "_skolem.v")
+            # if exists:
+            #     os.system("cp " + skolemformula +
+            #             " ./skfs/" + inputfile_name + "_skolem.v")
             exists = os.path.isfile("strash.txt")
             if exists:
                 os.unlink("strash.txt")
@@ -661,7 +661,7 @@ class utils():
         seed = 10
         verbose=0
         inputfile_name = verilog.split("/")[-1][:-2]
-        print("cnf: ", cnf_content)
+        # print("cnf: ", cnf_content)
 
         tempcnffile = tempfile.gettempdir() + '/' + inputfile_name + ".cnf"
         f = open(tempcnffile, "w")
@@ -763,7 +763,7 @@ class utils():
     def generate_samples(self, cnf_content, Xvar, Yvar, Xvar_map, Yvar_map, allvar_map, verilog, max_samples=1000):
 
         SAMPLER_CMS = 1
-        samples = 1
+        samples = 0
         weighted = 1
         if SAMPLER_CMS:
             sample_cnf_content = cnf_content
@@ -777,7 +777,7 @@ class utils():
                 if(len(Yvar) + len(Xvar) > 4000):
                     no_samples = 1000
 
-            print("generating samples ", no_samples)
+            # print("generating samples ", no_samples)
 
             if weighted:
                 sample_cnf_content = self.gen_weighted_cnf(
@@ -786,8 +786,8 @@ class utils():
         x_data, indices = np.unique(samples[:, Xvar], axis=0, return_index=True)
         samples = samples[indices, :]
 
-        x_data, indices = np.unique(samples[:, Xvar], axis=0, return_index=True)
-        samples = samples[indices, :]
+        # x_data, indices = np.unique(samples[:, Xvar], axis=0, return_index=True)
+        # samples = samples[indices, :]
 
         return samples
     

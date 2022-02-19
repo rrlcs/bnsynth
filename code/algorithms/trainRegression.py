@@ -136,7 +136,7 @@ def train_regressor(architecture, cnf,
         util.store_losses(train_loss, valid_loss)
         util.plot()
 
-        # if epoch % 10==0:
+        # if epoch % 1==0:
         #     scheduler.step()        
 
         if epoch % 1 == 0:

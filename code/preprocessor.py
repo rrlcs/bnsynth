@@ -51,8 +51,9 @@ def preprocess():
             )
         print("samples: ", samples)
         
+        samples = samples[np.random.choice(samples.shape[0], 1000, replace=False), :]
         # training_samples = util.make_dataset_larger(samples)
-        training_samples = torch.from_numpy(samples[:100, :]).to(torch.double)
+        training_samples = torch.from_numpy(samples[:, :]).to(torch.double)
         print(training_samples.shape)
 
         # Get train test split
