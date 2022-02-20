@@ -24,21 +24,10 @@ pip3 install numpy
 ```
 pip3 install argparse
 ```
-<!-- - Z3
-```
-pip install z3-solver
-```
--ANTLR4
-```
-pip install antlr4-python3-runtime
-``` -->
-
-## To switch to writeup branch
-```git checkout writeup```
 
 ## Run individual examples
 ```
-./run.sh 0 sample1.v 10 50 &> log.txt
+./run.sh 0 sample1.v 1 10 &> log.txt
 ```
 - Arg1: 0 for regression and 1 for classification
 - Arg2: Specify file name for verilog specification
