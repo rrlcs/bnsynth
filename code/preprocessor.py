@@ -14,7 +14,7 @@ def preprocess():
 
     # Set device
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    # device = 'cpu'
+    device = 'cpu'
     # print(args.preprocessor)
 
     if args.preprocessor == 1:
@@ -29,6 +29,7 @@ def preprocess():
         result = util.check_unates(
             PosUnate, NegUnate, Xvar, Yvar, args.verilog_spec[:-2])
         print("Pos Neg unates: ", len(PosUnate), len(NegUnate))
+        print(Xvar, Yvar, Xvar_map, Yvar_map, total_vars)
         # if result:
         #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All Unates"+"\n"
         #     f = open("experiments/unates.csv", "a")
@@ -54,8 +55,9 @@ def preprocess():
         )
         print("samples: ", samples.shape)
 
-        samples = samples[np.random.choice(
-            samples.shape[0], 1000, replace=False), :]
+        if samples.shape[0] > 1000:
+            samples = samples[np.random.choice(
+                samples.shape[0], 1000, replace=False), :]
         # training_samples = util.make_dataset_larger(samples)
         training_samples = torch.from_numpy(samples[:, :]).to(torch.double)
         print(training_samples.shape)
@@ -73,8 +75,9 @@ def preprocess():
 
         # Prepare input output dictionaries
         io_dict = util.prepare_io_dicts(total_vars)
-
+        print("io dict: ", io_dict)
         # Obtain variable indices
+        print("out var list: ", output_varlist)
         input_var_idx, output_var_idx = util.get_var_indices(
             num_of_vars, output_varlist, io_dict)
         input_size = 2*len(input_var_idx)

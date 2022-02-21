@@ -105,7 +105,7 @@ class utils():
         parser.add_argument("--verilog_spec_location", type=str,
                             default="verilog", help="Enter file location")
         parser.add_argument("--output_file", type=str,
-                            default="experiments.csv", help="Enter file name for storing results") 
+                            default="experiments.csv", help="Enter file name for storing results")
         return parser
 
     def plot(self):
@@ -153,32 +153,33 @@ class utils():
             if line.startswith("p "):
                 continue
 
-
             if line.startswith("a"):
-                a_variables = line.strip("a").strip("\n").strip(" ").split(" ")[:-1]
+                a_variables = line.strip("a").strip(
+                    "\n").strip(" ").split(" ")[:-1]
                 for avar in a_variables:
-                    declare += "%s," %(avar)
-                    declare_input += "input %s;\n" %(avar)
+                    declare += "%s," % (avar)
+                    declare_input += "input %s;\n" % (avar)
                 continue
 
             if line.startswith("e"):
-                e_variables = line.strip("e").strip("\n").strip(" ").split(" ")[:-1]
+                e_variables = line.strip("e").strip(
+                    "\n").strip(" ").split(" ")[:-1]
                 for evar in e_variables:
                     tmp_array.append(int(evar))
-                    declare += "%s," %(evar)
-                    declare_input += "input %s;\n" %(evar)
+                    declare += "%s," % (evar)
+                    declare_input += "input %s;\n" % (evar)
                 continue
 
-            declare_wire += "wire t_%s;\n" %(itr)
-            assign_wire += "assign t_%s = " %(itr)
+            declare_wire += "wire t_%s;\n" % (itr)
+            assign_wire += "assign t_%s = " % (itr)
             itr += 1
 
             clause_variable = line.strip(" \n").split(" ")[:-1]
             for var in clause_variable:
                 if int(var) < 0:
-                    assign_wire += "~%s | " %(abs(int(var)))
+                    assign_wire += "~%s | " % (abs(int(var)))
                 else:
-                    assign_wire += "%s | " %(abs(int(var)))
+                    assign_wire += "%s | " % (abs(int(var)))
 
             assign_wire = assign_wire.strip("| ")+";\n"
 
@@ -194,25 +195,27 @@ class utils():
 
         itr = 1
         while itr < count_tempvariable:
-            temp_assign += "t_%s & " %(itr)
+            temp_assign += "t_%s & " % (itr)
             if itr % 100 == 0:
-                declare_wire += "wire tcount_%s;\n" %(itr)
-                assign_wire += "assign tcount_%s = %s;\n" %(itr,temp_assign.strip("& "))
-                outstr += "tcount_%s & " %(itr)
+                declare_wire += "wire tcount_%s;\n" % (itr)
+                assign_wire += "assign tcount_%s = %s;\n" % (
+                    itr, temp_assign.strip("& "))
+                outstr += "tcount_%s & " % (itr)
                 temp_assign = ''
             itr += 1
 
         if temp_assign != "":
-            declare_wire += "wire tcount_%s;\n" %(itr)
-            assign_wire += "assign tcount_%s = %s;\n" %(itr,temp_assign.strip("& "))
-            outstr += "tcount_%s;\n" %(itr)
-        outstr = "assign out = %s" %(outstr)
+            declare_wire += "wire tcount_%s;\n" % (itr)
+            assign_wire += "assign tcount_%s = %s;\n" % (
+                itr, temp_assign.strip("& "))
+            outstr += "tcount_%s;\n" % (itr)
+        outstr = "assign out = %s" % (outstr)
 
-
-        verilogformula = declare + declare_input + declare_wire + assign_wire + outstr +"endmodule\n"
+        verilogformula = declare + declare_input + \
+            declare_wire + assign_wire + outstr + "endmodule\n"
 
         return verilogformula
-    
+
     def make_dataset_larger(self, samples, N=1000):
         '''
         Adds N points from the neighborhood of each sample point
@@ -224,7 +227,7 @@ class utils():
         # add random noise to get fractional samples
         training_samples = torch.cat([
             self.add_noise((training_samples)) for _ in range(N)
-            ])
+        ])
         training_samples = training_samples.to(torch.double)
 
         return training_samples
@@ -238,9 +241,9 @@ class utils():
         for index, value in enumerate(total_vars):
             io_dict[index] = value
         io_dict = OrderedDict(io_dict)
-        
+
         return io_dict
-    
+
     def store_nn_output(self, num_of_outputs, skfunc):
         '''
         Stores the skolem function into file
@@ -255,7 +258,6 @@ class utils():
             else:
                 f.write(skfunc[i][:-1])
         f.close()
-
 
     def store_losses(self, train_loss, valid_loss):
         '''
@@ -272,8 +274,8 @@ class utils():
         f.close()
 
     def store_preprocess_time(self,
-        verilog_spec, num_of_vars, num_out_vars, num_of_eqns, epochs, no_of_samples, preprocess_time
-        ):
+                              verilog_spec, num_of_vars, num_out_vars, num_of_eqns, epochs, no_of_samples, preprocess_time
+                              ):
         line = verilog_spec+","+str(num_of_vars)+","+str(num_out_vars)+","+str(
             num_of_eqns)+","+str(epochs)+","+str(no_of_samples)+","+str(preprocess_time)+"\n"
         f = open("preprocess_data.csv", "a")
@@ -287,11 +289,11 @@ class utils():
         Output: input_var_idx, and output_var_idx as index lists
         '''
 
-        output_var_idx = [list(io_dict.values()).index(output_varlist[i]) for i in range(len(output_varlist)) if output_varlist[i] in io_dict.values()]
+        output_var_idx = [list(io_dict.values()).index(output_varlist[i]) for i in range(
+            len(output_varlist)) if output_varlist[i] in io_dict.values()]
         var_indices = [i for i in range(num_of_vars)]
         input_var_idx = [x for x in var_indices if x not in output_var_idx]
         return input_var_idx, output_var_idx
-
 
     def get_train_test_split(self, dataset):
         '''
@@ -305,7 +307,7 @@ class utils():
         training_set = dataset[:, :]
 
         return training_set, validation_set
-    
+
     def get_skolem_function(self, args, gcln, no_of_input_var, input_var_idx, num_of_outputs, output_var_idx, io_dict):
         '''
         Reads the model weights (layer_or_weights, layer_and_weights) and builds the skolem function based on it.
@@ -313,8 +315,9 @@ class utils():
         Output: Skolem Functions
         '''
 
-        layer_or_weights = gcln.layer_or_weights.cpu().detach().numpy() # input_size x K
-        layer_and_weights = gcln.layer_and_weights.cpu().detach().numpy() # K x num_of_outputs
+        layer_or_weights = gcln.layer_or_weights.cpu().detach().numpy()  # input_size x K
+        layer_and_weights = gcln.layer_and_weights.cpu(
+        ).detach().numpy()  # K x num_of_outputs
 
         threshold = args.threshold
         K = args.K
@@ -374,21 +377,21 @@ class utils():
 
         return skfs
 
-
     # MANTHAN MODULES FOR VERILOG INPUT FILES:
+
     def prepare_file_names(self, verilog_spec, verilog_spec_location):
         '''
         Returns path to verilog .v and varstoelim .txt files
         '''
 
         filename = verilog_spec.split(".v")[0]+"_varstoelim.txt"
-        varlistfile = "data/benchmarks/"+\
+        varlistfile = "data/benchmarks/" +\
             verilog_spec_location+"/Yvarlist/"+filename
-        verilog = "data/benchmarks/"+\
+        verilog = "data/benchmarks/" +\
             verilog_spec_location+"/"+verilog_spec
-        
+
         return verilog, varlistfile
-    
+
     def get_output_varlist(self, varlistfile):
         '''
         Reads output variables from varstoelim.txt
@@ -396,8 +399,8 @@ class utils():
         '''
 
         return [line.rstrip('\n')
-               for line in open(varlistfile)]
-    
+                for line in open(varlistfile)]
+
     def get_temporary_variables(self, verilog, output_varlist):
         '''
         Creates temporary variables and returns them
@@ -405,11 +408,13 @@ class utils():
 
         Xvar_tmp = []
         Yvar_tmp = []
+        print("creating temp vars")
         with open(verilog, 'r') as f:
             for x, line in enumerate(f):
                 if line.startswith("module"):
                     line_split = line.split("(")
                     total_var = line_split[1].split(",")
+                    print("*********", total_var)
                     for var in range(len(total_var) - 1):
                         variable_check = total_var[var]
                         variable_check = variable_check.strip(" ").strip("\n")
@@ -418,6 +423,8 @@ class utils():
                             Yvar_tmp.append(var)
                         else:
                             Xvar_tmp.append(var)
+        total_var = total_var[:-1]
+        total_var = [e.strip() for e in total_var]
         return Xvar_tmp, Yvar_tmp, total_var[:-1]
 
     def change_modulename(self, verilog):
@@ -436,7 +443,7 @@ class utils():
 
         return verilog_formula
 
-    def preprocess_manthan(self, varlistfile,verilog,Xvar_tmp,Yvar_tmp):
+    def preprocess_manthan(self, varlistfile, verilog, Xvar_tmp, Yvar_tmp):
         '''
         Preprocesses verilog files
         Returns variable information and unates
@@ -526,10 +533,12 @@ class utils():
         pos_unate_list = []
         neg_unate_list = []
         for unate in pos_unate:
-            pos_unate_list.append(list(Yvar_map.keys())[list(Yvar_map.values()).index(unate)])
+            pos_unate_list.append(list(Yvar_map.keys())[
+                                  list(Yvar_map.values()).index(unate)])
         for unate in neg_unate:
-            neg_unate_list.append(list(Yvar_map.keys())[list(Yvar_map.values()).index(unate)])
-        
+            neg_unate_list.append(list(Yvar_map.keys())[
+                                  list(Yvar_map.values()).index(unate)])
+
         return pos_unate_list, neg_unate_list, Xvar, Yvar, Xvar_map, Yvar_map
 
     def preprocess_wrapper(self, verilog_spec, verilog_spec_location):
@@ -539,17 +548,27 @@ class utils():
         Output: variable information and unates
         '''
 
-        verilog, varlistfile = self.prepare_file_names(verilog_spec, verilog_spec_location)
-        output_varlist = self.get_output_varlist(varlistfile)  # Y variable list
-        # print(output_varlist)
-        output_varlist = ["i"+e.split("_")[1] for e in output_varlist if "_" in e]
-        Xvar_tmp, Yvar_tmp, total_vars = self.get_temporary_variables(verilog, output_varlist)
+        verilog, varlistfile = self.prepare_file_names(
+            verilog_spec, verilog_spec_location)
+        output_varlist = self.get_output_varlist(
+            varlistfile)  # Y variable list
+        print("outttttt", output_varlist)
+        # output_varlist = ["i"+e.split("_")[1]
+        #                   for e in output_varlist if "_" in e]
+        output_varlist = ["i"+e[1:].replace("_", "")
+                          for e in output_varlist]
+        print("outtttttt", output_varlist)
+        Xvar_tmp, Yvar_tmp, total_vars = self.get_temporary_variables(
+            verilog, output_varlist)
         total_varsz3 = total_vars
-        total_vars = ["i"+e.split("_")[1] for e in total_vars if "_" in e]
+        print("totalllllll", total_vars)
+        # total_vars = ["i"+e.split("_")[1] for e in total_vars if "_" in e]
+        total_vars = ["i"+e[1:].replace("_", "") for e in total_vars]
+        print("totalllllll", total_vars)
         verilog_formula = self.change_modulename(verilog)
         pos_unate, neg_unate, Xvar, Yvar, Xvar_map, Yvar_map = self.preprocess_manthan(
             varlistfile, verilog, Xvar_tmp, Yvar_tmp
-            )
+        )
         return verilog, output_varlist, total_vars, total_varsz3, verilog_formula, pos_unate, neg_unate, Xvar, Yvar, Xvar_map, Yvar_map
 
     def unate_skolemfunction(self, Xvar, Yvar, pos_unate, neg_unate, inputfile_name):
@@ -589,7 +608,8 @@ class utils():
             print("positive unate", len(pos_unate))
             print("all Y variables are unates")
             print("Solved !! done !")
-            self.unate_skolemfunction(Xvar, Yvar, pos_unate, neg_unate, inputfile_name)
+            self.unate_skolemfunction(
+                Xvar, Yvar, pos_unate, neg_unate, inputfile_name)
             skolemformula = tempfile.gettempdir() + \
                 '/' + inputfile_name + "_skolem.v"
             exists = os.path.isfile(skolemformula)
@@ -655,11 +675,11 @@ class utils():
         os.unlink(cnffile)
 
         return cnf_content, allvar_map
-    
+
     def get_sample_cms(self, allvar_map, cnf_content, no_samples, verilog):
-        weighted=1
+        weighted = 1
         seed = 10
-        verbose=0
+        verbose = 0
         inputfile_name = verilog.split("/")[-1][:-2]
         # print("cnf: ", cnf_content)
 
@@ -707,7 +727,6 @@ class utils():
         var_model = var_model.astype(int)
         return var_model
 
-
     def adaptive_samples(self, sample_cnf_content, Yvar_map, allvar_map, verilog):
         sample_cnf_content_one = ''
         sample_cnf_content_zero = ''
@@ -731,7 +750,7 @@ class utils():
         return bias
 
     def gen_weighted_cnf(self, cnf_content, Xvar_map, Yvar_map, allvar_map, verilog):
-        adaptivesample=1
+        adaptivesample = 1
         lines = cnf_content.split("\n")
         sample_cnf_content = ''
         for line in lines:
@@ -752,9 +771,11 @@ class utils():
         for var in Xvar_map.keys():
             sample_cnf_content += "w %d 0.5\n" % (Xvar_map[var])
         if adaptivesample:
-            bias_y = self.adaptive_samples(sample_cnf_content, Yvar_map, allvar_map, verilog)
+            bias_y = self.adaptive_samples(
+                sample_cnf_content, Yvar_map, allvar_map, verilog)
             for var in Yvar_map.keys():
-                sample_cnf_content += "w %d %f\n" % (Yvar_map[var], bias_y[var])
+                sample_cnf_content += "w %d %f\n" % (
+                    Yvar_map[var], bias_y[var])
         else:
             for var in Yvar_map.keys():
                 sample_cnf_content += "w %d 0.9\n" % (Yvar_map[var])
@@ -782,15 +803,17 @@ class utils():
             if weighted:
                 sample_cnf_content = self.gen_weighted_cnf(
                     cnf_content, Xvar_map, Yvar_map, allvar_map, verilog)
-            samples = self.get_sample_cms(allvar_map, sample_cnf_content, no_samples, verilog)
-        x_data, indices = np.unique(samples[:, Xvar], axis=0, return_index=True)
+            samples = self.get_sample_cms(
+                allvar_map, sample_cnf_content, no_samples, verilog)
+        x_data, indices = np.unique(
+            samples[:, Xvar], axis=0, return_index=True)
         samples = samples[indices, :]
 
         # x_data, indices = np.unique(samples[:, Xvar], axis=0, return_index=True)
         # samples = samples[indices, :]
 
         return samples
-    
+
     def get_var_counts(self, Xvar, Yvar, verilog):
         num_of_vars = len(Xvar) + len(Yvar)
         num_out_vars = len(Yvar)
@@ -800,7 +823,6 @@ class utils():
         f.close()
 
         return num_of_vars, num_out_vars, num_of_eqns
-
 
     def prepare_candidateskf(self, skfunc, Yvar, pos_unate, neg_unate):
         candidateskf = {}
@@ -815,9 +837,8 @@ class utils():
             if j < len(skfunc):
                 candidateskf[i] = skfunc[j][:-1]
             j += 1
-        
-        return candidateskf
 
+        return candidateskf
 
     def create_skolem_function(self, inputfile_name, candidateskf, Xvar, Yvar):
         # we have candidate skolem functions for every y in Y
@@ -876,10 +897,9 @@ class utils():
         f.write("endmodule")
         f.close()
 
-
     def create_error_formula(self, Xvar, Yvar, verilog_formula):
         refine_var_log = {}
-        
+
         inputformula = '('
         inputskolem = '('
         inputerrorx = 'module MAIN ('
@@ -918,7 +938,7 @@ class utils():
             "endmodule\n"
         error_content += verilog_formula
         return error_content, refine_var_log
-    
+
     def add_skolem_to_errorformula(self, error_content, selfsub, verilog):
 
         inputfile_name = verilog.split("/")[-1][:-2]
@@ -940,9 +960,10 @@ class utils():
         f.write(skolemcontent)
         f.write(skolemcontent_write)
         f.close()
-    
+
     def createSkolem(self, candidateSkf, Xvar, Yvar, UniqueVars, UniqueDef, inputfile_name):
-        tempOutputFile = tempfile.gettempdir() + '/' + inputfile_name + "_skolem.v"  # F(X,Y')
+        tempOutputFile = tempfile.gettempdir() + '/' + inputfile_name + \
+            "_skolem.v"  # F(X,Y')
         inputstr = 'module SKOLEMFORMULA ('
         declarestr = ''
         assignstr = ''
@@ -951,7 +972,7 @@ class utils():
         outstr = ''
         itr = 1
         wtlist = []
-        
+
         for var in Xvar:
             declarestr += "input i%s;\n" % (var)
             inputstr += "i%s, " % (var)
@@ -962,9 +983,10 @@ class utils():
             wirestr += "wire w%s;\n" % (var)
             if var not in UniqueVars:
                 assignstr += 'assign w%s = (' % (var)
-                assignstr += candidateSkf[var].replace(" 1 ", " one ").replace(" 0 ", " zero ") +");\n"
-            
-            outstr += "(~(w%s ^ o%s)) & " % (var,var)
+                assignstr += candidateSkf[var].replace(
+                    " 1 ", " one ").replace(" 0 ", " zero ") + ");\n"
+
+            outstr += "(~(w%s ^ o%s)) & " % (var, var)
             if itr % 10 == 0:
                 flag = 1
                 outstr = outstr.strip("& ")
@@ -989,7 +1011,7 @@ class utils():
         # f.write(UniqueDef.strip("\n")+"\n")
         f.write(assignstr + "endmodule")
         f.close()
-    
+
     def createErrorFormula(self, Xvar, Yvar, UniqueVars, verilog_formula):
         inputformula = '('
         inputskolem = '('
@@ -1007,13 +1029,13 @@ class utils():
         for var in Yvar:
             inputformula += "%s, " % (var)
             inputerrory += "%s, " % (var)
-            declarey += "input %s ;\n" % (var) 
+            declarey += "input %s ;\n" % (var)
             inputerroryp += "ip%s, " % (var)
             declareyp += "input ip%s ;\n" % (var)
             if var in UniqueVars:
-                inputskolem += "%s, " %(var)
+                inputskolem += "%s, " % (var)
             else:
-                inputskolem += "ip%s, " %(var)
+                inputskolem += "ip%s, " % (var)
         inputformula += "out1 );\n"
         inputformula_sk = inputskolem + "out3 );\n"
         inputskolem += "out2 );\n"
@@ -1031,7 +1053,8 @@ class utils():
         return error_content
 
     def write_error_formula1(self, inputfile_name, verilog, verilog_formula, skfunc, Xvar, Yvar, pos_unate, neg_unate):
-        candidateskf = self.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
+        candidateskf = self.prepare_candidateskf(
+            skfunc, Yvar, pos_unate, neg_unate)
         self.create_skolem_function(
             inputfile_name, candidateskf, Xvar, Yvar)
         # self.createSkolem(candidateskf, Xvar, Yvar, [], [], inputfile_name)
@@ -1041,13 +1064,15 @@ class utils():
         self.add_skolem_to_errorformula(error_content, [], verilog)
 
     def write_error_formula2(self, inputfile_name, verilog, verilog_formula, skfunc, Xvar, Yvar, pos_unate, neg_unate):
-        candidateskf = self.prepare_candidateskf(skfunc, Yvar, pos_unate, neg_unate)
+        candidateskf = self.prepare_candidateskf(
+            skfunc, Yvar, pos_unate, neg_unate)
         # self.create_skolem_function(
         #     inputfile_name, candidateskf, Xvar, Yvar)
         self.createSkolem(candidateskf, Xvar, Yvar, [], [], inputfile_name)
         # error_content, refine_var_log = self.create_error_formula(
         #     Xvar, Yvar, verilog_formula)
-        error_content = self.createErrorFormula(Xvar, Yvar, [], verilog_formula)
+        error_content = self.createErrorFormula(
+            Xvar, Yvar, [], verilog_formula)
         self.add_skolem_to_errorformula(error_content, [], verilog)
 
     def verify(self, Xvar, Yvar, verilog):
@@ -1089,7 +1114,7 @@ class utils():
                 return(1, [], 0)
         else:
             return(0, [0], 1)
-    
+
     #!/usr/bin/env python
     # -*- coding: utf-8 -*-
     '''
@@ -1113,7 +1138,6 @@ class utils():
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     '''
-
 
     def parse(self, inputfile):
         with open(inputfile) as f:
@@ -1155,8 +1179,7 @@ class utils():
         print("len qdimacs list: ", len(qdimacs_list))
         if (len(Xvar) == 0) or (len(Yvar) == 0) or (len(qdimacs_list) == 0):
             print("problem with the files, can not synthesis Skolem functions")
-        
-        
+
         Xvar = list(map(int, list(Xvar)))
         # Xvar = [i-1 for i in Xvar]
         Yvar = list(map(int, list(Yvar)))
@@ -1164,20 +1187,18 @@ class utils():
 
         return Xvar, Yvar, qdimacs_list
 
-
     def convertcnf(self, inputfile, cnffile_name):
-        with open(inputfile,"r") as f:
+        with open(inputfile, "r") as f:
             cnfcontent = f.read()
         f.close()
 
         cnfcontent = cnfcontent.replace("a ", "c ret ")
         cnfcontent = cnfcontent.replace("e ", "c ind ")
 
-        with open(cnffile_name,"w") as f:
+        with open(cnffile_name, "w") as f:
             f.write(cnfcontent)
         f.close()
         return cnfcontent
-
 
     def preprocess(self, cnffile_name):
 
@@ -1217,40 +1238,40 @@ class utils():
                     exit()
                 return PosUnate, NegUnate
 
-
     # generate samples manthan 2
-    def computeBias(self, Xvar, Yvar,sampling_cnf, sampling_weights_y_1, sampling_weights_y_0, inputfile_name, SkolemKnown, args):
-        samples_biased_one = self.generatesample( args, 500, sampling_cnf + sampling_weights_y_1, inputfile_name, 1)
-        samples_biased_zero = self.generatesample( args, 500, sampling_cnf + sampling_weights_y_0, inputfile_name, 1)
+    def computeBias(self, Xvar, Yvar, sampling_cnf, sampling_weights_y_1, sampling_weights_y_0, inputfile_name, SkolemKnown, args):
+        samples_biased_one = self.generatesample(
+            args, 500, sampling_cnf + sampling_weights_y_1, inputfile_name, 1)
+        samples_biased_zero = self.generatesample(
+            args, 500, sampling_cnf + sampling_weights_y_0, inputfile_name, 1)
 
         bias = ""
 
         for yvar in Yvar:
             if yvar in SkolemKnown:
                 continue
-            count_one = count_nonzero(samples_biased_one[:,yvar-1])
-            p = round(float(count_one)/500,2)
+            count_one = count_nonzero(samples_biased_one[:, yvar-1])
+            p = round(float(count_one)/500, 2)
 
-            count_zero = count_nonzero(samples_biased_zero[:,yvar-1])
-            q = round(float(count_zero)/500,2)
+            count_zero = count_nonzero(samples_biased_zero[:, yvar-1])
+            q = round(float(count_zero)/500, 2)
 
             if 0.35 < p < 0.65 and 0.35 < q < 0.65:
-                bias += "w %s %s\n" %(yvar,p)
+                bias += "w %s %s\n" % (yvar, p)
             elif q <= 0.35:
                 if float(q) == 0.0:
                     q = 0.001
-                bias += "w %s %s\n" %(yvar,q)
+                bias += "w %s %s\n" % (yvar, q)
             else:
                 if float(p) == 1.0:
                     p = 0.99
-                bias += "w %s %s\n" %(yvar,p)
-        
+                bias += "w %s %s\n" % (yvar, p)
+
         return sampling_cnf + bias
-            
 
     def generatesample(self, args, num_samples, sampling_cnf, inputfile_name, weighted):
         tempcnffile = tempfile.gettempdir() + '/' + inputfile_name + "_sample.cnf"
-        with open (tempcnffile,"w") as f:
+        with open(tempcnffile, "w") as f:
             f.write(sampling_cnf)
         f.close()
 
@@ -1260,7 +1281,8 @@ class utils():
             cmd = "./dependencies/cryptominisat5 -n1 --sls 0 --comps 0"
             cmd += " --restart luby  --nobansol --maple 0 --presimp 0"
             cmd += " --polar weight --freq 0.9999 --verb 0 --scc 0"
-            cmd += " --random %s --maxsol %s > /dev/null 2>&1" % (seed, int(num_samples))
+            cmd += " --random %s --maxsol %s > /dev/null 2>&1" % (
+                seed, int(num_samples))
             cmd += " %s" % (tempcnffile)
             cmd += " --dumpresult %s " % (tempoutputfile)
         else:
@@ -1270,15 +1292,16 @@ class utils():
             cmd += " --random %s --maxsol %s" % (seed, int(num_samples))
             cmd += " %s" % (tempcnffile)
             cmd += " --dumpresult %s > /dev/null 2>&1" % (tempoutputfile)
-        
+
         os.system(cmd)
 
-        with open(tempoutputfile,"r") as f:
+        with open(tempoutputfile, "r") as f:
             content = f.read()
         f.close()
         os.unlink(tempoutputfile)
         os.unlink(tempcnffile)
-        content = content.replace("SAT\n","").replace("\n"," ").strip(" \n").strip(" ")
+        content = content.replace("SAT\n", "").replace(
+            "\n", " ").strip(" \n").strip(" ")
         models = content.split(" ")
         models = np.array(models)
         if models[len(models)-1] != "0":
@@ -1290,6 +1313,7 @@ class utils():
             var_model = np.delete(var_model, index, axis=1)
             var_model = var_model.astype(np.int)
         return var_model
+
 
 # Init utilities
 util = utils()
