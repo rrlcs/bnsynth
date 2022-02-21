@@ -13,20 +13,21 @@ def preprocess():
     args = parser.parse_args()
 
     # Set device
-    # device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    device = 'cpu'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # device = 'cpu'
     # print(args.preprocessor)
 
     if args.preprocessor == 1:
-        #Manthan 1 code
+        # Manthan 1 code
         print("Starting Manthan1 Preprocessor")
         verilog, output_varlist, total_vars, total_varsz3,\
-         verilogformula, PosUnate, NegUnate, Xvar,\
-              Yvar, Xvar_map, Yvar_map = util.preprocess_wrapper(
-                  args.verilog_spec, args.verilog_spec_location
-                  )
-        
-        result = util.check_unates(PosUnate, NegUnate, Xvar, Yvar, args.verilog_spec[:-2])
+            verilogformula, PosUnate, NegUnate, Xvar,\
+            Yvar, Xvar_map, Yvar_map = util.preprocess_wrapper(
+                args.verilog_spec, args.verilog_spec_location
+            )
+
+        result = util.check_unates(
+            PosUnate, NegUnate, Xvar, Yvar, args.verilog_spec[:-2])
         print("Pos Neg unates: ", len(PosUnate), len(NegUnate))
         # if result:
         #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All Unates"+"\n"
@@ -40,7 +41,7 @@ def preprocess():
         #     f.write(unate_data)
         #     f.close()
         #     exit("All not Unates!")
-        # exit() 
+        # exit()
 
         cnf_content, allvar_map = util.prepare_cnf_content(
             verilog, Xvar, Yvar, Xvar_map, Yvar_map, PosUnate, NegUnate
@@ -48,29 +49,34 @@ def preprocess():
 
         # generate sample
         samples = util.generate_samples(
-            cnf_content, Xvar, Yvar, Xvar_map, Yvar_map, allvar_map,verilog,
+            cnf_content, Xvar, Yvar, Xvar_map, Yvar_map, allvar_map, verilog,
             max_samples=args.training_size
-            )
+        )
         print("samples: ", samples.shape)
-        
-        samples = samples[np.random.choice(samples.shape[0], 1000, replace=False), :]
+
+        samples = samples[np.random.choice(
+            samples.shape[0], 1000, replace=False), :]
         # training_samples = util.make_dataset_larger(samples)
         training_samples = torch.from_numpy(samples[:, :]).to(torch.double)
         print(training_samples.shape)
 
         # Get train test split
-        training_set, validation_set = util.get_train_test_split(training_samples)
+        training_set, validation_set = util.get_train_test_split(
+            training_samples)
         print("Total, Train, and Valid shapes", training_samples.shape,
               training_set.shape, validation_set.shape)
 
-        num_of_vars, num_out_vars, num_of_eqns = util.get_var_counts(Xvar, Yvar, verilog)
-        print("No. of vars: {}, No. of output vars: {}, No. of eqns: {}".format(num_of_vars, num_out_vars, num_of_eqns))
+        num_of_vars, num_out_vars, num_of_eqns = util.get_var_counts(
+            Xvar, Yvar, verilog)
+        print("No. of vars: {}, No. of output vars: {}, No. of eqns: {}".format(
+            num_of_vars, num_out_vars, num_of_eqns))
 
         # Prepare input output dictionaries
         io_dict = util.prepare_io_dicts(total_vars)
 
-         # Obtain variable indices
-        input_var_idx, output_var_idx = util.get_var_indices(num_of_vars, output_varlist, io_dict)
+        # Obtain variable indices
+        input_var_idx, output_var_idx = util.get_var_indices(
+            num_of_vars, output_varlist, io_dict)
         input_size = 2*len(input_var_idx)
         print("Input size: ", input_size)
         print("Output size: ", len(output_var_idx))
@@ -79,16 +85,17 @@ def preprocess():
             num_of_outputs = len(output_var_idx)
         else:
             num_of_outputs = 1
-        
+
         # load data
         train_loader = dataLoader(training_set, args.training_size, args.P, input_var_idx,
                                   output_var_idx, num_of_outputs, args.threshold, args.batch_size)
         validation_loader = dataLoader(validation_set, args.training_size, args.P, input_var_idx,
                                        output_var_idx, num_of_outputs, args.threshold, args.batch_size)
     else:
-        #Manthan 2 code
+        # Manthan 2 code
         print("Starting Manthan2 Preprocessor")
-        Xvar, Yvar, qdimacs_list = util.parse("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
+        Xvar, Yvar, qdimacs_list = util.parse(
+            "data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
         print("count X variables", len(Xvar))
         print("count Y variables", len(Yvar))
 
@@ -99,7 +106,8 @@ def preprocess():
         inputfile_name = args.verilog_spec[:-8]
         cnffile_name = tempfile.gettempdir()+"/"+inputfile_name+".cnf"
 
-        cnfcontent = util.convertcnf("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, cnffile_name)
+        cnfcontent = util.convertcnf(
+            "data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, cnffile_name)
         cnfcontent = cnfcontent.strip("\n")+"\n"
 
         # finding unates:
@@ -141,19 +149,21 @@ def preprocess():
             # exit()
             # skolemfunction_preprocess(
             #     Xvar, Yvar, PosUnate, NegUnate, [], '', inputfile_name)
-        
+
             # logtime(inputfile_name, "totaltime:"+str(end_time-start_time))
             # exit()
         # print("Preprocessing Time: ", end_time-start_time)
-        
+
         # Logging
         # info = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"Not All Unates"+", "+str(end_time-start_time)+"\n"
         # f = open("qdimacsinfo.csv", "a")
         # f.write(info)
         # f.close()
 
-        verilogformula = util.convert_verilog("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, 0)
-        inputfile_name = ("data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec).split('/')[-1][:-8]
+        verilogformula = util.convert_verilog(
+            "data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, 0)
+        inputfile_name = ("data/benchmarks/"+args.verilog_spec_location +
+                          "/"+args.verilog_spec).split('/')[-1][:-8]
         verilog = inputfile_name+".v"
 
         # sampling
@@ -168,7 +178,7 @@ def preprocess():
                 num_samples = 1000
         else:
             num_samples = maxsamples
-        
+
         weighted = 1
         adaptivesample = 1
 
@@ -202,7 +212,7 @@ def preprocess():
                 args, num_samples, sampling_cnf, inputfile_name, weighted)
 
         # print("all samples: ", (samples))
-        
+
         Xvar_tmp = [i-1 for i in Xvar]
         _, indices = np.unique(samples[:, Xvar_tmp], axis=0, return_index=True)
         samples = samples[indices, :]
@@ -212,9 +222,10 @@ def preprocess():
         training_samples = torch.from_numpy(samples[:100, :]).to(torch.double)
         print(training_samples.shape)
 
-        training_set, validation_set = util.get_train_test_split(training_samples)
+        training_set, validation_set = util.get_train_test_split(
+            training_samples)
         print("Total, Train, and Valid shapes", training_samples.shape,
-            training_set.shape, validation_set.shape)
+              training_set.shape, validation_set.shape)
 
         num_of_vars, num_out_vars = len(Xvar)+len(Yvar), len(Yvar)
 
@@ -222,7 +233,8 @@ def preprocess():
         io_dict = util.prepare_io_dicts(total_vars)
 
         # Obtain variable indices
-        input_var_idx, output_var_idx = util.get_var_indices(num_of_vars, output_varlist, io_dict)
+        input_var_idx, output_var_idx = util.get_var_indices(
+            num_of_vars, output_varlist, io_dict)
         input_size = 2*len(input_var_idx)
         print("Input size: ", input_size)
         print("Output size: ", len(output_var_idx))
@@ -234,11 +246,10 @@ def preprocess():
             num_of_outputs = 1
 
         train_loader = dataLoader(training_set, args.training_size, args.P, input_var_idx,
-                              output_var_idx, num_of_outputs, args.threshold, args.batch_size)
+                                  output_var_idx, num_of_outputs, args.threshold, args.batch_size)
         validation_loader = dataLoader(validation_set, args.training_size, args.P, input_var_idx,
                                        output_var_idx, num_of_outputs, args.threshold, args.batch_size)
 
-    
     return args, train_loader, validation_loader, input_size, num_of_outputs,\
-         num_of_vars, input_var_idx, output_var_idx, io_dict, Xvar,\
-              Yvar, verilogformula, verilog, PosUnate, NegUnate, device
+        num_of_vars, input_var_idx, output_var_idx, io_dict, Xvar,\
+        Yvar, verilogformula, verilog, PosUnate, NegUnate, device
