@@ -23,9 +23,9 @@ skfs
 # Byte-compiled / optimized / DLL files
 __pycache__/
 code/__pycache__/
-code/model/__pycache__
-code/utils/__pycache__
-data/__pycache__
+code/model/__pycache__/
+code/utils/__pycache__/
+data/__pycache__/
 .vscode/
 *.py[cod]
 *$py.class
