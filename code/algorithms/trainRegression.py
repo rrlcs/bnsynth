@@ -55,7 +55,7 @@ def train_regressor(architecture, cnf,
     print(gcln)
 
     # Loss and Optimizer
-    criterion = nn.MSELoss(reduction='mean')
+    criterion = nn.MSELoss()
     optimizer = torch.optim.SGD(list(gcln.parameters()), lr=learning_rate)
     scheduler = StepLR(optimizer, step_size=10, gamma=0.1)
     # if flag:
@@ -94,12 +94,15 @@ def train_regressor(architecture, cnf,
                 l = []
                 for i in range(num_of_outputs):
                     l.append(criterion(outs[:, i], tgts[:, i]))
+                    # print("lossssss: ", l[-1], i, outs[:, i], tgts[:, i])
                 t_loss = sum(l)
+                # t_loss = criterion(outs, tgts)
+                # train_epoch_loss += t_loss.item()
                 train_epoch_loss += t_loss.item()/num_of_outputs
             train_size += outs.shape[0]
             t_loss = t_loss + lambda1*torch.sum(1-gcln.layer_and_weights)
             # t_loss = t_loss + lambda2*torch.sum(1-gcln.layer_or_weights)
-            # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 1) + \
+            # t_loss = t_loss + lambda2*torch.linalg.norm(gcln.layer_or_weights, 1) + \
             #     lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)
 
             optimizer.zero_grad()
@@ -124,7 +127,7 @@ def train_regressor(architecture, cnf,
             max_epochs += 1
 
         print('epoch {}, train loss {}'.format(
-                epoch, round(t_loss.item(), 4))
+                epoch, round(train_epoch_loss, 4))
             )
         
         # print("Training Loss: ", t_loss.item())

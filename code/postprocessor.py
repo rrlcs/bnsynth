@@ -26,11 +26,11 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
 		# sat call to errorformula:
 		check, sigma, ret = util.verify(Xvar, Yvar, args.verilog_spec)
 		print(check, ret)
+		is_valid = 0
 		if check == 0:
 			print("error...ABC network read fail")
 			print("Skolem functions not generated")
 			print("not solved !!")
-			is_valid = 0
 			# exit()
 		
 		if ret == 0:

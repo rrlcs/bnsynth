@@ -13,7 +13,8 @@ def preprocess():
     args = parser.parse_args()
 
     # Set device
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    # device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu'
     # print(args.preprocessor)
 
     if args.preprocessor == 1:
@@ -26,6 +27,7 @@ def preprocess():
                   )
         
         result = util.check_unates(PosUnate, NegUnate, Xvar, Yvar, args.verilog_spec[:-2])
+        print("Pos Neg unates: ", len(PosUnate), len(NegUnate))
         # if result:
         #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All Unates"+"\n"
         #     f = open("experiments/unates.csv", "a")
@@ -49,7 +51,7 @@ def preprocess():
             cnf_content, Xvar, Yvar, Xvar_map, Yvar_map, allvar_map,verilog,
             max_samples=args.training_size
             )
-        print("samples: ", samples)
+        print("samples: ", samples.shape)
         
         samples = samples[np.random.choice(samples.shape[0], 1000, replace=False), :]
         # training_samples = util.make_dataset_larger(samples)

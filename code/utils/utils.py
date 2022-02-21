@@ -213,7 +213,7 @@ class utils():
 
         return verilogformula
     
-    def make_dataset_larger(self, samples, N=10):
+    def make_dataset_larger(self, samples, N=1000):
         '''
         Adds N points from the neighborhood of each sample point
         '''
@@ -299,7 +299,7 @@ class utils():
         '''
 
         data_size = dataset.shape[0]
-        val_size = floor(data_size*0.5)
+        val_size = floor(data_size*0.2)
         train_size = data_size - val_size
         validation_set = dataset[train_size:, :]
         training_set = dataset[:, :]
@@ -708,7 +708,7 @@ class utils():
         return var_model
 
 
-    def adaptive_samples(self, sample_cnf_content, Yvar_map, allvar_map):
+    def adaptive_samples(self, sample_cnf_content, Yvar_map, allvar_map, verilog):
         sample_cnf_content_one = ''
         sample_cnf_content_zero = ''
         bias = {}
@@ -716,9 +716,9 @@ class utils():
             sample_cnf_content_one += "w %d 0.9\n" % (Yvar_map[var])
             sample_cnf_content_zero += "w %d 0.1\n" % (Yvar_map[var])
         samples_one = self.get_sample_cms(
-            allvar_map, sample_cnf_content + sample_cnf_content_one, 500)
+            allvar_map, sample_cnf_content + sample_cnf_content_one, 500, verilog)
         samples_zero = self.get_sample_cms(
-            allvar_map, sample_cnf_content + sample_cnf_content_zero, 500)
+            allvar_map, sample_cnf_content + sample_cnf_content_zero, 500, verilog)
         for var in Yvar_map.keys():
             len_one = np.count_nonzero(samples_one[:, var])
             p = round(float(len_one) / 500, 2)
@@ -730,8 +730,8 @@ class utils():
                 bias[var] = 0.9
         return bias
 
-    def gen_weighted_cnf(self, cnf_content, Xvar_map, Yvar_map, allvar_map):
-        adaptivesample=0
+    def gen_weighted_cnf(self, cnf_content, Xvar_map, Yvar_map, allvar_map, verilog):
+        adaptivesample=1
         lines = cnf_content.split("\n")
         sample_cnf_content = ''
         for line in lines:
@@ -752,7 +752,7 @@ class utils():
         for var in Xvar_map.keys():
             sample_cnf_content += "w %d 0.5\n" % (Xvar_map[var])
         if adaptivesample:
-            bias_y = self.adaptive_samples(sample_cnf_content, Yvar_map, allvar_map)
+            bias_y = self.adaptive_samples(sample_cnf_content, Yvar_map, allvar_map, verilog)
             for var in Yvar_map.keys():
                 sample_cnf_content += "w %d %f\n" % (Yvar_map[var], bias_y[var])
         else:
@@ -777,11 +777,11 @@ class utils():
                 if(len(Yvar) + len(Xvar) > 4000):
                     no_samples = 1000
 
-            # print("generating samples ", no_samples)
+            print("generating samples ", no_samples)
 
             if weighted:
                 sample_cnf_content = self.gen_weighted_cnf(
-                    cnf_content, Xvar_map, Yvar_map, allvar_map)
+                    cnf_content, Xvar_map, Yvar_map, allvar_map, verilog)
             samples = self.get_sample_cms(allvar_map, sample_cnf_content, no_samples, verilog)
         x_data, indices = np.unique(samples[:, Xvar], axis=0, return_index=True)
         samples = samples[indices, :]
