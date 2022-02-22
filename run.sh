@@ -16,4 +16,6 @@ python3 run.py \
 --postprocessor=1 \
 --architecture=3 \
 --cnf=1 \
+--ce=1 \
+--load_saved_model=1 \
 --output_file=experiments/experiments.csv

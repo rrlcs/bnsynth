@@ -18,7 +18,7 @@ def load_checkpoint(checkpoint, gcln, optimizer):
     optimizer.load_state_dict(checkpoint['optimizer'])
 
 
-def train_regressor(architecture, cnf,
+def train_regressor(args, architecture, cnf,
                     train_loader, validation_loader, learning_rate,
                     max_epochs, input_size, num_of_outputs, K,
                     device, num_of_vars, input_var_idx,
@@ -66,8 +66,10 @@ def train_regressor(architecture, cnf,
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(list(gcln.parameters()), lr=learning_rate)
     scheduler = StepLR(optimizer, step_size=10, gamma=0.1)
-    # if flag:
-    #     load_checkpoint(torch.load('model.pth.tar'), gcln, optimizer)
+
+    # Loading from checkpoint
+    if args.load_saved_model:
+        load_checkpoint(torch.load('model.pth.tar'), gcln, optimizer)
 
     # Train network
     max_epochs = max_epochs+1

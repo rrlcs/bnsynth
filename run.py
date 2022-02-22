@@ -1,6 +1,7 @@
 import code.postprocessor as postprocessor
 import code.preprocessor as preprocessor
 import code.training as training
+import code.ce_train as ce_train
 import time
 
 if __name__ == "__main__":
@@ -18,26 +19,35 @@ if __name__ == "__main__":
         It prepares the error formula and calls picosat to verify.
     '''
 
-
     # 1. Preprocess input data
     start_time = time.time()
-    args, train_loader, validation_loader, input_size, num_of_outputs,\
-         num_of_vars, input_var_idx, output_var_idx, io_dict,\
-              Xvar, Yvar, verilogformula, verilog, PosUnate, NegUnate, device = preprocessor.preprocess()
-    
+    args, training_samples, train_loader, validation_loader, input_size, num_of_outputs,\
+        num_of_vars, input_var_idx, output_var_idx, io_dict,\
+        Xvar, Yvar, verilogformula, verilog, PosUnate, NegUnate, device = preprocessor.preprocess()
+
     # 2. Feed samples into GCLN
     model, train_loss, valid_loss, final_accuracy, final_epochs = training.trainer(
-        args, train_loader, validation_loader, num_of_vars, 
-        input_size, num_of_outputs, input_var_idx, output_var_idx, 
+        args, train_loader, validation_loader, num_of_vars,
+        input_size, num_of_outputs, input_var_idx, output_var_idx,
         io_dict, Xvar, Yvar, device
-        )
+    )
 
     # 3. Postprocess skolem function from GCLN
-    skolem_functions, is_valid = postprocessor.postprocess(
-        args, model, final_accuracy, final_epochs, train_loss[-1], 
+    skolem_functions, is_valid, counter_example = postprocessor.postprocess(
+        args, model, final_accuracy, final_epochs, train_loss[-1],
         train_loss[0]-train_loss[-1], verilogformula,
-        input_size, input_var_idx, num_of_outputs, output_var_idx, 
+        input_size, input_var_idx, num_of_outputs, output_var_idx,
         io_dict, Xvar, Yvar, PosUnate, NegUnate, start_time
-        )
-    
+    )
+
+    # 4. Counter Example Loop
+    if args.ce:
+        if not is_valid:
+            # Counter Example Loop
+            print("Starting Counter Example Loop")
+            ce_train.ce_train_loop(args, training_samples, counter_example, num_of_vars,
+                                   input_size, num_of_outputs, input_var_idx, output_var_idx,
+                                   io_dict, Xvar, Yvar, device, is_valid, verilogformula,
+                                   PosUnate, NegUnate, start_time)
+
     print("Skolem Functions: ", skolem_functions)

@@ -100,6 +100,10 @@ class utils():
                             type=int, default=1, help="1: Arch 1; 2: Arch 2; 3: Arch 3")
         parser.add_argument("--cnf",
                             type=int, default=1, help="1: for cnf; 0: for dnf")
+        parser.add_argument("--ce",
+                            type=int, default=0, help="1: run ce loop; 0: skip ce loop")
+        parser.add_argument("--load_saved_model",
+                            type=int, default=1, help="1: load moedl from saved checkpoint; 0: train from scratch")
         parser.add_argument("--verilog_spec", type=str,
                             default="sample1", help="Enter file name")
         parser.add_argument("--verilog_spec_location", type=str,

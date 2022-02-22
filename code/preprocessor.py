@@ -253,6 +253,6 @@ def preprocess():
         validation_loader = dataLoader(validation_set, args.training_size, args.P, input_var_idx,
                                        output_var_idx, num_of_outputs, args.threshold, args.batch_size)
 
-    return args, train_loader, validation_loader, input_size, num_of_outputs,\
+    return args, training_samples, train_loader, validation_loader, input_size, num_of_outputs,\
         num_of_vars, input_var_idx, output_var_idx, io_dict, Xvar,\
         Yvar, verilogformula, verilog, PosUnate, NegUnate, device
