@@ -29,12 +29,13 @@ def train_regressor(args, architecture, cnf,
 
     train_loss = []
     valid_loss = []
+    accuracy_list = []
 
     early_stop = 0
 
     # Set regularizers
     lambda1 = 1e+1
-    lambda2 = 1e+1
+    lambda2 = 1e-2
 
     # Initialize network
     print("No of outputs: ", num_of_outputs, K, input_size)
@@ -74,6 +75,7 @@ def train_regressor(args, architecture, cnf,
     # Train network
     max_epochs = max_epochs+1
     epoch = 1
+    last_acc = 0
     while epoch < max_epochs:
         gcln.train()
         optimizer.zero_grad()
@@ -114,8 +116,8 @@ def train_regressor(args, architecture, cnf,
             train_size += outs.shape[0]
             t_loss = t_loss + lambda1*torch.sum(1-gcln.layer_and_weights)
             # t_loss = t_loss + lambda2*torch.sum(1-gcln.layer_or_weights)
-            # t_loss = t_loss + lambda2*torch.linalg.norm(gcln.layer_or_weights, 1) + \
-            #     lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)
+            t_loss = t_loss + lambda2 * \
+                torch.linalg.norm(gcln.layer_and_weights, 1)
 
             optimizer.zero_grad()
             t_loss.backward()
@@ -132,9 +134,13 @@ def train_regressor(args, architecture, cnf,
         elif architecture == 1:
             total_accuracy = accuracy.item()/(train_size*inps.shape[0])
 
+        accuracy_list.append(total_accuracy)
         print("Accuracy: ", total_accuracy)
         print(total_accuracy == 1)
 
+        # if last_acc != total_accuracy:
+        #     max_epochs += 1
+        # last_acc = total_accuracy
         if total_accuracy != 1:
             max_epochs += 1
 
@@ -148,10 +154,10 @@ def train_regressor(args, architecture, cnf,
         # print("Gradient for G1: ", gcln.layer_or_weights.grad)
         # print("Gradient for G2: ", gcln.layer_and_weights.grad)
 
-        util.store_losses(train_loss, valid_loss)
+        util.store_losses(train_loss, valid_loss, accuracy_list)
         util.plot()
 
-        scheduler.step()
+        # scheduler.step()
         print("learning rate: ", scheduler.get_last_lr())
 
         if epoch % 1 == 0:

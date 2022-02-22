@@ -128,6 +128,11 @@ class utils():
         # valid_loss = [float(i) for i in valid_loss]
         # plt.plot(valid_loss, label="valid_loss")
         # plt.legend()
+        f = open("accuracy_list", "r")
+        accuracy_list = f.read().split(",")
+        f.close()
+        accuracy_list = [float(i) for i in accuracy_list]
+        plt.plot(accuracy_list, label="accuracy")
         plt.savefig("train_valid_loss_plot.png")
 
     def convert_verilog(self, input, cluster):
@@ -263,7 +268,7 @@ class utils():
                 f.write(skfunc[i][:-1])
         f.close()
 
-    def store_losses(self, train_loss, valid_loss):
+    def store_losses(self, train_loss, valid_loss, accuracy_list):
         '''
         stores losses into file
         '''
@@ -272,9 +277,15 @@ class utils():
         train_loss = np.array(train_loss)
         train_loss.tofile(f, sep=",", format="%s")
         f.close()
+
         f = open("valid_loss", "w")
         valid_loss = np.array(valid_loss)
         valid_loss.tofile(f, sep=",", format="%s")
+        f.close()
+
+        f = open("accuracy_list", "w")
+        accuracy_list = np.array(accuracy_list)
+        accuracy_list.tofile(f, sep=",", format="%s")
         f.close()
 
     def store_preprocess_time(self,
@@ -360,11 +371,26 @@ class utils():
         ored_clauses = np.array(ored_clauses)
 
         gated_ored_clauses = []
-        for i in range(num_of_outputs):
-            mask = layer_and_weights[i*K:(i+1)*K, :] > threshold
-            ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
-            gated_ored_clauses.append(
-                np.unique(ored_clause[mask]))
+        if architecture == 1:
+            for i in range(num_of_outputs):
+                mask = layer_and_weights[i*K:(i+1)*K, :] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
+
+        elif architecture == 2:
+            for i in range(num_of_outputs):
+                mask = layer_and_weights[:, i] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
+
+        elif architecture == 3:
+            for i in range(num_of_outputs):
+                mask = layer_and_weights[i*K:(i+1)*K, :] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
 
         skfs = []
         for i in range(num_of_outputs):
