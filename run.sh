@@ -4,13 +4,13 @@ python3 run.py \
 --P=$1 \
 --train=1 \
 --tnorm_name=product \
---learning_rate=0.5 \
+--learning_rate=.5 \
 --run_for_all_outputs=1 \
 --verilog_spec_location=cav20_manthan_dataset/verilog \
 --verilog_spec=$2 \
 --training_size=10000 \
 --epochs=$3 \
---batch_size=32 \
+--batch_size=128 \
 --K=$4 \
 --preprocessor=1 \
 --postprocessor=1 \

@@ -64,7 +64,7 @@ def train_regressor(architecture, cnf,
 
     # Loss and Optimizer
     criterion = nn.MSELoss()
-    optimizer = torch.optim.SGD(list(gcln.parameters()), lr=learning_rate)
+    optimizer = torch.optim.Adam(list(gcln.parameters()), lr=learning_rate)
     scheduler = StepLR(optimizer, step_size=10, gamma=0.1)
     # if flag:
     #     load_checkpoint(torch.load('model.pth.tar'), gcln, optimizer)
@@ -149,8 +149,8 @@ def train_regressor(architecture, cnf,
         util.store_losses(train_loss, valid_loss)
         util.plot()
 
-        # if epoch % 1==0:
-        #     scheduler.step()
+        scheduler.step()
+        print("learning rate: ", scheduler.get_last_lr())
 
         if epoch % 1 == 0:
             print('epoch {}, train loss {}'.format(
