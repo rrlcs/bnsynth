@@ -4,9 +4,9 @@ python3 run.py \
 --P=$1 \
 --train=1 \
 --tnorm_name=product \
---learning_rate=.01 \
+--learning_rate=0.5 \
 --run_for_all_outputs=1 \
---verilog_spec_location=custom_examples \
+--verilog_spec_location=cav20_manthan_dataset/verilog \
 --verilog_spec=$2 \
 --training_size=10000 \
 --epochs=$3 \
@@ -16,6 +16,6 @@ python3 run.py \
 --postprocessor=1 \
 --architecture=3 \
 --cnf=1 \
---ce=0 \
---load_saved_model=0 \
+--ce=1 \
+--load_saved_model=1 \
 --output_file=experiments/experiments.csv

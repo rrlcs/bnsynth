@@ -225,7 +225,7 @@ class utils():
 
         return verilogformula
 
-    def make_dataset_larger(self, samples, N=100):
+    def make_dataset_larger(self, samples, N=1):
         '''
         Adds N points from the neighborhood of each sample point
         '''
@@ -455,7 +455,7 @@ class utils():
                             Xvar_tmp.append(var)
         total_var = total_var[:-1]
         total_var = [e.strip() for e in total_var]
-        return Xvar_tmp, Yvar_tmp, total_var[:-1]
+        return Xvar_tmp, Yvar_tmp, total_var
 
     def change_modulename(self, verilog):
         '''

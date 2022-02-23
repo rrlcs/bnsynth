@@ -16,9 +16,10 @@ def ce_train_loop(
 
     loop = 0
     while not is_valid and loop < 50:
-        # training_samples = torch.cat((training_samples, counter_example))
-        training_samples = counter_example.numpy()
-        training_samples = util.make_dataset_larger(training_samples)
+        samples = torch.cat(
+            (training_samples, counter_example)).numpy()
+        # training_samples = counter_example.numpy()
+        training_samples = util.make_dataset_larger(samples)
         training_set, validation_set = util.get_train_test_split(
             training_samples)
         train_loader = dataLoader(training_set, args.training_size, args.P, input_var_idx,
@@ -30,7 +31,7 @@ def ce_train_loop(
         model, train_loss, valid_loss, final_accuracy, final_epochs = training.trainer(
             args, train_loader, validation_loader, num_of_vars,
             input_size, num_of_outputs, input_var_idx, output_var_idx,
-            io_dict, Xvar, Yvar, device
+            io_dict, Xvar, Yvar, device, ce_flag=1
         )
 
         # 3. Postprocess skolem function from GCLN

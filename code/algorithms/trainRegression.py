@@ -1,4 +1,5 @@
 import copy
+import os
 from code.model.gcln import *
 from code.utils.utils import util
 
@@ -24,7 +25,7 @@ def train_regressor(args, architecture, cnf,
                     device, num_of_vars, input_var_idx,
                     output_var_idx, current_output, io_dict, threshold,
                     verilog_spec, verilog_spec_location,
-                    Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate
+                    Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate, ce_flag
                     ):
 
     train_loss = []
@@ -69,7 +70,8 @@ def train_regressor(args, architecture, cnf,
     scheduler = StepLR(optimizer, step_size=10, gamma=0.1)
 
     # Loading from checkpoint
-    if args.load_saved_model:
+    if args.load_saved_model and ce_flag:
+        print("Loading checkpoint...")
         load_checkpoint(torch.load('model.pth.tar'), gcln, optimizer)
 
     # Train network
@@ -116,8 +118,8 @@ def train_regressor(args, architecture, cnf,
             train_size += outs.shape[0]
             t_loss = t_loss + lambda1*torch.sum(1-gcln.layer_and_weights)
             # t_loss = t_loss + lambda2*torch.sum(1-gcln.layer_or_weights)
-            t_loss = t_loss + lambda2 * \
-                torch.linalg.norm(gcln.layer_and_weights, 1)
+            # t_loss = t_loss + lambda2 * \
+            #     torch.linalg.norm(gcln.layer_and_weights, 1)
 
             optimizer.zero_grad()
             t_loss.backward()
@@ -141,7 +143,7 @@ def train_regressor(args, architecture, cnf,
         # if last_acc != total_accuracy:
         #     max_epochs += 1
         # last_acc = total_accuracy
-        if total_accuracy != 1:
+        if total_accuracy < 0.9:
             max_epochs += 1
 
         print('epoch {}, train loss {}'.format(

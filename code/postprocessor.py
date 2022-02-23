@@ -33,35 +33,36 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
         check, sigma, ret = util.verify(Xvar, Yvar, args.verilog_spec)
         print(check, ret)
         is_valid = 0
+        counter_examples = []
         if check == 0:
             print("error...ABC network read fail")
             print("Skolem functions not generated")
             print("not solved !!")
             # exit()
-
-        if ret == 0:
-            print('error formula unsat.. skolem functions generated')
-            print("success")
-            is_valid = 1
-            skfunc = [sk.replace('\n', '') for sk in skf_list]
-            t = time.time() - start_time
-            datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx)) + \
-                ", "+str(num_of_outputs)+", "+str(0)+", "+'; '.join(skfunc)+", "+"Valid" + \
-                ", "+str(t)+", "+str(final_loss)+", " + \
-                str(loss_drop)+", "+str(accuracy)+"\n"
-            print(datastring)
-            f = open(args.output_file, "a")
-            f.write(datastring)
-            f.close()
-
-            os.system('rm data/benchmarks/cav20_manthan_dataset/verilog/*.cnf')
         else:
-            counter_examples = torch.from_numpy(
-                np.concatenate(
-                    (sigma.modelx, sigma.modely)
-                ).reshape((1, len(Xvar)+len(Yvar)))
-            )
-            print("counter examples: ", counter_examples)
+            if ret == 0:
+                print('error formula unsat.. skolem functions generated')
+                print("success")
+                is_valid = 1
+                skfunc = [sk.replace('\n', '') for sk in skf_list]
+                t = time.time() - start_time
+                datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx)) + \
+                    ", "+str(num_of_outputs)+", "+str(0)+", "+'; '.join(skfunc)+", "+"Valid" + \
+                    ", "+str(t)+", "+str(final_loss)+", " + \
+                    str(loss_drop)+", "+str(accuracy)+"\n"
+                print(datastring)
+                f = open(args.output_file, "a")
+                f.write(datastring)
+                f.close()
+                os.system(
+                    'rm data/benchmarks/cav20_manthan_dataset/verilog/*.cnf')
+            else:
+                counter_examples = torch.from_numpy(
+                    np.concatenate(
+                        (sigma.modelx, sigma.modely)
+                    ).reshape((1, len(Xvar)+len(Yvar)))
+                )
+                print("counter examples: ", counter_examples)
 
     elif args.postprocessor == 2:
 
@@ -100,6 +101,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
             f = open(args.output_file, "a")
             f.write(datastring)
             f.close()
+            counter_examples = []
 
         else:
             counter_examples = torch.from_numpy(
