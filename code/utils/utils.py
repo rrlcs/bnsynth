@@ -225,7 +225,7 @@ class utils():
 
         return verilogformula
 
-    def make_dataset_larger(self, samples, N=1):
+    def make_dataset_larger(self, samples, N=100):
         '''
         Adds N points from the neighborhood of each sample point
         '''

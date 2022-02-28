@@ -53,7 +53,7 @@ def preprocess():
             cnf_content, Xvar, Yvar, Xvar_map, Yvar_map, allvar_map, verilog,
             max_samples=args.training_size
         )
-        print("samples: ", samples.shape)
+        print("samples: ", list(samples))
 
         if samples.shape[0] > 1000:
             samples = samples[np.random.choice(
@@ -81,8 +81,15 @@ def preprocess():
         input_var_idx, output_var_idx = util.get_var_indices(
             num_of_vars, output_varlist, io_dict)
         input_size = 2*len(input_var_idx)
+        print("Input Indices: ", input_var_idx)
         print("Input size: ", input_size)
         print("Output size: ", len(output_var_idx))
+        inp_samples = samples[:, input_var_idx]
+        inp_samples = list(set([tuple(x) for x in inp_samples]))
+        y = (0, 0, 0, 0)
+        if y in inp_samples:
+            print("exists: ")
+        print("**** inp samp: ", inp_samples)
 
         if args.run_for_all_outputs == 1:
             num_of_outputs = len(output_var_idx)
@@ -255,4 +262,4 @@ def preprocess():
 
     return args, training_samples, train_loader, validation_loader, input_size, num_of_outputs,\
         num_of_vars, input_var_idx, output_var_idx, io_dict, Xvar,\
-        Yvar, verilogformula, verilog, PosUnate, NegUnate, device
+        Yvar, verilogformula, verilog, PosUnate, NegUnate, device, inp_samples

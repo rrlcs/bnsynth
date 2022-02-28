@@ -23,7 +23,7 @@ if __name__ == "__main__":
     start_time = time.time()
     args, training_samples, train_loader, validation_loader, input_size, num_of_outputs,\
         num_of_vars, input_var_idx, output_var_idx, io_dict,\
-        Xvar, Yvar, verilogformula, verilog, PosUnate, NegUnate, device = preprocessor.preprocess()
+        Xvar, Yvar, verilogformula, verilog, PosUnate, NegUnate, device, inp_samples = preprocessor.preprocess()
 
     # 2. Feed samples into GCLN
     model, train_loss, valid_loss, final_accuracy, final_epochs = training.trainer(
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         if not is_valid:
             # Counter Example Loop
             print("Starting Counter Example Loop")
-            ce_train.ce_train_loop(args, training_samples, counter_example, num_of_vars,
+            ce_train.ce_train_loop(args, training_samples, counter_example, inp_samples, num_of_vars,
                                    input_size, num_of_outputs, input_var_idx, output_var_idx,
                                    io_dict, Xvar, Yvar, device, is_valid, verilogformula,
                                    PosUnate, NegUnate, start_time)
