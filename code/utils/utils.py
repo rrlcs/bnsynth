@@ -835,9 +835,11 @@ class utils():
                     cnf_content, Xvar_map, Yvar_map, allvar_map, verilog)
             samples = self.get_sample_cms(
                 allvar_map, sample_cnf_content, no_samples, verilog)
-        x_data, indices = np.unique(
-            samples[:, Xvar], axis=0, return_index=True)
-        samples = samples[indices, :]
+        # x_data, indices = np.unique(
+        #     samples[:, Xvar], axis=0, return_index=True)
+        # samples = samples[indices, :]
+        samples = np.unique(samples, axis=0)
+        print(samples)
 
         # x_data, indices = np.unique(samples[:, Xvar], axis=0, return_index=True)
         # samples = samples[indices, :]
@@ -858,12 +860,12 @@ class utils():
         candidateskf = {}
         j = 0
         for i in Yvar:
-            # if i in neg_unate:
-            #     candidateskf[i] = ' 0 '
-            #     continue
-            # if i in pos_unate:
-            #     candidateskf[i] = ' 1 '
-            #     continue
+            if i in neg_unate:
+                candidateskf[i] = ' 0 '
+                continue
+            if i in pos_unate:
+                candidateskf[i] = ' 1 '
+                continue
             if j < len(skfunc):
                 candidateskf[i] = skfunc[j][:-1]
             j += 1

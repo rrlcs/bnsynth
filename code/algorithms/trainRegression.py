@@ -25,7 +25,7 @@ def train_regressor(args, architecture, cnf,
                     device, num_of_vars, input_var_idx,
                     output_var_idx, current_output, io_dict, threshold,
                     verilog_spec, verilog_spec_location,
-                    Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate, ce_flag
+                    Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate, ce_flag, ce_loop
                     ):
 
     train_loss = []
@@ -68,6 +68,10 @@ def train_regressor(args, architecture, cnf,
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(list(gcln.parameters()), lr=learning_rate)
     scheduler = StepLR(optimizer, step_size=60, gamma=0.1)
+
+    ce_count = 0
+    if ce_flag:
+        ce_count += 1
 
     # Loading from checkpoint
     if args.load_saved_model and ce_flag:
@@ -143,8 +147,8 @@ def train_regressor(args, architecture, cnf,
         # if last_acc != total_accuracy:
         #     max_epochs += 1
         # last_acc = total_accuracy
-        if args.ce:
-            if total_accuracy < 0.95:
+        if args.ce and ce_loop < 100:
+            if total_accuracy < 1:
                 max_epochs += 1
         else:
             if total_accuracy != 1:

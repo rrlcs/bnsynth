@@ -55,19 +55,6 @@ def preprocess():
         )
         print("samples: ", list(samples))
 
-        if samples.shape[0] > 1000:
-            samples = samples[np.random.choice(
-                samples.shape[0], 1000, replace=False), :]
-        # training_samples = util.make_dataset_larger(samples)
-        training_samples = torch.from_numpy(samples[:, :]).to(torch.double)
-        print(training_samples.shape)
-
-        # Get train test split
-        training_set, validation_set = util.get_train_test_split(
-            training_samples)
-        print("Total, Train, and Valid shapes", training_samples.shape,
-              training_set.shape, validation_set.shape)
-
         num_of_vars, num_out_vars, num_of_eqns = util.get_var_counts(
             Xvar, Yvar, verilog)
         print("No. of vars: {}, No. of output vars: {}, No. of eqns: {}".format(
@@ -84,12 +71,53 @@ def preprocess():
         print("Input Indices: ", input_var_idx)
         print("Input size: ", input_size)
         print("Output size: ", len(output_var_idx))
-        inp_samples = samples[:, input_var_idx]
-        inp_samples = list(set([tuple(x) for x in inp_samples]))
+        inp_samples_list = samples[:, input_var_idx]
+        inp_samples_list = [tuple(x) for x in inp_samples_list]
+        inp_samples = list(set(inp_samples_list))
+        out_samples_list = samples[:, output_var_idx]
+        out_samples_list = [tuple(x) for x in out_samples_list]
+        out_samples = list(set(out_samples_list))
+        d = {}
+        for i in range(len(out_samples_list)):
+            if inp_samples_list[i] in d.keys():
+                d[inp_samples_list[i]].append(out_samples_list[i])
+            else:
+                d[inp_samples_list[i]] = [out_samples_list[i]]
+        print("dict", d)
+        count = 2**(num_out_vars)
+        inds = []
+        for k in d.keys():
+            if len(d[k]) == count:
+                inds.append([i for i, x in enumerate(
+                    inp_samples_list) if x == k])
+                print("indices: ", inds)
+        total_indices = [i for i in range(len(out_samples_list))]
+        # + list(set(li2) - set(li1))
+        inds = [item for sublist in inds for item in sublist]
+        # for ind in inds:
+        remainder_indices = list(set(total_indices) - set(inds))
+        samples = samples[remainder_indices, :]
+        x_data, indices = np.unique(
+            samples[:, Xvar], axis=0, return_index=True)
+        samples = samples[indices, :]
+        print("filtered samples: ", samples)
         y = (0, 0, 0, 0)
         if y in inp_samples:
             print("exists: ")
         print("**** inp samp: ", inp_samples)
+
+        # if samples.shape[0] > 1000:
+        #     samples = samples[np.random.choice(
+        #         samples.shape[0], 1000, replace=False), :]
+        # training_samples = util.make_dataset_larger(samples)
+        training_samples = torch.from_numpy(samples).to(torch.double)
+        print(training_samples.shape)
+
+        # Get train test split
+        training_set, validation_set = util.get_train_test_split(
+            training_samples)
+        print("Total, Train, and Valid shapes", training_samples.shape,
+              training_set.shape, validation_set.shape)
 
         if args.run_for_all_outputs == 1:
             num_of_outputs = len(output_var_idx)

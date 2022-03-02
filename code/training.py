@@ -21,7 +21,7 @@ def train(args, architecture, cnf, P, train, train_loader, validation_loader, le
           input_size, num_of_outputs, K, device, num_of_vars, input_var_idx,
           output_var_idx, current_output, io_dict, threshold,
           verilog_spec, verilog_spec_location,
-          Xvar, Yvar, ce_flag, verilog_formula, verilog, pos_unate, neg_unate):
+          Xvar, Yvar, ce_flag, ce_loop, verilog_formula, verilog, pos_unate, neg_unate):
 
     if P == 0:
         if train:
@@ -29,7 +29,7 @@ def train(args, architecture, cnf, P, train, train_loader, validation_loader, le
                                                                             train_loader, validation_loader, learning_rate, epochs, input_size, num_of_outputs, K, device, num_of_vars, input_var_idx,
                                                                             output_var_idx, current_output, io_dict, threshold,
                                                                             verilog_spec, verilog_spec_location,
-                                                                            Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate, ce_flag)
+                                                                            Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate, ce_flag, ce_loop)
         else:
             print("no train")
             gcln = gcln.GCLN(input_size, len(output_var_idx),
@@ -82,7 +82,7 @@ Select Architecture and Train using:
 
 
 def trainer(args, train_loader, validation_loader, num_of_vars, input_size,
-            num_of_outputs, input_var_idx, output_var_idx, io_dict, Xvar, Yvar, device, ce_flag):
+            num_of_outputs, input_var_idx, output_var_idx, io_dict, Xvar, Yvar, device, ce_flag, ce_loop):
     if args.architecture == 1:
         final_accuracy = 0
         final_epochs = 0
@@ -93,7 +93,8 @@ def trainer(args, train_loader, validation_loader, num_of_vars, input_size,
                                                                    args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs,
                                                                    input_size, num_of_outputs, args.K, device, num_of_vars, input_var_idx, output_var_idx, current_output,
                                                                    io_dict, args.threshold, args.verilog_spec, args.verilog_spec_location,
-                                                                   Xvar, Yvar, ce_flag, verilog_formula=[], verilog=[], pos_unate=[], neg_unate=[]
+                                                                   Xvar, Yvar, ce_flag, ce_loop, verilog_formula=[
+                                                                   ], verilog=[], pos_unate=[], neg_unate=[]
                                                                    )
             final_accuracy += accuracy
             final_epochs += epochs
@@ -105,7 +106,8 @@ def trainer(args, train_loader, validation_loader, num_of_vars, input_size,
                                                                            args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs,
                                                                            input_size, num_of_outputs, args.K, device, num_of_vars, input_var_idx, output_var_idx, current_output,
                                                                            io_dict, args.threshold, args.verilog_spec, args.verilog_spec_location,
-                                                                           Xvar, Yvar, ce_flag, verilog_formula=[], verilog=[], pos_unate=[], neg_unate=[]
+                                                                           Xvar, Yvar, ce_flag, ce_loop, verilog_formula=[
+                                                                           ], verilog=[], pos_unate=[], neg_unate=[]
                                                                            )
 
         return gcln, train_loss, valid_loss, final_accuracy, final_epochs
