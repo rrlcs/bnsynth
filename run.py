@@ -27,9 +27,7 @@ if __name__ == "__main__":
 
     # 2. Feed samples into GCLN
     model, train_loss, valid_loss, final_accuracy, final_epochs = training.trainer(
-        args, train_loader, validation_loader, num_of_vars,
-        input_size, num_of_outputs, input_var_idx, output_var_idx,
-        io_dict, Xvar, Yvar, device, ce_flag=0, ce_loop=0
+        args, train_loader, validation_loader, input_size, num_of_outputs, device, ce_flag=0, ce_loop=0
     )
 
     # 3. Postprocess skolem function from GCLN

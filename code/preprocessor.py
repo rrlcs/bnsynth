@@ -53,7 +53,7 @@ def preprocess():
             cnf_content, Xvar, Yvar, Xvar_map, Yvar_map, allvar_map, verilog,
             max_samples=args.training_size
         )
-        print("samples: ", list(samples))
+        # print("samples: ", list(samples))
 
         num_of_vars, num_out_vars, num_of_eqns = util.get_var_counts(
             Xvar, Yvar, verilog)
@@ -77,13 +77,16 @@ def preprocess():
         out_samples_list = samples[:, output_var_idx]
         out_samples_list = [tuple(x) for x in out_samples_list]
         out_samples = list(set(out_samples_list))
+
+        # Create dictionary with input sequence as key and output sequence as values
         d = {}
         for i in range(len(out_samples_list)):
             if inp_samples_list[i] in d.keys():
                 d[inp_samples_list[i]].append(out_samples_list[i])
             else:
                 d[inp_samples_list[i]] = [out_samples_list[i]]
-        print("dict", d)
+
+        # Find indices for don't cares
         count = 2**(num_out_vars)
         inds = []
         for k in d.keys():
@@ -92,19 +95,17 @@ def preprocess():
                     inp_samples_list) if x == k])
                 print("indices: ", inds)
         total_indices = [i for i in range(len(out_samples_list))]
-        # + list(set(li2) - set(li1))
         inds = [item for sublist in inds for item in sublist]
-        # for ind in inds:
+
+        # Find indices of samples to keep
         remainder_indices = list(set(total_indices) - set(inds))
+
+        # Filter data
         samples = samples[remainder_indices, :]
         x_data, indices = np.unique(
             samples[:, Xvar], axis=0, return_index=True)
         samples = samples[indices, :]
-        print("filtered samples: ", samples)
-        y = (0, 0, 0, 0)
-        if y in inp_samples:
-            print("exists: ")
-        print("**** inp samp: ", inp_samples)
+        print("filtered don't cares from samples: ", samples)
 
         # if samples.shape[0] > 1000:
         #     samples = samples[np.random.choice(

@@ -22,10 +22,7 @@ def load_checkpoint(checkpoint, gcln, optimizer):
 def train_regressor(args, architecture, cnf,
                     train_loader, validation_loader, learning_rate,
                     max_epochs, input_size, num_of_outputs, K,
-                    device, num_of_vars, input_var_idx,
-                    output_var_idx, current_output, io_dict, threshold,
-                    verilog_spec, verilog_spec_location,
-                    Xvar, Yvar, verilog_formula, verilog, pos_unate, neg_unate, ce_flag, ce_loop
+                    device, current_output, ce_flag, ce_loop
                     ):
 
     train_loss = []
@@ -93,9 +90,7 @@ def train_regressor(args, architecture, cnf,
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
             tgts = tgts.round()
             outs = gcln(inps).to(device)
-            # for name, param in gcln.named_parameters():
-            #     if param.requires_grad:
-            #         print(name, param.data)
+            
             gcln_ = copy.deepcopy(gcln)
             gcln_.layer_or_weights = torch.nn.Parameter(
                 gcln_.layer_or_weights.round())
@@ -122,8 +117,8 @@ def train_regressor(args, architecture, cnf,
             train_size += outs.shape[0]
             t_loss = t_loss + lambda1*torch.sum(1-gcln.layer_and_weights)
             # t_loss = t_loss + lambda2*torch.sum(1-gcln.layer_or_weights)
-            # t_loss = t_loss + lambda2 * \
-            #     torch.linalg.norm(gcln.layer_and_weights, 1)
+            t_loss = t_loss + lambda2 * \
+                torch.linalg.norm(gcln.layer_and_weights, 1)
 
             optimizer.zero_grad()
             t_loss.backward()
