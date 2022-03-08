@@ -119,8 +119,8 @@ def train_classifier(args, architecture, cnf,
             # t_loss = criterion(out, tgts)
             train_size += outs.shape[0]
             t_loss = t_loss + lambda1*torch.sum(1-gcln.layer_and_weights)
-            t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 1) + \
-                lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)
+            # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 1) + \
+            #     lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)
             # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
             #     lambda2*torch.linalg.norm(gcln.G2, 2)
 

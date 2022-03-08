@@ -25,7 +25,8 @@ def ce_train_loop(
         if ce_inp_sample in inp_samples:
             training_samples = training_samples
         else:
-            # counter_example = util.make_dataset_larger(counter_example)
+            print("Counter Example Added to Training Data")
+            # counter_example = util.make_dataset_larger(counter_example.numpy())
             training_samples = torch.cat(
                 (training_samples, counter_example))
 

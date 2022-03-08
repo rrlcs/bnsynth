@@ -860,12 +860,12 @@ class utils():
         candidateskf = {}
         j = 0
         for i in Yvar:
-            if i in neg_unate:
-                candidateskf[i] = ' 0 '
-                continue
-            if i in pos_unate:
-                candidateskf[i] = ' 1 '
-                continue
+            # if i in neg_unate:
+            #     candidateskf[i] = ' 0 '
+            #     continue
+            # if i in pos_unate:
+            #     candidateskf[i] = ' 1 '
+            #     continue
             if j < len(skfunc):
                 candidateskf[i] = skfunc[j][:-1]
             j += 1

@@ -53,7 +53,7 @@ def preprocess():
             cnf_content, Xvar, Yvar, Xvar_map, Yvar_map, allvar_map, verilog,
             max_samples=args.training_size
         )
-        # print("samples: ", list(samples))
+        print("samples: ", samples.shape)
 
         num_of_vars, num_out_vars, num_of_eqns = util.get_var_counts(
             Xvar, Yvar, verilog)
@@ -109,7 +109,7 @@ def preprocess():
 
         # if samples.shape[0] > 1000:
         #     samples = samples[np.random.choice(
-        #         samples.shape[0], 1000, replace=False), :]
+        #         samples.shape[0], 100, replace=False), :]
         # training_samples = util.make_dataset_larger(samples)
         training_samples = torch.from_numpy(samples).to(torch.double)
         print(training_samples.shape)

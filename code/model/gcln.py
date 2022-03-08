@@ -163,16 +163,20 @@ class GCLN_CNF_Arch3(torch.nn.Module):
         self.layer_or_weights = torch.nn.Parameter(
             torch.Tensor(
                 self.input_size, num_of_output_var * K
-            ).uniform_(0.4, 0.6).to(dtype=torch.double).to(self.device)
+            ).uniform_(0., 1.0).to(dtype=torch.double).to(self.device)
         )
         # self.layer_or_weights.data = torch.tensor([[1.0], [1.0]])
         # self.G2.shape: num_of_output_var * K x 1
         self.layer_and_weights = torch.nn.Parameter(
             torch.Tensor(
                 num_of_output_var * K, 1
-            ).uniform_(0.5, 0.6).to(dtype=torch.double).to(self.device)
+            ).uniform_(0., 1.0).to(dtype=torch.double).to(self.device)
         )
         # self.layer_and_weights.data = torch.tensor([[1.0]])
+
+        # Define Linear Layers
+        self.linear_layer_1 = nn.Linear(self.input_size, self.input_size)
+        # self.linear_layer_1.weight.data.uniform_(0.0, 1.0)
 
     def apply_gates(self, x, y):
         return torch.mul(x, y)
@@ -185,13 +189,17 @@ class GCLN_CNF_Arch3(torch.nn.Module):
         with torch.no_grad():
             self.layer_or_weights.data.clamp_(0.0, 1.0)
             self.layer_and_weights.data.clamp_(0.0, 1.0)
+            self.linear_layer_1.weight.clamp_(0.0, 1.0)
         # x.shape and neg_x.shape: batch_size x no_input_vars
         x = x.to(self.device)
         neg_x = 1 - x
 
         # inputs.shape: batch_size x 2*no_input_vars x 1
         inputs = torch.cat((x, neg_x), dim=1).unsqueeze(-1)
+        # print((inputs.dtype))
 
+        # inputs = self.linear_layer_1(inputs).unsqueeze(-1)
+        # print(inputs.dtype)
         # gated_inputs.shape: batch_size x 2*no_input_vars x K
         gated_inputs = []
         for i in range(0, self.output_size):

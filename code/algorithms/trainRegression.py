@@ -89,8 +89,10 @@ def train_regressor(args, architecture, cnf,
         for batch_idx, (inps, tgts) in enumerate(train_loader):
             tgts = tgts.reshape((tgts.size(0), -1)).to(device)
             tgts = tgts.round()
+            inps = inps.to(torch.float)
             outs = gcln(inps).to(device)
-            
+            # print(outs)
+
             gcln_ = copy.deepcopy(gcln)
             gcln_.layer_or_weights = torch.nn.Parameter(
                 gcln_.layer_or_weights.round())
@@ -117,8 +119,8 @@ def train_regressor(args, architecture, cnf,
             train_size += outs.shape[0]
             t_loss = t_loss + lambda1*torch.sum(1-gcln.layer_and_weights)
             # t_loss = t_loss + lambda2*torch.sum(1-gcln.layer_or_weights)
-            t_loss = t_loss + lambda2 * \
-                torch.linalg.norm(gcln.layer_and_weights, 1)
+            # t_loss = t_loss + lambda2 * \
+            #     torch.linalg.norm(gcln.layer_and_weights, 1)
 
             optimizer.zero_grad()
             t_loss.backward()
