@@ -17,6 +17,7 @@ def ce_train_loop(
 
     loop = 0
     while not is_valid and loop < 200:
+        print("Counter Example Loop: ", loop)
         loop += 1
         counter_example = counter_example.numpy()
         ce_inp_sample = tuple(counter_example[:, input_var_idx][0])
@@ -26,9 +27,11 @@ def ce_train_loop(
             training_samples = training_samples
         else:
             print("Counter Example Added to Training Data")
-            # counter_example = util.make_dataset_larger(counter_example.numpy())
-            training_samples = torch.cat(
-                (training_samples, counter_example))
+            counter_example = util.make_dataset_larger(
+                counter_example.numpy(), 100)
+            # training_samples = torch.cat(
+            #     (training_samples, counter_example))
+            training_samples = counter_example
 
         inp_samples = list(training_samples[:, input_var_idx].numpy())
         inp_samples = list(set([tuple(x) for x in inp_samples]))

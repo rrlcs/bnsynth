@@ -119,10 +119,10 @@ def train_classifier(args, architecture, cnf,
             # t_loss = criterion(out, tgts)
             train_size += outs.shape[0]
             t_loss = t_loss + lambda1*torch.sum(1-gcln.layer_and_weights)
-            # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 1) + \
-            #     lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)
-            # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.G1, 2) + \
-            #     lambda2*torch.linalg.norm(gcln.G2, 2)
+            t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 1) + \
+                lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)
+            t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 2) + \
+                lambda2*torch.linalg.norm(gcln.layer_and_weights, 2)
 
             optimizer.zero_grad()
             t_loss.backward()
@@ -157,8 +157,8 @@ def train_classifier(args, architecture, cnf,
         # print("Training Loss: ", t_loss.item())
         # print("G1: ", gcln.layer_or_weights.data)
         # print("G2: ", gcln.layer_and_weights.data)
-        # print("Gradient for G1: ", gcln.layer_or_weights.grad)
-        # print("Gradient for G2: ", gcln.layer_and_weights.grad)
+        print("Gradient for G1: ", gcln.layer_or_weights.grad)
+        print("Gradient for G2: ", gcln.layer_and_weights.grad)
 
         util.store_losses(train_loss, valid_loss, accuracy_list)
         util.plot()

@@ -7,3 +7,6 @@ module formula(i_0,i_1,i_2,i_3,i_4,out);
 	assign w3 = (w1 ^ w2);
 	assign out = (w3 ^ i_4);
 endmodule
+
+// out = ((i_0 | i_1) ^ (i_2 & i_3)) ^ i_4
+//		i_0 = 1, i_3 = 0, i_4 = 0

@@ -82,6 +82,7 @@ def trainer(args, train_loader, validation_loader, input_size,
         model_list = []
         for i in range(num_of_outputs):
             current_output = i
+            print("Training for the current output: ", current_output)
             gcln, train_loss, valid_loss, accuracy, epochs = train(args, args.architecture, args.cnf,
                                                                    args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs,
                                                                    input_size, num_of_outputs, args.K, device, current_output, ce_flag, ce_loop

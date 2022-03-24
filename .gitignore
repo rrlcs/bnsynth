@@ -18,6 +18,7 @@ classifier2
 model.pth.tar
 skfs
 accuracy_list
+samples.csv
 
 
 

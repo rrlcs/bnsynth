@@ -69,6 +69,7 @@ def preprocess():
             num_of_vars, output_varlist, io_dict)
         input_size = 2*len(input_var_idx)
         print("Input Indices: ", input_var_idx)
+        print("Output Indices: ", output_var_idx)
         print("Input size: ", input_size)
         print("Output size: ", len(output_var_idx))
         inp_samples_list = samples[:, input_var_idx]
@@ -105,11 +106,14 @@ def preprocess():
         x_data, indices = np.unique(
             samples[:, Xvar], axis=0, return_index=True)
         samples = samples[indices, :]
-        print("filtered don't cares from samples: ", samples)
-
-        # if samples.shape[0] > 1000:
-        #     samples = samples[np.random.choice(
-        #         samples.shape[0], 100, replace=False), :]
+        # print("filtered don't cares from samples: ", samples)
+        np.random.RandomState(42)
+        if samples.shape[0] > 1000:
+            samples = samples[np.random.choice(
+                samples.shape[0], 1000, replace=False), :]
+        # samples = np.random.rand(samples.shape[0], samples.shape[1])
+        print("data \n", samples)
+        # np.savetxt("samples.csv", samples, delimiter=",")
         # training_samples = util.make_dataset_larger(samples)
         training_samples = torch.from_numpy(samples).to(torch.double)
         print(training_samples.shape)
