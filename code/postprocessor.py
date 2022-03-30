@@ -8,19 +8,35 @@ from code.utils.utils import util
 def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogformula, num_of_inputs, input_var_idx, num_of_outputs,
                 output_var_idx, io_dict, Xvar, Yvar, PosUnate, NegUnate, start_time):
 
-    if args.architecture == 1:
-        skf_dict = {}
-        for i in range(len(model)):
-            skolem_function = util.get_skolem_function(
-                args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
-            skf_dict[Yvar[i]] = skolem_function[0]
-        skf_list = list(skf_dict.values())
-    elif args.architecture == 2:
-        skf_list = util.get_skolem_function(
-            args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
+    if args.cnf:
+        if args.architecture == 1:
+            skf_dict = {}
+            for i in range(len(model)):
+                skolem_function = util.get_skolem_function_cnf(
+                    args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
+                skf_dict[Yvar[i]] = skolem_function[0]
+            skf_list = list(skf_dict.values())
+        elif args.architecture == 2:
+            skf_list = util.get_skolem_function_cnf_2(
+                args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
+        else:
+            skf_list = util.get_skolem_function_cnf(
+                args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
     else:
-        skf_list = util.get_skolem_function(
-            args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
+        if args.architecture == 1:
+            skf_dict = {}
+            for i in range(len(model)):
+                skolem_function = util.get_skolem_function_dnf(
+                    args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
+                skf_dict[Yvar[i]] = skolem_function[0]
+            skf_list = list(skf_dict.values())
+            print("final skfs: ", skf_list)
+        elif args.architecture == 2:
+            skf_list = util.get_skolem_function_dnf(
+                args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
+        else:
+            skf_list = util.get_skolem_function_dnf(
+                args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
 
     if args.postprocessor == 1:
         inputfile_name = args.verilog_spec.split('.v')[0]

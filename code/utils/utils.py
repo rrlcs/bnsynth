@@ -323,16 +323,19 @@ class utils():
 
         return training_set, validation_set
 
-    def get_skolem_function(self, args, gcln, no_of_input_var, input_var_idx, num_of_outputs, output_var_idx, io_dict):
+    def get_skolem_function_cnf(self, args, gcln, no_of_input_var, input_var_idx, num_of_outputs, output_var_idx, io_dict):
         '''
         Reads the model weights (layer_or_weights, layer_and_weights) and builds the skolem function based on it.
         Input: Learned model parameters
         Output: Skolem Functions
         '''
 
-        layer_or_weights = gcln.layer_or_weights.cpu().detach().numpy()  # input_size x K
-        layer_and_weights = gcln.layer_and_weights.cpu(
+        layer_or_weights_1 = gcln.layer_or_weights_1.cpu().detach().numpy()  # input_size x K
+        layer_and_weights_1 = gcln.layer_and_weights_1.cpu(
         ).detach().numpy()  # K x num_of_outputs
+        # layer_or_weights_2 = gcln.layer_or_weights_2.cpu().detach().numpy()  # input_size x K
+        # layer_and_weights_2 = gcln.layer_and_weights_2.cpu(
+        # ).detach().numpy()  # K x num_of_outputs
 
         threshold = args.threshold
         K = args.K
@@ -351,17 +354,17 @@ class utils():
         clauses = []
         if architecture == 1:
             for j in range(K):
-                mask = layer_or_weights[:, j] > threshold
+                mask = layer_or_weights_1[:, j] > threshold
                 clauses.append(clause[mask])
             clauses = np.array(clauses)
         elif architecture == 2:
             for j in range(K):
-                mask = layer_or_weights[:, j] > threshold
+                mask = layer_or_weights_1[:, j] > threshold
                 clauses.append(clause[mask])
             clauses = np.array(clauses)
         elif architecture == 3:
             for j in range(num_of_outputs * K):
-                mask = layer_or_weights[:, j] > threshold
+                mask = layer_or_weights_1[:, j] > threshold
                 clauses.append(clause[mask])
             clauses = np.array(clauses)
 
@@ -373,21 +376,21 @@ class utils():
         gated_ored_clauses = []
         if architecture == 1:
             for i in range(num_of_outputs):
-                mask = layer_and_weights[i*K:(i+1)*K, :] > threshold
+                mask = layer_and_weights_1[i*K:(i+1)*K, :] > threshold
                 ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
                 gated_ored_clauses.append(
                     np.unique(ored_clause[mask]))
 
         elif architecture == 2:
             for i in range(num_of_outputs):
-                mask = layer_and_weights[:, i] > threshold
+                mask = layer_and_weights_1[:, i] > threshold
                 ored_clause = ored_clauses.reshape((-1, 1))
                 gated_ored_clauses.append(
                     np.unique(ored_clause[mask]))
 
         elif architecture == 3:
             for i in range(num_of_outputs):
-                mask = layer_and_weights[i*K:(i+1)*K, :] > threshold
+                mask = layer_and_weights_1[i*K:(i+1)*K, :] > threshold
                 ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
                 gated_ored_clauses.append(
                     np.unique(ored_clause[mask]))
@@ -404,6 +407,262 @@ class utils():
         # print("-----------------------------------------------------------------------------")
         # print("skolem function in getSkolemFunc.py: ", skfs)
         # print("-----------------------------------------------------------------------------")
+
+        return skfs
+
+    def get_skolem_function_cnf_2(self, args, gcln, no_of_input_var, input_var_idx, num_of_outputs, output_var_idx, io_dict):
+        '''
+        Reads the model weights (layer_or_weights, layer_and_weights) and builds the skolem function based on it.
+        Input: Learned model parameters
+        Output: Skolem Functions
+        '''
+
+        layer_or_weights_1 = gcln.cnf_layer_1.layer_or_weights.cpu(
+        ).detach().numpy()  # input_size x K
+        layer_and_weights_1 = gcln.cnf_layer_1.layer_and_weights.cpu(
+        ).detach().numpy()  # K x num_of_outputs
+        layer_or_weights_2 = gcln.cnf_layer_2.layer_or_weights.cpu(
+        ).detach().numpy()  # input_size x K
+        layer_and_weights_2 = gcln.cnf_layer_2.layer_and_weights.cpu(
+        ).detach().numpy()  # K x num_of_outputs
+
+        threshold = args.threshold
+        K = args.K
+        architecture = args.architecture
+        hidden_size = gcln.cnf_layer_1.hidden_size
+
+        literals = []
+        neg_literals = []
+        for i in input_var_idx:
+            # literals.append(io_dict.get(i))
+            # neg_literals.append("~"+io_dict.get(i))
+            literals.append("i"+str(i))
+            neg_literals.append("~i"+str(i))
+
+        clause = np.array(literals + neg_literals)
+
+        clauses = []
+        if architecture == 1:
+            for j in range(K):
+                mask = layer_or_weights_1[:, j] > threshold
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+        elif architecture == 2:
+            for j in range(hidden_size):
+                mask = layer_or_weights_1[:, j] > threshold
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+        elif architecture == 3:
+            for j in range(num_of_outputs * K):
+                mask = layer_or_weights_1[:, j] > threshold
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+
+        ored_clauses = []
+        for j in range(len(clauses)):
+            ored_clauses.append("("+" | ".join(clauses[j])+")")
+        ored_clauses = np.array(ored_clauses)
+
+        gated_ored_clauses = []
+        if architecture == 1:
+            for i in range(num_of_outputs):
+                mask = layer_and_weights_1[i*K:(i+1)*K, :] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
+
+        elif architecture == 2:
+            for i in range(num_of_outputs):
+                mask = layer_and_weights_1[:, i] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))
+                print("shape: ", mask.shape, ored_clause.shape)
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
+
+        elif architecture == 3:
+            for i in range(num_of_outputs):
+                mask = layer_and_weights_1[i*K:(i+1)*K, :] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
+
+        skfs = []
+        for i in range(num_of_outputs):
+            skf = " & ".join(gated_ored_clauses[i])  # +"\n"
+            if " & ()" in skf:
+                skf = skf.replace(" & ()", "")
+            if "() & " in skf:
+                skf = skf.replace("() & ", "")
+            skfs.append(skf)
+
+        clause = np.array(skfs)
+        clauses = []
+        if architecture == 1:
+            for j in range(K):
+                mask = layer_or_weights_2[:, j] > threshold
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+        elif architecture == 2:
+            for j in range(K):
+                mask = layer_or_weights_2[:, j] > threshold
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+        elif architecture == 3:
+            for j in range(num_of_outputs * K):
+                mask = layer_or_weights_2[:, j] > threshold
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+
+        ored_clauses = []
+        for j in range(len(clauses)):
+            ored_clauses.append("("+" | ".join(clauses[j])+")")
+        ored_clauses = np.array(ored_clauses)
+
+        print(len(clauses), clauses, ored_clauses)
+
+        gated_ored_clauses = []
+        if architecture == 1:
+            for i in range(num_of_outputs):
+                mask = layer_and_weights_2[i*K:(i+1)*K, :] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
+
+        elif architecture == 2:
+            for i in range(num_of_outputs):
+                mask = layer_and_weights_2[:, i] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))
+                print("shape: ", mask.shape, ored_clause.shape)
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
+
+        elif architecture == 3:
+            for i in range(num_of_outputs):
+                mask = layer_and_weights_2[i*K:(i+1)*K, :] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
+
+        skfs = []
+        for i in range(num_of_outputs):
+            skf = " & ".join(gated_ored_clauses[i])+"\n"
+            if " & ()" in skf:
+                skf = skf.replace(" & ()", "")
+            if "() & " in skf:
+                skf = skf.replace("() & ", "")
+            skfs.append(skf)
+
+        print("-------------------------------------------------------------------------")
+        print("skolem function in getSkolemFunc.py: ", len(skfs))
+        print("-------------------------------------------------------------------------")
+
+        return skfs
+
+    def get_skolem_function_dnf(self, args, gcln, no_of_input_var, input_var_idx, num_of_outputs, output_var_idx, io_dict):
+        '''
+        Reads the model weights (layer_or_weights, layer_and_weights) and builds the skolem function based on it.
+        Input: Learned model parameters
+        Output: Skolem Functions
+        '''
+
+        layer_or_weights_1 = gcln.layer_or_weights_1.cpu().detach().numpy()  # input_size x K
+        layer_and_weights_1 = gcln.layer_and_weights_1.cpu(
+        ).detach().numpy()  # K x num_of_outputs
+        # layer_or_weights_2 = gcln.layer_or_weights_2.cpu().detach().numpy()  # input_size x K
+        # layer_and_weights_2 = gcln.layer_and_weights_2.cpu(
+        # ).detach().numpy()  # K x num_of_outputs
+
+        threshold = args.threshold
+        K = args.K
+        architecture = args.architecture
+
+        literals = []
+        neg_literals = []
+        for i in input_var_idx:
+            # literals.append(io_dict.get(i))
+            # neg_literals.append("~"+io_dict.get(i))
+            literals.append("i"+str(i))
+            neg_literals.append("~i"+str(i))
+
+        clause = np.array(literals + neg_literals)
+
+        clauses = []
+        if architecture == 1:
+            for j in range(K):
+                mask = layer_and_weights_1[:, j] > threshold
+                print("mask: ", mask)
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+        elif architecture == 2:
+            for j in range(K):
+                mask = layer_and_weights_1[:, j] > threshold
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+        elif architecture == 3:
+            for j in range(num_of_outputs * K):
+                mask = layer_and_weights_1[:, j] > threshold
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+
+        print("clauses: ", clauses)
+        ored_clauses = []
+        for j in range(len(clauses)):
+            ored_clauses.append("("+" & ".join(clauses[j])+")")
+        ored_clauses = np.array(ored_clauses)
+
+        gated_ored_clauses = []
+        if architecture == 1:
+            # for i in range(num_of_outputs):
+            mask = layer_or_weights_1 > threshold
+            # print("mask size: ", mask.shape)
+            ored_clause = ored_clauses.reshape((-1, 1))
+            gated_ored_clauses.append(
+                np.unique(ored_clause[mask]))
+
+            skfs = []
+            # for i in range(num_of_outputs):
+            skf = " | ".join(gated_ored_clauses[0])+"\n"
+            if " & ()" in skf:
+                skf = skf.replace(" & ()", "")
+            if "() & " in skf:
+                skf = skf.replace("() & ", "")
+            skfs.append(skf)
+
+        elif architecture == 2:
+            for i in range(num_of_outputs):
+                mask = layer_or_weights_1[:, i] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
+
+            skfs = []
+            for i in range(num_of_outputs):
+                skf = " | ".join(gated_ored_clauses[i])+"\n"
+                if " | ()" in skf:
+                    skf = skf.replace(" | ()", "")
+                if "() | " in skf:
+                    skf = skf.replace("() | ", "")
+                skfs.append(skf)
+
+        elif architecture == 3:
+            for i in range(num_of_outputs):
+                mask = layer_or_weights_1[i*K:(i+1)*K, :] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
+
+            skfs = []
+            for i in range(num_of_outputs):
+                skf = " | ".join(gated_ored_clauses[i])+"\n"
+                if " & ()" in skf:
+                    skf = skf.replace(" & ()", "")
+                if "() & " in skf:
+                    skf = skf.replace("() & ", "")
+                skfs.append(skf)
+
+        print("-------------------------------------------------------------------------")
+        print("skolem function in getSkolemFunc.py: ", skfs)
+        print("-------------------------------------------------------------------------")
 
         return skfs
 
