@@ -94,9 +94,9 @@ def trainer(args, train_loader, validation_loader, input_size,
         return model_list, train_loss, valid_loss, final_accuracy, final_epochs, disagreed_index
     elif args.architecture == 2 or args.architecture == 3:
         current_output = 0
-        gcln, train_loss, valid_loss, final_accuracy, final_epochs = train(args, args.architecture, args.cnf,
-                                                                           args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs,
-                                                                           input_size, num_of_outputs, args.K, device, current_output, ce_flag, ce_loop
-                                                                           )
+        gcln, train_loss, valid_loss, final_accuracy, final_epochs, disagreed_index = train(args, args.architecture, args.cnf,
+                                                                                            args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs,
+                                                                                            input_size, num_of_outputs, args.K, device, current_output, ce_flag, ce_loop
+                                                                                            )
 
         return gcln, train_loss, valid_loss, final_accuracy, final_epochs, disagreed_index

@@ -68,7 +68,7 @@ def train_regressor(args, architecture, cnf,
     criterion = nn.MSELoss()
     # criterion = nn.L1Loss()
     optimizer = torch.optim.Adam(list(gcln.parameters()), lr=learning_rate)
-    scheduler = StepLR(optimizer, step_size=100, gamma=0.1)
+    scheduler = StepLR(optimizer, step_size=10, gamma=0.1)
 
     ce_count = 0
     if ce_flag:
@@ -210,7 +210,7 @@ def train_regressor(args, architecture, cnf,
         # if last_acc != total_accuracy:
         #     max_epochs += 1
         # last_acc = total_accuracy
-        if args.ce and ce_loop < 100:
+        if args.ce and ce_loop < 1000:
             if total_accuracy < 1:
                 max_epochs += 1
         else:
@@ -231,8 +231,8 @@ def train_regressor(args, architecture, cnf,
 
         util.store_losses(train_loss, valid_loss, accuracy_list)
         util.plot()
-
-        # scheduler.step()
+        # if total_accuracy > 0.99:
+        #     scheduler.step()
         print("learning rate: ", scheduler.get_last_lr())
 
         if epoch % 1 == 0:

@@ -18,13 +18,13 @@ class CNF_Netowrk(torch.nn.Module):
         self.layer_or_weights = torch.nn.Parameter(
             torch.Tensor(
                 self.input_size, self.hidden_size
-            ).uniform_(0., 1.).to(dtype=torch.double).to(self.device)
+            ).uniform_(0.49, 0.51).to(dtype=torch.double).to(self.device)
         )
 
         self.layer_and_weights = torch.nn.Parameter(
             torch.Tensor(
                 self.hidden_size, self.output_size
-            ).uniform_(0., 1.).to(dtype=torch.double).to(self.device)
+            ).uniform_(0.49, 0.51).to(dtype=torch.double).to(self.device)
         )
 
     def apply_gates(self, x, y):

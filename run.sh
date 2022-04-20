@@ -4,7 +4,7 @@ python3 run.py \
 --P=$1 \
 --train=1 \
 --tnorm_name=product \
---learning_rate=.001 \
+--learning_rate=.01 \
 --run_for_all_outputs=1 \
 --verilog_spec_location=cav20_manthan_dataset/verilog \
 --verilog_spec=$2 \
@@ -14,7 +14,7 @@ python3 run.py \
 --K=$4 \
 --preprocessor=1 \
 --postprocessor=1 \
---architecture=1 \
+--architecture=2 \
 --layers=1 \
 --cnf=1 \
 --ce=1 \
