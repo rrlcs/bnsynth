@@ -20,10 +20,13 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
             skf_list = list(skf_dict.values())
             print("skf_list: ", skf_list)
             phi = skf_list[0]
-            phi_new = rem_formula + " & " + \
-                "(~("+rem_inp_formula+") | " + phi+")"
+            if len(rem_formula) > 0 and len(rem_inp_formula) > 0:
+                phi_new = rem_formula + " & " + \
+                    "(~("+rem_inp_formula+") | " + phi+")"
+            else:
+                phi_new = phi
             print("final skolem function: ", phi_new)
-            # skf_list[0] = phi_new
+            skf_list[0] = phi_new
         elif args.architecture == 2:
             skf_list, temp_dict = util.get_skolem_function_cnf_2(
                 args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict, 0)

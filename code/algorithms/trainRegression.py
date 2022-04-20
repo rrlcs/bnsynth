@@ -35,7 +35,7 @@ def train_regressor(args, architecture, cnf,
     early_stop = 0
 
     # Set regularizers
-    lambda1 = 1e-6
+    lambda1 = 1e-7
     lambda2 = 1e-2
 
     # Initialize network
@@ -137,12 +137,12 @@ def train_regressor(args, architecture, cnf,
             #       gcln.cnf_layer_1.layer_or_weights.data)
             # print("gcln and gate weights: ",
             #       gcln.cnf_layer_1.layer_and_weights.data)
-            t_loss = t_loss + lambda1 * \
-                torch.sum(1-gcln.cnf_layer_1.layer_and_weights)
+            # t_loss = t_loss + lambda1 * \
+            #     torch.sum(1-gcln.cnf_layer_1.layer_and_weights)
             # t_loss = t_loss + lambda1 * \
             #     torch.sum(1-gcln.cnf_layer_2.layer_and_weights)
-            t_loss = t_loss + lambda1 * \
-                torch.sum(gcln.cnf_layer_1.layer_or_weights)
+            # t_loss = t_loss + lambda1 * \
+            #     torch.sum(gcln.cnf_layer_1.layer_or_weights)
             # t_loss = t_loss + lambda1 * \
             #     torch.sum(gcln.cnf_layer_2.layer_or_weights)
             # t_loss = t_loss + lambda2*torch.sum(1-gcln.layer_or_weights)
@@ -170,20 +170,20 @@ def train_regressor(args, architecture, cnf,
                 target.append(tgts[:, current_output].tolist())
                 # print("######################",
                 #       accuracy, out_.shape, batch_idx, tgts[:, current_output].shape)
-                # val = (out_.round().squeeze() == tgts[:, current_output])
+                val = (out_.round().squeeze() == tgts[:, current_output])
 
                 accuracy += (out_.round().squeeze() ==
                              tgts[:, current_output]).sum()
 
-                # print("````````````````````", val,
-                #       accuracy.item()/(train_size*num_of_outputs))
-                # # and (accuracy.item()/(train_size*num_of_outputs) == 0.5 or accuracy.item()/(train_size*num_of_outputs) == 0.):
-                # if val == False:
-                #     disagreed_index.append(batch_idx)
-                #     print("unequal index: ", val, disagreed_index)
-                # print("accuracy: ", accuracy)
-                # print("######################",
-                #       accuracy, out_.shape, batch_idx, tgts[:, current_output].shape)
+                print("````````````````````", val,
+                      accuracy.item()/(train_size*num_of_outputs))
+                # and (accuracy.item()/(train_size*num_of_outputs) == 0.5 or accuracy.item()/(train_size*num_of_outputs) == 0.):
+                if val == False:
+                    disagreed_index.append(batch_idx)
+                    print("unequal index: ", val, disagreed_index)
+                print("accuracy: ", accuracy)
+                print("######################",
+                      accuracy, out_.shape, batch_idx, tgts[:, current_output].shape)
             elif architecture > 1:
                 output.append([abs(e)
                               for e in out_.round().flatten().tolist()])
@@ -195,7 +195,7 @@ def train_regressor(args, architecture, cnf,
         print("----------------------------",
               len(output), len(target), output, target)
         # print("----------Accuracy---------- ", accuracy_score(target, output))
-        print("or layer weights: ", gcln.cnf_layer_1.layer_or_weights)
+        # print("or layer weights: ", gcln.cnf_layer_1.layer_or_weights)
 
         if architecture > 1:
             total_accuracy = accuracy.item()/(train_size*num_of_outputs)
@@ -211,10 +211,10 @@ def train_regressor(args, architecture, cnf,
         #     max_epochs += 1
         # last_acc = total_accuracy
         if args.ce and ce_loop < 1000:
-            if total_accuracy < 1:
+            if total_accuracy < 0.8:
                 max_epochs += 1
         else:
-            if total_accuracy < 1:
+            if total_accuracy < 0.8:
                 max_epochs += 1
 
         print('epoch {}, train loss {}'.format(
