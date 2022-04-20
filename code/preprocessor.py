@@ -29,15 +29,17 @@ def preprocess():
         result = util.check_unates(
             PosUnate, NegUnate, Xvar, Yvar, args.verilog_spec[:-2])
         print("Pos Neg unates: ", len(PosUnate), len(NegUnate))
-        print(Xvar, Yvar, Xvar_map, Yvar_map, total_vars)
+        # print(Xvar, Yvar, Xvar_map, Yvar_map, total_vars)
         # if result:
-        #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All Unates"+"\n"
+        #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar)) + \
+        #         ", "+str(len(Yvar))+", "+"All Unates"+"\n"
         #     f = open("experiments/unates.csv", "a")
         #     f.write(unate_data)
         #     f.close()
         #     exit("All Unates!")
         # else:
-        #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar))+", "+str(len(Yvar))+", "+"All not Unates"+"\n"
+        #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar)) + \
+        #         ", "+str(len(Yvar))+", "+"All not Unates"+"\n"
         #     f = open("experiments/unates.csv", "a")
         #     f.write(unate_data)
         #     f.close()
@@ -47,13 +49,15 @@ def preprocess():
         cnf_content, allvar_map = util.prepare_cnf_content(
             verilog, Xvar, Yvar, Xvar_map, Yvar_map, PosUnate, NegUnate
         )
-
+        print("cnf content")
+        # exit()
         # generate sample
         samples = util.generate_samples(
             cnf_content, Xvar, Yvar, Xvar_map, Yvar_map, allvar_map, verilog,
             max_samples=args.training_size
         )
         print("samples: ", samples.shape)
+        # exit()
 
         num_of_vars, num_out_vars, num_of_eqns = util.get_var_counts(
             Xvar, Yvar, verilog)
@@ -62,16 +66,16 @@ def preprocess():
 
         # Prepare input output dictionaries
         io_dict = util.prepare_io_dicts(total_vars)
-        print("io dict: ", io_dict)
+        # print("io dict: ", io_dict)
         # Obtain variable indices
-        print("out var list: ", output_varlist)
+        # print("out var list: ", output_varlist)
         input_var_idx, output_var_idx = util.get_var_indices(
             num_of_vars, output_varlist, io_dict)
         input_size = 2*len(input_var_idx)
-        print("Input Indices: ", input_var_idx)
-        print("Output Indices: ", output_var_idx)
-        print("Input size: ", input_size)
-        print("Output size: ", len(output_var_idx))
+        # print("Input Indices: ", input_var_idx)
+        # print("Output Indices: ", output_var_idx)
+        # print("Input size: ", input_size)
+        # print("Output size: ", len(output_var_idx))
         inp_samples_list = samples[:, input_var_idx]
         inp_samples_list = [tuple(x) for x in inp_samples_list]
         inp_samples = list(set(inp_samples_list))
@@ -94,7 +98,7 @@ def preprocess():
             if len(d[k]) == count:
                 inds.append([i for i, x in enumerate(
                     inp_samples_list) if x == k])
-                print("indices: ", inds)
+                # print("indices: ", inds)
         total_indices = [i for i in range(len(out_samples_list))]
         inds = [item for sublist in inds for item in sublist]
 
@@ -108,10 +112,11 @@ def preprocess():
         samples = samples[indices, :]
         # print("filtered don't cares from samples: ", samples)
         np.random.RandomState(42)
-        if samples.shape[0] > 1000:
+        if samples.shape[0] > 100:
             samples = samples[np.random.choice(
-                samples.shape[0], 1000, replace=False), :]
+                samples.shape[0], 100, replace=False), :]
         # samples = np.random.rand(samples.shape[0], samples.shape[1])
+        # samples = samples[:1, :]
         print("data \n", samples)
         # np.savetxt("samples.csv", samples, delimiter=",")
         # training_samples = util.make_dataset_larger(samples)

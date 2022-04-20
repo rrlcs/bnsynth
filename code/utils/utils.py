@@ -110,6 +110,9 @@ class utils():
                             default="verilog", help="Enter file location")
         parser.add_argument("--output_file", type=str,
                             default="experiments.csv", help="Enter file name for storing results")
+        parser.add_argument("--layers", type=int,
+                            default=1, help="Enter no. of layers")
+
         return parser
 
     def plot(self):
@@ -410,21 +413,117 @@ class utils():
 
         return skfs
 
-    def get_skolem_function_cnf_2(self, args, gcln, no_of_input_var, input_var_idx, num_of_outputs, output_var_idx, io_dict):
+    def read_cnf(self, threshold, architecture, layer_or_weights, layer_and_weights, hidden_size, num_of_outputs, K, clause):
+        clauses = []
+        if architecture == 1:
+            for j in range(K):
+                mask = layer_or_weights[:, j] > threshold
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+        elif architecture == 2:
+            for j in range(hidden_size):
+                mask = layer_or_weights[:, j] > threshold
+                # print(mask)
+                # print(clause[mask])
+                clauses.append(clause[mask].tolist())
+                # print(clauses)
+            clauses = np.array(clauses)
+        elif architecture == 3:
+            for j in range(num_of_outputs * K):
+                mask = layer_or_weights[:, j] > threshold
+                # print(layer_or_weights.shape, mask.shape, clause.shape)
+                clauses.append(clause[mask])
+            clauses = np.array(clauses)
+
+        # print((clauses.shape))
+
+        ored_clauses = []
+        for j in range(len(clauses)):
+            ored_clauses.append("("+" | ".join(clauses[j])+")")
+        ored_clauses = np.array(ored_clauses)
+        # print("ored clauses: ", ored_clauses)
+
+        gated_ored_clauses = []
+        if architecture == 1:
+            for i in range(layer_and_weights.shape[1]):
+                mask = layer_and_weights[:, i] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))
+                # print(ored_clause.shape, mask.shape, layer_and_weights.shape)
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
+
+            skfs = []
+            for i in range(layer_and_weights.shape[1]):
+                skf = "("+" & ".join(gated_ored_clauses[i])+")"  # +"\n"
+                if " & ()" in skf:
+                    skf = skf.replace(" & ()", "")
+                if "() & " in skf:
+                    skf = skf.replace("() & ", "")
+                # print("skf: ", skf)
+                skfs.append(skf)
+
+        elif architecture == 2:
+            for i in range(num_of_outputs):
+                mask = layer_and_weights[:, i] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))
+                # print("shape: ", mask.shape, ored_clause.shape)
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
+
+            skfs = []
+            for i in range(layer_and_weights.shape[1]):
+                skf = "("+" & ".join(gated_ored_clauses[i])+")"  # +"\n"
+                if " & ()" in skf:
+                    skf = skf.replace(" & ()", "")
+                if "() & " in skf:
+                    skf = skf.replace("() & ", "")
+                # print("skf: ", skf)
+                skfs.append(skf)
+
+        elif architecture == 3:
+            for i in range(num_of_outputs):
+                mask = layer_and_weights[i*K:(i+1)*K, :] > threshold
+                ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
+                gated_ored_clauses.append(
+                    np.unique(ored_clause[mask]))
+
+            skfs = []
+            for i in range(num_of_outputs):
+                skf = "("+" & ".join(gated_ored_clauses[i])+")"  # +"\n"
+                if " & ()" in skf:
+                    skf = skf.replace(" & ()", "")
+                if "() & " in skf:
+                    skf = skf.replace("() & ", "")
+                # print("skf: ", skf)
+                skfs.append(skf)
+
+        return np.array(skfs)
+
+    def get_skolem_function_cnf_2(self, args, gcln, no_of_input_var, input_var_idx, num_of_outputs, output_var_idx, io_dict, outidx):
         '''
         Reads the model weights (layer_or_weights, layer_and_weights) and builds the skolem function based on it.
         Input: Learned model parameters
         Output: Skolem Functions
         '''
 
+        print("No. o Layers in network: ", args.layers)
+
         layer_or_weights_1 = gcln.cnf_layer_1.layer_or_weights.cpu(
         ).detach().numpy()  # input_size x K
         layer_and_weights_1 = gcln.cnf_layer_1.layer_and_weights.cpu(
         ).detach().numpy()  # K x num_of_outputs
-        layer_or_weights_2 = gcln.cnf_layer_2.layer_or_weights.cpu(
-        ).detach().numpy()  # input_size x K
-        layer_and_weights_2 = gcln.cnf_layer_2.layer_and_weights.cpu(
-        ).detach().numpy()  # K x num_of_outputs
+        # layer_or_weights_2 = gcln.cnf_layer_2.layer_or_weights.cpu(
+        # ).detach().numpy()  # input_size x K
+        # layer_and_weights_2 = gcln.cnf_layer_2.layer_and_weights.cpu(
+        # ).detach().numpy()  # K x num_of_outputs
+        # layer_or_weights_3 = gcln.cnf_layer_3.layer_or_weights.cpu(
+        # ).detach().numpy()  # input_size x K
+        # layer_and_weights_3 = gcln.cnf_layer_3.layer_and_weights.cpu(
+        # ).detach().numpy()  # K x num_of_outputs
+
+        weights = [[layer_or_weights_1, layer_and_weights_1]]
+        #    [layer_or_weights_2, layer_and_weights_2]]
+        #    [layer_or_weights_3, layer_and_weights_3]]
 
         threshold = args.threshold
         K = args.K
@@ -434,129 +533,43 @@ class utils():
         literals = []
         neg_literals = []
         for i in input_var_idx:
-            # literals.append(io_dict.get(i))
-            # neg_literals.append("~"+io_dict.get(i))
             literals.append("i"+str(i))
             neg_literals.append("~i"+str(i))
 
         clause = np.array(literals + neg_literals)
 
-        clauses = []
-        if architecture == 1:
-            for j in range(K):
-                mask = layer_or_weights_1[:, j] > threshold
-                clauses.append(clause[mask])
-            clauses = np.array(clauses)
-        elif architecture == 2:
-            for j in range(hidden_size):
-                mask = layer_or_weights_1[:, j] > threshold
-                clauses.append(clause[mask])
-            clauses = np.array(clauses)
-        elif architecture == 3:
-            for j in range(num_of_outputs * K):
-                mask = layer_or_weights_1[:, j] > threshold
-                clauses.append(clause[mask])
-            clauses = np.array(clauses)
+        temp_dict = {}
+        for i in range(args.layers):
+            print("layer number: ", i)
+            clause = self.read_cnf(threshold, architecture, weights[i][0],
+                                   weights[i][1], hidden_size, num_of_outputs, K, clause)
+            no_of_temp_vars = clause.shape[0]
+            temp_var_name = "temp_"+str(i)+"_"+str(outidx)+"_"
+            cl = []
+            # clause[0] = '((i0 | i2 | ~i1) & (i1 | i2 | ~i0) & (~i0 | ~i1 | ~i2))'
+            print("clause: ", clause)
+            for j in range(no_of_temp_vars):
+                temp = temp_var_name + str(j)
+                cl.append(temp)
+                print("''''''''''clause'''''''''''", clause[j])
+                if clause[j] == "(())" or clause[j] == "()":
+                    print("Empty formula")
+                    temp_dict[temp] = "(one)"
+                else:
+                    temp_dict[temp] = clause[j]
+            clause = np.array(cl)
+            print("clauses: ", clause)
+            print("num of temp vars: ", no_of_temp_vars)
 
-        ored_clauses = []
-        for j in range(len(clauses)):
-            ored_clauses.append("("+" | ".join(clauses[j])+")")
-        ored_clauses = np.array(ored_clauses)
+        print("temp dict: ", temp_dict)
 
-        gated_ored_clauses = []
-        if architecture == 1:
-            for i in range(num_of_outputs):
-                mask = layer_and_weights_1[i*K:(i+1)*K, :] > threshold
-                ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
-                gated_ored_clauses.append(
-                    np.unique(ored_clause[mask]))
-
-        elif architecture == 2:
-            for i in range(num_of_outputs):
-                mask = layer_and_weights_1[:, i] > threshold
-                ored_clause = ored_clauses.reshape((-1, 1))
-                print("shape: ", mask.shape, ored_clause.shape)
-                gated_ored_clauses.append(
-                    np.unique(ored_clause[mask]))
-
-        elif architecture == 3:
-            for i in range(num_of_outputs):
-                mask = layer_and_weights_1[i*K:(i+1)*K, :] > threshold
-                ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
-                gated_ored_clauses.append(
-                    np.unique(ored_clause[mask]))
-
-        skfs = []
-        for i in range(num_of_outputs):
-            skf = " & ".join(gated_ored_clauses[i])  # +"\n"
-            if " & ()" in skf:
-                skf = skf.replace(" & ()", "")
-            if "() & " in skf:
-                skf = skf.replace("() & ", "")
-            skfs.append(skf)
-
-        clause = np.array(skfs)
-        clauses = []
-        if architecture == 1:
-            for j in range(K):
-                mask = layer_or_weights_2[:, j] > threshold
-                clauses.append(clause[mask])
-            clauses = np.array(clauses)
-        elif architecture == 2:
-            for j in range(K):
-                mask = layer_or_weights_2[:, j] > threshold
-                clauses.append(clause[mask])
-            clauses = np.array(clauses)
-        elif architecture == 3:
-            for j in range(num_of_outputs * K):
-                mask = layer_or_weights_2[:, j] > threshold
-                clauses.append(clause[mask])
-            clauses = np.array(clauses)
-
-        ored_clauses = []
-        for j in range(len(clauses)):
-            ored_clauses.append("("+" | ".join(clauses[j])+")")
-        ored_clauses = np.array(ored_clauses)
-
-        print(len(clauses), clauses, ored_clauses)
-
-        gated_ored_clauses = []
-        if architecture == 1:
-            for i in range(num_of_outputs):
-                mask = layer_and_weights_2[i*K:(i+1)*K, :] > threshold
-                ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
-                gated_ored_clauses.append(
-                    np.unique(ored_clause[mask]))
-
-        elif architecture == 2:
-            for i in range(num_of_outputs):
-                mask = layer_and_weights_2[:, i] > threshold
-                ored_clause = ored_clauses.reshape((-1, 1))
-                print("shape: ", mask.shape, ored_clause.shape)
-                gated_ored_clauses.append(
-                    np.unique(ored_clause[mask]))
-
-        elif architecture == 3:
-            for i in range(num_of_outputs):
-                mask = layer_and_weights_2[i*K:(i+1)*K, :] > threshold
-                ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
-                gated_ored_clauses.append(
-                    np.unique(ored_clause[mask]))
-
-        skfs = []
-        for i in range(num_of_outputs):
-            skf = " & ".join(gated_ored_clauses[i])+"\n"
-            if " & ()" in skf:
-                skf = skf.replace(" & ()", "")
-            if "() & " in skf:
-                skf = skf.replace("() & ", "")
-            skfs.append(skf)
+        skfs = clause
 
         print("-------------------------------------------------------------------------")
-        print("skolem function in getSkolemFunc.py: ", len(skfs))
+        print("skolem function in getSkolemFunc.py: ", (skfs))
         print("-------------------------------------------------------------------------")
 
-        return skfs
+        return skfs, temp_dict
 
     def get_skolem_function_dnf(self, args, gcln, no_of_input_var, input_var_idx, num_of_outputs, output_var_idx, io_dict):
         '''
@@ -703,7 +716,7 @@ class utils():
                 if line.startswith("module"):
                     line_split = line.split("(")
                     total_var = line_split[1].split(",")
-                    print("*********", total_var)
+                    # print("*********", total_var)
                     for var in range(len(total_var) - 1):
                         variable_check = total_var[var]
                         variable_check = variable_check.strip(" ").strip("\n")
@@ -811,7 +824,7 @@ class utils():
             f.close()
             for line in lines:
                 allvar_map = line.strip(" \n").split(" ")
-            print("allvars: ", allvar_map)
+            # print("allvars: ", allvar_map)
             os.unlink(inputfile_name + "_mapping.txt")
             allvar_map = np.array(allvar_map).astype(int)
             Xvar_map = dict(zip(Xvar_tmp, allvar_map[Xvar]))
@@ -841,19 +854,19 @@ class utils():
             verilog_spec, verilog_spec_location)
         output_varlist = self.get_output_varlist(
             varlistfile)  # Y variable list
-        print("outttttt", output_varlist)
+        # print("outttttt", output_varlist)
         # output_varlist = ["i"+e.split("_")[1]
         #                   for e in output_varlist if "_" in e]
         output_varlist = ["i"+e[1:].replace("_", "")
                           for e in output_varlist]
-        print("outtttttt", output_varlist)
+        # print("outtttttt", output_varlist)
         Xvar_tmp, Yvar_tmp, total_vars = self.get_temporary_variables(
             verilog, output_varlist)
         total_varsz3 = total_vars
-        print("totalllllll", total_vars)
+        # print("totalllllll", total_vars)
         # total_vars = ["i"+e.split("_")[1] for e in total_vars if "_" in e]
         total_vars = ["i"+e[1:].replace("_", "") for e in total_vars]
-        print("totalllllll", total_vars)
+        # print("totalllllll", total_vars)
         verilog_formula = self.change_modulename(verilog)
         pos_unate, neg_unate, Xvar, Yvar, Xvar_map, Yvar_map = self.preprocess_manthan(
             varlistfile, verilog, Xvar_tmp, Yvar_tmp
@@ -1073,7 +1086,7 @@ class utils():
     def generate_samples(self, cnf_content, Xvar, Yvar, Xvar_map, Yvar_map, allvar_map, verilog, max_samples=1000):
 
         SAMPLER_CMS = 1
-        samples = 0
+        samples = 1
         weighted = 1
         if SAMPLER_CMS:
             sample_cnf_content = cnf_content
@@ -1126,12 +1139,12 @@ class utils():
             #     candidateskf[i] = ' 1 '
             #     continue
             if j < len(skfunc):
-                candidateskf[i] = skfunc[j][:-1]
+                candidateskf[i] = skfunc[j]
             j += 1
 
         return candidateskf
 
-    def create_skolem_function(self, inputfile_name, candidateskf, Xvar, Yvar):
+    def create_skolem_function(self, inputfile_name, candidateskf, temp_content, Xvar, Yvar):
         # we have candidate skolem functions for every y in Y
         # Now, lets generate Skolem formula F(X,Y') : input X and output Y'
         tempOutputFile = tempfile.gettempdir() + \
@@ -1184,6 +1197,7 @@ class utils():
         f.write(inputstr)
         f.write(declarestr)
         f.write(wirestr)
+        f.write(temp_content)
         f.write(assignstr)
         f.write("endmodule")
         f.close()
@@ -1343,11 +1357,11 @@ class utils():
         error_content += verilog_formula
         return error_content
 
-    def write_error_formula1(self, inputfile_name, verilog, verilog_formula, skfunc, Xvar, Yvar, pos_unate, neg_unate):
+    def write_error_formula1(self, inputfile_name, verilog, verilog_formula, skfunc, temp_content, Xvar, Yvar, pos_unate, neg_unate):
         candidateskf = self.prepare_candidateskf(
             skfunc, Yvar, pos_unate, neg_unate)
         self.create_skolem_function(
-            inputfile_name, candidateskf, Xvar, Yvar)
+            inputfile_name, candidateskf, temp_content, Xvar, Yvar)
         # self.createSkolem(candidateskf, Xvar, Yvar, [], [], inputfile_name)
         error_content, refine_var_log = self.create_error_formula(
             Xvar, Yvar, verilog_formula)

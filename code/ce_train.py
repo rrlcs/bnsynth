@@ -16,7 +16,7 @@ def ce_train_loop(
 ):
 
     loop = 0
-    while not is_valid and loop < 200:
+    while not is_valid:
         print("Counter Example Loop: ", loop)
         loop += 1
         counter_example = counter_example.numpy()
@@ -27,11 +27,11 @@ def ce_train_loop(
             training_samples = training_samples
         else:
             print("Counter Example Added to Training Data")
-            counter_example = util.make_dataset_larger(
-                counter_example.numpy(), 100)
-            # training_samples = torch.cat(
-            #     (training_samples, counter_example))
-            training_samples = counter_example
+            # counter_example = util.make_dataset_larger(
+            #     counter_example.numpy(), 100)
+            training_samples = torch.cat(
+                (training_samples, counter_example))
+            # training_samples = counter_example
 
         inp_samples = list(training_samples[:, input_var_idx].numpy())
         inp_samples = list(set([tuple(x) for x in inp_samples]))
@@ -48,16 +48,17 @@ def ce_train_loop(
                                        output_var_idx, num_of_outputs, args.threshold, args.batch_size)
 
         # 2. Feed samples into GCLN
-        model, train_loss, valid_loss, final_accuracy, final_epochs = training.trainer(
+        model, train_loss, valid_loss, final_accuracy, final_epochs, disagreed_index = training.trainer(
             args, train_loader, validation_loader, input_size, num_of_outputs, device, ce_flag=1, ce_loop=loop
         )
-
+        rem_formula = ""
+        rem_inp_formula = ""
         # 3. Postprocess skolem function from GCLN
         skolem_functions, is_valid, counter_example = postprocessor.postprocess(
             args, model, final_accuracy, final_epochs, train_loss[-1],
             train_loss[0]-train_loss[-1], verilogformula,
             input_size, input_var_idx, num_of_outputs, output_var_idx,
-            io_dict, Xvar, Yvar, PosUnate, NegUnate, start_time
+            io_dict, Xvar, Yvar, PosUnate, NegUnate, start_time, rem_formula, rem_inp_formula, num_of_ce=loop
         )
 
         print("counter example learned skf: ", skolem_functions)

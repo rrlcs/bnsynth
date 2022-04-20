@@ -41,10 +41,14 @@ class CNF_Netowrk(torch.nn.Module):
         # gated_inputs.shape: batch_size x 2*no_input_vars x K
         gated_inputs = self.apply_gates(self.layer_or_weights, inputs)
         # gated_inputs = self.apply_bias(gated_inputs, self.b1)
+        # print("gated inputs: =========== ", gated_inputs)
+        o = 1 - gated_inputs
+        # print("ooooo: ", o)
 
         # or_res.shape: batch_size x K
-        or_res = 1 - util.tnorm_n_inputs(1 - gated_inputs)
+        or_res = 1 - util.tnorm_n_inputs(o)
         or_res = or_res.unsqueeze(-1)
+        # print("--------------or res--------------", or_res)
 
         # gated_or_res.shape: batch_size x K
         gated_or_res = self.apply_gates(self.layer_and_weights, or_res)
@@ -54,6 +58,76 @@ class CNF_Netowrk(torch.nn.Module):
 
         # out.shape: batch_size x 1
         outs = util.tnorm_n_inputs(gated_or_res).unsqueeze(-1)
+        # print("-------------------outs:-------------------- ", outs)
+
+        return outs
+
+
+class CNF_Netowrk3(torch.nn.Module):
+    def __init__(self, input_size, output_size, hidden_size, K, device) -> None:
+        super().__init__()
+        self.device = device
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.K = K
+
+        self.layer_or_weights = torch.nn.Parameter(
+            torch.Tensor(
+                self.input_size, self.hidden_size
+            ).uniform_(0., 1.).to(dtype=torch.double).to(self.device)
+        )
+
+        self.layer_and_weights = torch.nn.Parameter(
+            torch.Tensor(
+                self.hidden_size, 1
+            ).uniform_(0., 1.).to(dtype=torch.double).to(self.device)
+        )
+
+    def apply_gates(self, x, y):
+        return torch.mul(x, y)
+
+    def apply_bias(self, x, bias):
+        return x + bias
+
+    def forward(self, inputs):
+        with torch.no_grad():
+            self.layer_or_weights.data.clamp_(0.0, 1.0)
+            self.layer_and_weights.data.clamp_(0.0, 1.0)
+
+        # gated_inputs.shape: batch_size x 2*no_input_vars x K
+        gated_inputs = []
+        for i in range(self.output_size):
+            gated_inputs.append(self.apply_gates(
+                self.layer_or_weights[:, i*self.K:(i+1)*self.K], inputs))
+        gated_inputs = torch.stack(gated_inputs)
+        # gated_inputs = self.apply_bias(gated_inputs, self.b1)
+
+        # or_res.shape: batch_size x K
+        or_res = []
+        for i in range(self.output_size):
+            or_res.append(
+                (1 - util.tnorm_n_inputs(1 - gated_inputs[i, :, :, :])).unsqueeze(-1))
+        or_res = torch.stack(or_res)
+        # print("--------------or res--------------", or_res)
+        # gated_or_res.shape: batch_size x K
+        gated_or_res = []
+        for i in range(self.output_size):
+            gated_or = self.apply_gates(
+                self.layer_and_weights[i*self.K:(i+1)*self.K, :], or_res[i, :, :, :])
+            gated_or_res.append(gated_or)
+            # gated_or_res.append(torch.add(
+            #     gated_or, 1 - self.layer_and_weights[i*self.K:(i+1)*self.K, :], alpha=1))
+        gated_or_res = torch.stack(gated_or_res)
+        # gated_or_res = self.apply_bias(gated_or_res, self.b2)
+
+        # out.shape: batch_size x 1
+        outs = []
+        for i in range(self.output_size):
+            outs.append(util.tnorm_n_inputs(
+                gated_or_res[i, :, :, :]).to(self.device))
+        outs = torch.stack(outs).permute(1, 0, 2)
+        # print("-------------------outs:-------------------- ", outs)
 
         return outs
 
@@ -72,28 +146,14 @@ class GCLN_CNF_Arch1(torch.nn.Module):
         self.K = K
         self.input_size = input_size
         self.output_size = num_of_output_var
-        print("gcln no out: ", num_of_output_var)
 
-        # Weights and Biases
-        # self.G1.shape: 2 * no_input_var x num_of_output_var * K
-        self.layer_or_weights_1 = torch.nn.Parameter(
-            torch.Tensor(
-                self.input_size, K
-            ).uniform_(0., 1.).to(dtype=torch.double).to(self.device)
-        )
-        # self.layer_or_weights.data = torch.tensor([[1.0], [1.0]])
-        # self.G2.shape: num_of_output_var * K x 1
-        self.layer_and_weights_1 = torch.nn.Parameter(
-            torch.Tensor(
-                K, 1
-            ).uniform_(0., 1.).to(dtype=torch.double).to(self.device)
-        )
-        # self.layer_and_weights.data = torch.tensor([[1.0]])
-        # self.b1.shape: 2 * no_input_var x K
-        self.b1 = torch.nn.Parameter(torch.randn(
-            (self.input_size, K)).to(self.device))
-        # self.b2.shape: K x 1
-        self.b2 = torch.nn.Parameter(torch.randn((K, 1)).to(self.device))
+        self.cnf_layer_1 = CNF_Netowrk(
+            self.input_size, 1, self.K, device)
+
+        self.cnf_layer_2 = CNF_Netowrk(
+            self.output_size, 1, self.K, device)
+
+        self.cnf_layers = nn.Sequential(self.cnf_layer_1)
 
     def apply_gates(self, x, y):
         return torch.mul(x, y)
@@ -103,9 +163,6 @@ class GCLN_CNF_Arch1(torch.nn.Module):
 
     # FORWARD
     def forward(self, x):
-        with torch.no_grad():
-            self.layer_or_weights_1.data.clamp_(0.0, 1.0)
-            self.layer_and_weights_1.data.clamp_(0.0, 1.0)
 
         # x.shape and neg_x.shape: batch_size x no_input_vars
         x = x.to(self.device)
@@ -114,24 +171,10 @@ class GCLN_CNF_Arch1(torch.nn.Module):
         # inputs.shape: batch_size x 2*no_input_vars x 1
         inputs = torch.cat((x, neg_x), dim=1).unsqueeze(-1)
 
-        # gated_inputs.shape: batch_size x 2*no_input_vars x K
-        gated_inputs = self.apply_gates(self.layer_or_weights_1, inputs)
-        # gated_inputs = self.apply_bias(gated_inputs, self.b1)
-
-        # or_res.shape: batch_size x K
-        or_res = (1 - util.tnorm_n_inputs(1 - gated_inputs)).unsqueeze(-1)
-        # or_res = torch.stack(or_res)
-
-        # gated_or_res.shape: batch_size x K
-        gated_or = self.apply_gates(self.layer_and_weights_1, or_res)
-        gated_or_res = torch.add(
-            gated_or, 1 - self.layer_and_weights_1, alpha=1)
-        # gated_or_res = self.apply_bias(gated_or_res, self.b2)
-
-        # out.shape: batch_size x 1
-        outs = util.tnorm_n_inputs(gated_or_res).to(self.device)
+        outs = self.cnf_layers(inputs)
         # print(outs.shape)
-        return outs
+
+        return outs.squeeze(-1)
 
 
 class GCLN_CNF_Arch2(torch.nn.Module):
@@ -143,39 +186,15 @@ class GCLN_CNF_Arch2(torch.nn.Module):
         self.K = K
         self.input_size = input_size
         self.output_size = num_of_output_var
-        # self.cnf = CNF_Netowrk()
-        print("gcln no out: ", num_of_output_var)
 
         self.cnf_layer_1 = CNF_Netowrk(
-            self.input_size, self.output_size, 5*self.K, device)
+            self.input_size, self.output_size, self.K, device)
         self.cnf_layer_2 = CNF_Netowrk(
             self.output_size, self.output_size, self.K, device)
+        self.cnf_layer_3 = CNF_Netowrk(
+            self.output_size, self.output_size, self.K, device)
 
-        # Weights and Biases
-        # self.G1.shape: 2 * no_input_var x num_of_output_var * K
-        self.layer_or_weights_1 = torch.nn.Parameter(
-            torch.Tensor(
-                self.input_size, 50
-            ).uniform_(0., 1.0).to(dtype=torch.double).to(self.device)
-        )
-        self.layer_or_weights_2 = torch.nn.Parameter(
-            torch.Tensor(
-                self.output_size, K
-            ).uniform_(0., 1.0).to(dtype=torch.double).to(self.device)
-        )
-        # self.layer_or_weights.data = torch.tensor([[1.0], [1.0]])
-        # self.G2.shape: num_of_output_var * K x 1
-        self.layer_and_weights_1 = torch.nn.Parameter(
-            torch.Tensor(
-                50, num_of_output_var
-            ).uniform_(0., 1.).to(dtype=torch.double).to(self.device)
-        )
-        self.layer_and_weights_2 = torch.nn.Parameter(
-            torch.Tensor(
-                K, num_of_output_var
-            ).uniform_(0., 1.).to(dtype=torch.double).to(self.device)
-        )
-        # self.layer_and_weights.data = torch.tensor([[1.0]])
+        self.cnf_layers = nn.Sequential(self.cnf_layer_1)
 
     def apply_gates(self, x, y):
         return torch.mul(x, y)
@@ -185,11 +204,6 @@ class GCLN_CNF_Arch2(torch.nn.Module):
 
     # FORWARD
     def forward(self, x):
-        with torch.no_grad():
-            self.layer_or_weights_1.data.clamp_(0.0, 1.0)
-            self.layer_and_weights_1.data.clamp_(0.0, 1.0)
-            self.layer_or_weights_2.data.clamp_(0.0, 1.0)
-            self.layer_and_weights_2.data.clamp_(0.0, 1.0)
         # x.shape and neg_x.shape: batch_size x no_input_vars
         x = x.to(self.device)
         neg_x = 1 - x
@@ -197,11 +211,8 @@ class GCLN_CNF_Arch2(torch.nn.Module):
         # inputs.shape: batch_size x 2*no_input_vars x 1
         inputs = torch.cat((x, neg_x), dim=1).unsqueeze(-1)
 
-        # Layer one of CNF
-        outs_inter = self.cnf_layer_1(inputs)
-
-        # Layer two of CNF
-        outs = self.cnf_layer_2(outs_inter)
+        # Layers of CNF
+        outs = self.cnf_layers(inputs)
         # print("outs: ", outs.shape)
 
         return outs.squeeze(-1)
@@ -216,33 +227,16 @@ class GCLN_CNF_Arch3(torch.nn.Module):
         self.K = K
         self.input_size = input_size
         self.output_size = num_of_output_var
-        print("gcln no out: ", num_of_output_var)
 
-        # Weights and Biases
-        # self.G1.shape: 2 * no_input_var x num_of_output_var * K
-        self.layer_or_weights_1 = torch.nn.Parameter(
-            torch.Tensor(
-                self.input_size, num_of_output_var * K
-            ).uniform_(0., 1.0).to(dtype=torch.double).to(self.device)
-        )
-        self.layer_or_weights_2 = torch.nn.Parameter(
-            torch.Tensor(
-                self.output_size, num_of_output_var * K
-            ).uniform_(0., 1.0).to(dtype=torch.double).to(self.device)
-        )
-        # self.layer_or_weights.data = torch.tensor([[1.0], [1.0]])
-        # self.G2.shape: num_of_output_var * K x 1
-        self.layer_and_weights_1 = torch.nn.Parameter(
-            torch.Tensor(
-                num_of_output_var * K, 1
-            ).uniform_(0., 1.0).to(dtype=torch.double).to(self.device)
-        )
-        self.layer_and_weights_2 = torch.nn.Parameter(
-            torch.Tensor(
-                num_of_output_var * K, 1
-            ).uniform_(0., 1.0).to(dtype=torch.double).to(self.device)
-        )
-        # self.layer_and_weights.data = torch.tensor([[1.0]])
+        self.cnf_layer_1 = CNF_Netowrk3(
+            self.input_size, self.output_size, self.K*self.output_size, self.K, device)
+        self.cnf_layer_2 = CNF_Netowrk3(
+            self.output_size, self.output_size, self.K*self.output_size, self.K, device)
+        self.cnf_layer_3 = CNF_Netowrk3(
+            self.output_size, self.output_size, self.K*self.output_size, self.K, device)
+
+        self.cnf_layers = nn.Sequential(
+            self.cnf_layer_1)
 
     def apply_gates(self, x, y):
         return torch.mul(x, y)
@@ -252,11 +246,6 @@ class GCLN_CNF_Arch3(torch.nn.Module):
 
     # FORWARD
     def forward(self, x):
-        with torch.no_grad():
-            self.layer_or_weights_1.data.clamp_(0.0, 1.0)
-            self.layer_and_weights_1.data.clamp_(0.0, 1.0)
-            self.layer_or_weights_2.data.clamp_(0.0, 1.0)
-            self.layer_and_weights_2.data.clamp_(0.0, 1.0)
 
         # x.shape and neg_x.shape: batch_size x no_input_vars
         x = x.to(self.device)
@@ -264,69 +253,12 @@ class GCLN_CNF_Arch3(torch.nn.Module):
 
         # inputs.shape: batch_size x 2*no_input_vars x 1
         inputs = torch.cat((x, neg_x), dim=1).unsqueeze(-1)
-        print("inps: ", inputs.shape)
+        # print("inps: ", inputs.shape)
 
-        # gated_inputs.shape: batch_size x 2*no_input_vars x K
-        gated_inputs = []
-        for i in range(0, self.output_size):
-            gated_inputs.append(self.apply_gates(
-                self.layer_or_weights_1[:, i*self.K:(i+1)*self.K], inputs))
-        gated_inputs = torch.stack(gated_inputs)
-        # gated_inputs = self.apply_bias(gated_inputs, self.b1)
+        # Layers of CNF
+        outs = self.cnf_layers(inputs)
 
-        # or_res.shape: batch_size x K
-        or_res = []
-        for i in range(self.output_size):
-            or_res.append(
-                (1 - util.tnorm_n_inputs(1 - gated_inputs[i, :, :, :])).unsqueeze(-1))
-        or_res = torch.stack(or_res)
-
-        # gated_or_res.shape: batch_size x K
-        gated_or_res = []
-        for i in range(self.output_size):
-            gated_or = self.apply_gates(
-                self.layer_and_weights_1[i*self.K:(i+1)*self.K, :], or_res[i, :, :, :])
-            gated_or_res.append(torch.add(
-                gated_or, 1 - self.layer_and_weights_1[i*self.K:(i+1)*self.K, :], alpha=1))
-        gated_or_res = torch.stack(gated_or_res)
-        # gated_or_res = self.apply_bias(gated_or_res, self.b2)
-
-        # out.shape: batch_size x 1
-        outs = []
-        for i in range(self.output_size):
-            outs.append(util.tnorm_n_inputs(
-                gated_or_res[i, :, :, :]).to(self.device))
-        outs = torch.stack(outs).permute(1, 0, 2)
-        print("outs: ", outs.shape)
-
-        gated_outs = []
-        for i in range(0, self.output_size):
-            gated_outs.append(self.apply_gates(
-                self.layer_or_weights_2[:, i*self.K:(i+1)*self.K], outs))
-        gated_outs = torch.stack(gated_outs)
-
-        or_res = []
-        for i in range(self.output_size):
-            or_res.append(
-                (1 - util.tnorm_n_inputs(1 - gated_outs[i, :, :, :])).unsqueeze(-1))
-        or_res = torch.stack(or_res)
-
-        gated_or_res = []
-        for i in range(self.output_size):
-            gated_or = self.apply_gates(
-                self.layer_and_weights_2[i*self.K:(i+1)*self.K, :], or_res[i, :, :, :])
-            gated_or_res.append(torch.add(
-                gated_or, 1 - self.layer_and_weights_2[i*self.K:(i+1)*self.K, :], alpha=1))
-        gated_or_res = torch.stack(gated_or_res)
-        # gated_or_res = self.apply_bias(gated_or_res, self.b2)
-
-        # out.shape: batch_size x 1
-        outs = []
-        for i in range(self.output_size):
-            outs.append(util.tnorm_n_inputs(
-                gated_or_res[i, :, :, :]).to(self.device))
-        outs = torch.stack(outs).permute(1, 0, 2)
-        return outs
+        return outs.squeeze(-1)
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 # GCLN in DNF form
@@ -346,18 +278,22 @@ class GCLN_DNF_Arch1(torch.nn.Module):
 
         # Weights and Biases
         # self.G1.shape: 2 * no_input_var x num_of_output_var * K
-        self.layer_and_weights_1 = torch.nn.Parameter(
-            torch.Tensor(
-                self.input_size, K
-            ).uniform_(0.4, 0.6).to(dtype=torch.double).to(self.device)
-        )
-        # self.layer_or_weights.data = torch.tensor([[1.0], [1.0]])
-        # self.G2.shape: num_of_output_var * K x 1
-        self.layer_or_weights_1 = torch.nn.Parameter(
-            torch.Tensor(
-                K, 1
-            ).uniform_(0.5, 0.6).to(dtype=torch.double).to(self.device)
-        )
+        self.cnf_layer_1 = CNF_Netowrk(
+            self.input_size, 1, self.K, device)
+        self.cnf_layers = nn.Sequential(
+            self.cnf_layer_1)
+        # self.layer_and_weights_1 = torch.nn.Parameter(
+        #     torch.Tensor(
+        #         self.input_size, K
+        #     ).uniform_(0.4, 0.6).to(dtype=torch.double).to(self.device)
+        # )
+        # # self.layer_or_weights.data = torch.tensor([[1.0], [1.0]])
+        # # self.G2.shape: num_of_output_var * K x 1
+        # self.layer_or_weights_1 = torch.nn.Parameter(
+        #     torch.Tensor(
+        #         K, 1
+        #     ).uniform_(0.5, 0.6).to(dtype=torch.double).to(self.device)
+        # )
         # self.layer_and_weights.data = torch.tensor([[1.0]])
         # self.b1.shape: 2 * no_input_var x K
         self.b1 = torch.nn.Parameter(torch.randn(

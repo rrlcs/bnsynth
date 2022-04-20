@@ -1,6 +1,6 @@
-module formula(i_12,i_33,out);
-	input i_12 ,i_33;
+module formula(i_0,i_1,out);
+	input i_0 ,i_1;
 
 	output out;
-	assign out = i_12;
+	assign out = i_1;
 endmodule

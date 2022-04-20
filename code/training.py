@@ -1,4 +1,5 @@
 # from code.algorithms import trainClassification2ndForm as tc2
+from dis import dis
 from code.algorithms.trainClassification import train_classifier
 from code.algorithms.trainRegression import train_regressor
 
@@ -22,8 +23,8 @@ def train(args, architecture, cnf, P, train, train_loader, validation_loader, le
 
     if P == 0:
         if train:
-            gcln, train_loss, valid_loss, accuracy, epoch = train_regressor(args, architecture, cnf,
-                                                                            train_loader, validation_loader, learning_rate, epochs, input_size, num_of_outputs, K, device, current_output, ce_flag, ce_loop)
+            gcln, train_loss, valid_loss, accuracy, epoch, disagreed_index = train_regressor(args, architecture, cnf,
+                                                                                             train_loader, validation_loader, learning_rate, epochs, input_size, num_of_outputs, K, device, current_output, ce_flag, ce_loop)
         else:
             print("no train")
             gcln = gcln.GCLN(input_size, num_of_outputs,
@@ -66,7 +67,7 @@ def train(args, architecture, cnf, P, train, train_loader, validation_loader, le
         #     gcln.load_state_dict(torch.load("classifier2"))
         #     gcln.eval()
 
-    return gcln, train_loss, valid_loss, accuracy, epoch
+    return gcln, train_loss, valid_loss, accuracy, epoch, disagreed_index
 
 
 '''
@@ -83,14 +84,14 @@ def trainer(args, train_loader, validation_loader, input_size,
         for i in range(num_of_outputs):
             current_output = i
             print("Training for the current output: ", current_output)
-            gcln, train_loss, valid_loss, accuracy, epochs = train(args, args.architecture, args.cnf,
-                                                                   args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs,
-                                                                   input_size, num_of_outputs, args.K, device, current_output, ce_flag, ce_loop
-                                                                   )
+            gcln, train_loss, valid_loss, accuracy, epochs, disagreed_index = train(args, args.architecture, args.cnf,
+                                                                                    args.P, args.train, train_loader, validation_loader, args.learning_rate, args.epochs,
+                                                                                    input_size, num_of_outputs, args.K, device, current_output, ce_flag, ce_loop
+                                                                                    )
             final_accuracy += accuracy
             final_epochs += epochs
             model_list.append(gcln)
-        return model_list, train_loss, valid_loss, final_accuracy, final_epochs
+        return model_list, train_loss, valid_loss, final_accuracy, final_epochs, disagreed_index
     elif args.architecture == 2 or args.architecture == 3:
         current_output = 0
         gcln, train_loss, valid_loss, final_accuracy, final_epochs = train(args, args.architecture, args.cnf,
@@ -98,4 +99,4 @@ def trainer(args, train_loader, validation_loader, input_size,
                                                                            input_size, num_of_outputs, args.K, device, current_output, ce_flag, ce_loop
                                                                            )
 
-        return gcln, train_loss, valid_loss, final_accuracy, final_epochs
+        return gcln, train_loss, valid_loss, final_accuracy, final_epochs, disagreed_index

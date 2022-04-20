@@ -26,16 +26,34 @@ if __name__ == "__main__":
         Xvar, Yvar, verilogformula, verilog, PosUnate, NegUnate, device, inp_samples = preprocessor.preprocess()
 
     # 2. Feed samples into GCLN
-    model, train_loss, valid_loss, final_accuracy, final_epochs = training.trainer(
+    model, train_loss, valid_loss, final_accuracy, final_epochs, disagreed_index = training.trainer(
         args, train_loader, validation_loader, input_size, num_of_outputs, device, ce_flag=0, ce_loop=0
     )
-
+    # print(disagreed_index)
+    # uncovered_samples = training_samples[disagreed_index]
+    # print("run.py ", training_samples[disagreed_index], input_var_idx)
+    # print(uncovered_samples[:, input_var_idx])
+    rem_formula = ""
+    # for i in range(len(input_var_idx)):
+    #     if uncovered_samples[:, input_var_idx[i]] == 0:
+    #         rem_formula += "i"+str(input_var_idx[i])+" & "
+    #     else:
+    #         rem_formula += "~i"+str(input_var_idx[i])+" & "
+    # rem_formula = rem_formula[:-2]
+    rem_inp_formula = rem_formula
+    # for i in range(len(output_var_idx)):
+    #     if uncovered_samples[:, output_var_idx[i]] == 0:
+    #         rem_formula += "| zero"
+    #     else:
+    #         rem_formula += "| one"
+    # rem_formula = "("+rem_formula+")"
+    # print(rem_formula)
     # 3. Postprocess skolem function from GCLN
     skolem_functions, is_valid, counter_example = postprocessor.postprocess(
         args, model, final_accuracy, final_epochs, train_loss[-1],
         train_loss[0]-train_loss[-1], verilogformula,
         input_size, input_var_idx, num_of_outputs, output_var_idx,
-        io_dict, Xvar, Yvar, PosUnate, NegUnate, start_time
+        io_dict, Xvar, Yvar, PosUnate, NegUnate, start_time, rem_formula, rem_inp_formula, num_of_ce=0
     )
 
     # 4. Counter Example Loop

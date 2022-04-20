@@ -6,44 +6,64 @@ from code.utils.utils import util
 
 
 def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogformula, num_of_inputs, input_var_idx, num_of_outputs,
-                output_var_idx, io_dict, Xvar, Yvar, PosUnate, NegUnate, start_time):
+                output_var_idx, io_dict, Xvar, Yvar, PosUnate, NegUnate, start_time, rem_formula, rem_inp_formula, num_of_ce):
 
     if args.cnf:
         if args.architecture == 1:
             skf_dict = {}
+            temp_dict = {}
             for i in range(len(model)):
-                skolem_function = util.get_skolem_function_cnf(
-                    args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
+                skolem_function, temp_dict_ = util.get_skolem_function_cnf_2(
+                    args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict, i)
                 skf_dict[Yvar[i]] = skolem_function[0]
+                temp_dict.update(temp_dict_)
             skf_list = list(skf_dict.values())
+            print("skf_list: ", skf_list)
+            phi = skf_list[0]
+            phi_new = rem_formula + " & " + \
+                "(~("+rem_inp_formula+") | " + phi+")"
+            print("final skolem function: ", phi_new)
+            # skf_list[0] = phi_new
         elif args.architecture == 2:
-            skf_list = util.get_skolem_function_cnf_2(
-                args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
+            skf_list, temp_dict = util.get_skolem_function_cnf_2(
+                args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict, 0)
         else:
-            skf_list = util.get_skolem_function_cnf(
-                args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
+            skf_list, temp_dict = util.get_skolem_function_cnf_2(
+                args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict, 0)
     else:
         if args.architecture == 1:
             skf_dict = {}
+            list_of_dicts = []
             for i in range(len(model)):
-                skolem_function = util.get_skolem_function_dnf(
+                skolem_function, temp_dict = util.get_skolem_function_dnf(
                     args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
                 skf_dict[Yvar[i]] = skolem_function[0]
             skf_list = list(skf_dict.values())
-            print("final skfs: ", skf_list)
+            for d in list_of_dicts:
+                temp_dict.update(d)
+            # print("final skfs: ", skf_list)
         elif args.architecture == 2:
             skf_list = util.get_skolem_function_dnf(
                 args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
         else:
             skf_list = util.get_skolem_function_dnf(
                 args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
+
+    var_def = ""
+    assigns = ""
+    for i, (k, v) in enumerate(temp_dict.items()):
+        var_def += "wire " + k + ";\n"
+        assigns += "assign " + k + " = " + v + ";\n"
+    temp_content = var_def + assigns
+    # print(var_def+assigns)
+    # print(assigns)
 
     if args.postprocessor == 1:
         inputfile_name = args.verilog_spec.split('.v')[0]
 
         # Write the error formula in verilog
         util.write_error_formula1(inputfile_name, args.verilog_spec,
-                                  verilogformula, skf_list, Xvar, Yvar, PosUnate, NegUnate)
+                                  verilogformula, skf_list, temp_content, Xvar, Yvar, PosUnate, NegUnate)
 
         # sat call to errorformula:
         check, sigma, ret = util.verify(Xvar, Yvar, args.verilog_spec)
@@ -62,8 +82,8 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 is_valid = 1
                 skfunc = [sk.replace('\n', '') for sk in skf_list]
                 t = time.time() - start_time
-                datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx)) + \
-                    ", "+str(num_of_outputs)+", "+str(0)+", "+'; '.join(skfunc)+", "+"Valid" + \
+                datastring = str(args.verilog_spec)+", "+str(args.architecture)+", "+str(args.cnf)+", "+str(args.layers)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx)) + \
+                    ", "+str(num_of_outputs)+", "+str(num_of_ce)+", "+'; '.join(skfunc)+", "+"Valid" + \
                     ", "+str(t)+", "+str(final_loss)+", " + \
                     str(loss_drop)+", "+str(accuracy)+"\n"
                 print(datastring)
@@ -110,7 +130,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
             skfunc = [sk.replace('\n', '') for sk in skf_list]
             t = time.time() - start_time
             datastring = str(args.verilog_spec)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx)) + \
-                ", "+str(num_of_outputs)+", "+str(0)+", "+'; '.join(skfunc)+", "+"Valid" + \
+                ", "+str(num_of_outputs)+", "+str(num_of_ce)+", "+'; '.join(skfunc)+", "+"Valid" + \
                 ", "+str(t)+", "+str(final_loss)+", " + \
                 str(loss_drop)+", "+str(accuracy)+"\n"
             print(datastring)

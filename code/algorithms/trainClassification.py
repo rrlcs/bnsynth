@@ -92,14 +92,18 @@ def train_classifier(args, architecture, cnf,
             outs = gcln(inps).to(device)
 
             gcln_ = copy.deepcopy(gcln)
-            gcln_.layer_or_weights = torch.nn.Parameter(
-                gcln_.layer_or_weights.round())
-            gcln_.layer_and_weights = torch.nn.Parameter(
-                gcln_.layer_and_weights.round())
+            gcln_.cnf_layer_1.layer_or_weights = torch.nn.Parameter(
+                gcln_.cnf_layer_1.layer_or_weights.round())
+            gcln_.cnf_layer_1.layer_and_weights = torch.nn.Parameter(
+                gcln_.cnf_layer_1.layer_and_weights.round())
+            gcln_.cnf_layer_2.layer_or_weights = torch.nn.Parameter(
+                gcln_.cnf_layer_2.layer_or_weights.round())
+            gcln_.cnf_layer_2.layer_and_weights = torch.nn.Parameter(
+                gcln_.cnf_layer_2.layer_and_weights.round())
             out_ = gcln_(inps)
 
             if architecture == 1:
-                t_loss = criterion(outs, tgts[:, current_output])
+                t_loss = criterion(outs, tgts[:, current_output].unsqueeze(-1))
                 train_epoch_loss += t_loss.item()
             elif architecture == 2:
                 t_loss = criterion(outs, tgts)
@@ -118,11 +122,11 @@ def train_classifier(args, architecture, cnf,
 
             # t_loss = criterion(out, tgts)
             train_size += outs.shape[0]
-            t_loss = t_loss + lambda1*torch.sum(1-gcln.layer_and_weights)
-            t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 1) + \
-                lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)
-            t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 2) + \
-                lambda2*torch.linalg.norm(gcln.layer_and_weights, 2)
+            # t_loss = t_loss + lambda1*torch.sum(1-gcln.layer_and_weights)
+            # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 1) + \
+            #     lambda2*torch.linalg.norm(gcln.layer_and_weights, 1)
+            # t_loss = t_loss + lambda1*torch.linalg.norm(gcln.layer_or_weights, 2) + \
+            #     lambda2*torch.linalg.norm(gcln.layer_and_weights, 2)
 
             optimizer.zero_grad()
             t_loss.backward()
@@ -157,8 +161,8 @@ def train_classifier(args, architecture, cnf,
         # print("Training Loss: ", t_loss.item())
         # print("G1: ", gcln.layer_or_weights.data)
         # print("G2: ", gcln.layer_and_weights.data)
-        print("Gradient for G1: ", gcln.layer_or_weights.grad)
-        print("Gradient for G2: ", gcln.layer_and_weights.grad)
+        # print("Gradient for G1: ", gcln.layer_or_weights.grad)
+        # print("Gradient for G2: ", gcln.layer_and_weights.grad)
 
         util.store_losses(train_loss, valid_loss, accuracy_list)
         util.plot()
@@ -177,7 +181,9 @@ def train_classifier(args, architecture, cnf,
         epoch += 1
 
     with torch.no_grad():
-        gcln_.layer_or_weights.data.clamp_(0.0, 1.0)
-        gcln_.layer_and_weights.data.clamp_(0.0, 1.0)
+        gcln_.cnf_layer_1.layer_or_weights.data.clamp_(0.0, 1.0)
+        gcln_.cnf_layer_1.layer_and_weights.data.clamp_(0.0, 1.0)
+        gcln_.cnf_layer_2.layer_or_weights.data.clamp_(0.0, 1.0)
+        gcln_.cnf_layer_2.layer_and_weights.data.clamp_(0.0, 1.0)
 
     return gcln_, train_loss, valid_loss, total_accuracy, epoch-1

@@ -573,4 +573,45 @@ stmt19_79_87.v, 450, 392, All not Unates
 equalization32.v, 228, 0, All Unates
 query45_query42_1344n.v, 74, 935, All not Unates
 small-seq-fixpoint-2.v, 606, 407, All Unates
-stmt9_445_446.v, 54, 54, All Unates
+ci.e1.a3.E40.A60.c288.w6.s2.asp.v, 100, 0, All Unates
+ci.e1.a3.E40.A60.c384.w6.s8.asp.v, 100, 0, All Unates
+ci.e1.a3.E40.A60.c400.w2.s1.asp.v, 100, 0, All Unates
+ci.e1.a3.E40.A60.c416.w2.s3.asp.v, 100, 0, All Unates
+sortnetsort9.AE.stepl.008.v, 1184, 4971, All not Unates
+sortnetsort9.AE.stepl.009.v, 1332, 5590, All not Unates
+ci.e1.a3.E40.A60.c408.w2.s2.asp.v, 100, 0, All Unates
+sortnetsort9.AE.stepl.009.v, 1332, 5590, All not Unates
+ci.e1.a3.E40.A60.c408.w2.s1.asp.v, 100, 0, All Unates
+ctrl.e1.a3.E120.A48.c.w3.s3.asp.v, 168, 0, All Unates
+ctrl.e1.a3.E128.A48.c.w3.s26.asp.v, 176, 0, All Unates
+ctrl.e1.a3.E112.A48.c.w5.s27.asp.v, 160, 0, All Unates
+ctrl.e1.a3.E116.A48.c.w7.s56.asp.v, 164, 0, All Unates
+ctrl.e1.a3.E128.A48.c.w7.s60.asp.v, 176, 0, All Unates
+ctrl.e1.a3.E124.A48.c.w7.s50.asp.v, 172, 0, All Unates
+reachqu_query71_1344n.v, 174, 7301, All not Unates
+AR-fixpoint-10.v, 55022, 50039, All not Unates
+ctrl.e1.a3.E128.A48.c.w5.s60.asp.v, 176, 0, All Unates
+ctrl.e1.a3.E128.A48.c.w7.s1.asp.v, 176, 0, All Unates
+query48_query42_1344n.v, 180, 9754, All not Unates
+query10_query34_1344n.v, 168, 7164, All not Unates
+query10_query06_1344n.v, 174, 7293, All not Unates
+ctrl.e1.a3.E128.A48.c.w9.s1.asp.v, 176, 0, All Unates
+query09_query42_1344n.v, 180, 9648, All not Unates
+ctrl.e1.a3.E134.A48.c.w9.s40.asp.v, 182, 0, All Unates
+query42_query60_1344n.v, 255, 8885, All not Unates
+query42_query60_1344n.v, 255, 8885, All not Unates
+ctrl.e1.a3.E110.A48.c.w9.s13.asp.v, 158, 0, All Unates
+query42_query42_1344n.v, 180, 9862, All not Unates
+query08_query42_1344n.v, 180, 9642, All not Unates
+query10_query42_1344n.v, 180, 8782, All not Unates
+ctrl.e1.a3.E128.A48.c.w9.s60.asp.v, 176, 0, All Unates
+ctrl.e1.a3.E128.A48.c.w7.s7.asp.v, 176, 0, All Unates
+6s289rb05233_c0to63.sat.v, 10676, 12772, All not Unates
+query42_query06_1344n.v, 174, 8133, All not Unates
+ctrl.e1.a3.E118.A48.c.w5.s7.asp.v, 166, 0, All Unates
+sortnetsort10.AE.stepl.007.v, 1323, 5523, All not Unates
+reachqu_query42_1344n.v, 180, 8806, All not Unates
+small-dyn-partition-fixpoint-1.v, 16, 8, All Unates
+sortnetsort10.AE.stepl.012.v, 2268, 9453, All not Unates
+sortnetsort10.AE.stepl.012.v, 2268, 9453, All not Unates
+sortnetsort10.AE.stepl.012.v, 2268, 9453, All not Unates
