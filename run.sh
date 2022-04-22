@@ -4,7 +4,7 @@ python3 run.py \
 --P=$1 \
 --train=1 \
 --tnorm_name=product \
---learning_rate=.01 \
+--learning_rate=.001 \
 --run_for_all_outputs=1 \
 --verilog_spec_location=custom_examples \
 --verilog_spec=$2 \
@@ -19,4 +19,4 @@ python3 run.py \
 --cnf=1 \
 --ce=1 \
 --load_saved_model=0 \
---output_file=experiments/experiments_unates.csv
+--output_file=experiments/comparative_study.csv

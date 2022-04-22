@@ -81,6 +81,7 @@ def trainer(args, train_loader, validation_loader, input_size,
         final_accuracy = 0
         final_epochs = 0
         model_list = []
+        disagreed_indices = []
         for i in range(num_of_outputs):
             current_output = i
             print("Training for the current output: ", current_output)
@@ -91,7 +92,9 @@ def trainer(args, train_loader, validation_loader, input_size,
             final_accuracy += accuracy
             final_epochs += epochs
             model_list.append(gcln)
-        return model_list, train_loss, valid_loss, final_accuracy, final_epochs, disagreed_index
+            disagreed_indices.append(disagreed_index)
+        print("disagreed indices: ", disagreed_indices)
+        return model_list, train_loss, valid_loss, final_accuracy, final_epochs, disagreed_indices
     elif args.architecture == 2 or args.architecture == 3:
         current_output = 0
         gcln, train_loss, valid_loss, final_accuracy, final_epochs, disagreed_index = train(args, args.architecture, args.cnf,

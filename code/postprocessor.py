@@ -5,8 +5,42 @@ import numpy as np
 from code.utils.utils import util
 
 
+def get_formula_for_uncovered_data(training_samples, disagreed_index, input_var_idx, output_var_idx, current_output=0):
+    print(disagreed_index)
+    uncovered_samples = training_samples[disagreed_index]
+    print("run.py ", training_samples[disagreed_index], input_var_idx)
+    print(uncovered_samples[:, input_var_idx])
+    if uncovered_samples.shape[0] > 0:
+        final_rem_formula = ""
+        final_rem_inp_formula = ""
+        for j in range(uncovered_samples.shape[0]):
+            rem_formula = ""
+            for i in range(len(input_var_idx)):
+                if uncovered_samples[j, input_var_idx[i]] == 0:
+                    rem_formula += "~i"+str(input_var_idx[i])+" & "
+                else:
+                    rem_formula += "i"+str(input_var_idx[i])+" & "
+            rem_formula = "~("+rem_formula[:-3]+") "
+            rem_inp_formula = rem_formula
+            # for i in range(len(output_var_idx)):
+            if uncovered_samples[j, output_var_idx[current_output]] == 0:
+                rem_formula += "| zero"
+            else:
+                rem_formula += "| one"
+            rem_formula = "("+rem_formula+")"
+            final_rem_formula += rem_formula + " & "
+            final_rem_inp_formula += rem_inp_formula + " & "
+        print("FINAL: ", final_rem_formula[:-3],
+              "final rem inp:", final_rem_inp_formula[:-3])
+    else:
+        final_rem_formula = ""
+        final_rem_inp_formula = ""
+
+    return final_rem_formula[:-3], final_rem_inp_formula[:-3]
+
+
 def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogformula, num_of_inputs, input_var_idx, num_of_outputs,
-                output_var_idx, io_dict, Xvar, Yvar, PosUnate, NegUnate, start_time, rem_formula, rem_inp_formula, num_of_ce):
+                output_var_idx, io_dict, Xvar, Yvar, PosUnate, NegUnate, start_time, training_samples, disagreed_indices, num_of_ce):
 
     if args.cnf:
         if args.architecture == 1:
@@ -19,14 +53,18 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 temp_dict.update(temp_dict_)
             skf_list = list(skf_dict.values())
             print("skf_list: ", skf_list)
-            phi = skf_list[0]
-            if len(rem_formula) > 0 and len(rem_inp_formula) > 0:
-                phi_new = rem_formula + " & " + \
-                    "(~("+rem_inp_formula+") | " + phi+")"
-            else:
-                phi_new = phi
-            print("final skolem function: ", phi_new)
-            skf_list[0] = phi_new
+            for i in range(len(skf_list)):
+                rem_formula, rem_inp_formula = get_formula_for_uncovered_data(
+                    training_samples, disagreed_indices[i], input_var_idx, output_var_idx, current_output=i)
+                phi = skf_list[i]
+                if len(rem_formula) > 0 and len(rem_inp_formula) > 0:
+                    phi_new = rem_formula + " & " + \
+                        "(~("+rem_inp_formula+") | " + phi+")"
+                else:
+                    phi_new = phi
+                print("final skolem function: ", phi_new)
+                skf_list[i] = phi_new
+            print("skf_list: ", skf_list)
         elif args.architecture == 2:
             skf_list, temp_dict = util.get_skolem_function_cnf_2(
                 args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict, 0)

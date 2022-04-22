@@ -84,33 +84,33 @@ def preprocess():
         out_samples = list(set(out_samples_list))
 
         # Create dictionary with input sequence as key and output sequence as values
-        # d = {}
-        # for i in range(len(out_samples_list)):
-        #     if inp_samples_list[i] in d.keys():
-        #         d[inp_samples_list[i]].append(out_samples_list[i])
-        #     else:
-        #         d[inp_samples_list[i]] = [out_samples_list[i]]
+        d = {}
+        for i in range(len(out_samples_list)):
+            if inp_samples_list[i] in d.keys():
+                d[inp_samples_list[i]].append(out_samples_list[i])
+            else:
+                d[inp_samples_list[i]] = [out_samples_list[i]]
 
-        # # Find indices for don't cares
-        # count = 2**(num_out_vars)
-        # inds = []
-        # for k in d.keys():
-        #     if len(d[k]) == count:
-        #         inds.append([i for i, x in enumerate(
-        #             inp_samples_list) if x == k])
-        #         # print("indices: ", inds)
-        # total_indices = [i for i in range(len(out_samples_list))]
-        # inds = [item for sublist in inds for item in sublist]
+        # Find indices for don't cares
+        count = 2**(num_out_vars)
+        inds = []
+        for k in d.keys():
+            if len(d[k]) == count:
+                inds.append([i for i, x in enumerate(
+                    inp_samples_list) if x == k])
+                # print("indices: ", inds)
+        total_indices = [i for i in range(len(out_samples_list))]
+        inds = [item for sublist in inds for item in sublist]
 
-        # # Find indices of samples to keep
-        # remainder_indices = list(set(total_indices) - set(inds))
+        # Find indices of samples to keep
+        remainder_indices = list(set(total_indices) - set(inds))
 
-        # # Filter data
-        # samples = samples[remainder_indices, :]
-        # x_data, indices = np.unique(
-        #     samples[:, Xvar], axis=0, return_index=True)
-        # samples = samples[indices, :]
-        # print("filtered don't cares from samples: ", samples)
+        # Filter data
+        samples = samples[remainder_indices, :]
+        x_data, indices = np.unique(
+            samples[:, Xvar], axis=0, return_index=True)
+        samples = samples[indices, :]
+        print("filtered don't cares from samples: ", samples)
         np.random.RandomState(42)
         # if samples.shape[0] > 100:
         #     samples = samples[np.random.choice(

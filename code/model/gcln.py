@@ -115,9 +115,8 @@ class CNF_Netowrk3(torch.nn.Module):
         for i in range(self.output_size):
             gated_or = self.apply_gates(
                 self.layer_and_weights[i*self.K:(i+1)*self.K, :], or_res[i, :, :, :])
-            gated_or_res.append(gated_or)
-            # gated_or_res.append(torch.add(
-            #     gated_or, 1 - self.layer_and_weights[i*self.K:(i+1)*self.K, :], alpha=1))
+            gated_or_res.append(torch.add(
+                gated_or, 1 - self.layer_and_weights[i*self.K:(i+1)*self.K, :], alpha=1))
         gated_or_res = torch.stack(gated_or_res)
         # gated_or_res = self.apply_bias(gated_or_res, self.b2)
 
