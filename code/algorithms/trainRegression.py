@@ -170,17 +170,17 @@ def train_regressor(args, architecture, cnf,
                 target.append(tgts[:, current_output].tolist())
                 # print("######################",
                 #       accuracy, out_.shape, batch_idx, tgts[:, current_output].shape)
-                # val = (out_.round().squeeze() == tgts[:, current_output])
+                val = (out_.round().squeeze() == tgts[:, current_output])
 
                 accuracy += (out_.round().squeeze() ==
                              tgts[:, current_output]).sum()
 
-                # print("````````````````````", val,
-                #       accuracy.item()/(train_size*num_of_outputs))
+                print("````````````````````", val,
+                      accuracy.item()/(train_size*num_of_outputs))
                 # and (accuracy.item()/(train_size*num_of_outputs) == 0.5 or accuracy.item()/(train_size*num_of_outputs) == 0.):
-                # if val == False:
-                #     disagreed_index.append(batch_idx)
-                #     print("unequal index: ", val, disagreed_index)
+                if val == False:
+                    disagreed_index.append(batch_idx)
+                    print("unequal index: ", val, disagreed_index)
                 print("accuracy: ", accuracy)
                 print("######################",
                       accuracy, out_.shape, batch_idx, tgts[:, current_output].shape)
@@ -211,10 +211,10 @@ def train_regressor(args, architecture, cnf,
         #     max_epochs += 1
         # last_acc = total_accuracy
         if args.ce and ce_loop < 1000:
-            if total_accuracy < 1.:
+            if total_accuracy < 1.0:
                 max_epochs += 1
         else:
-            if total_accuracy < 1.:
+            if total_accuracy < 1.0:
                 max_epochs += 1
 
         print('epoch {}, train loss {}'.format(

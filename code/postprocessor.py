@@ -58,6 +58,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                     training_samples, disagreed_indices[i], input_var_idx, output_var_idx, current_output=i)
                 phi = skf_list[i]
                 if len(rem_formula) > 0 and len(rem_inp_formula) > 0:
+                    print("remaining table added to partial formula")
                     phi_new = rem_formula + " & " + \
                         "(~("+rem_inp_formula+") | " + phi+")"
                 else:
