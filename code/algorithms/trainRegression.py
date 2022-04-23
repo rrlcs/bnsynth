@@ -137,12 +137,12 @@ def train_regressor(args, architecture, cnf,
             #       gcln.cnf_layer_1.layer_or_weights.data)
             # print("gcln and gate weights: ",
             #       gcln.cnf_layer_1.layer_and_weights.data)
-            t_loss = t_loss + lambda1 * \
-                torch.sum(1-gcln.cnf_layer_1.layer_and_weights)
+            # t_loss = t_loss + lambda1 * \
+            #     torch.sum(1-gcln.cnf_layer_1.layer_and_weights)
             # t_loss = t_loss + lambda1 * \
             #     torch.sum(1-gcln.cnf_layer_2.layer_and_weights)
-            t_loss = t_loss + lambda1 * \
-                torch.sum(gcln.cnf_layer_1.layer_or_weights)
+            # t_loss = t_loss + lambda1 * \
+            #     torch.sum(gcln.cnf_layer_1.layer_or_weights)
             # t_loss = t_loss + lambda1 * \
             #     torch.sum(gcln.cnf_layer_2.layer_or_weights)
             # t_loss = t_loss + lambda2*torch.sum(1-gcln.layer_or_weights)

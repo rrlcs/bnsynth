@@ -546,12 +546,9 @@ class utils():
             no_of_temp_vars = clause.shape[0]
             temp_var_name = "temp_"+str(i)+"_"+str(outidx)+"_"
             cl = []
-            # clause[0] = '((i0 | i2 | ~i1) & (i1 | i2 | ~i0) & (~i0 | ~i1 | ~i2))'
-            print("clause: ", clause)
             for j in range(no_of_temp_vars):
                 temp = temp_var_name + str(j)
                 cl.append(temp)
-                print("''''''''''clause'''''''''''", clause[j])
                 if clause[j] == "(())" or clause[j] == "()":
                     print("Empty formula")
                     temp_dict[temp] = "(one)"
@@ -571,49 +568,22 @@ class utils():
 
         return skfs, temp_dict
 
-    def get_skolem_function_dnf(self, args, gcln, no_of_input_var, input_var_idx, num_of_outputs, output_var_idx, io_dict):
-        '''
-        Reads the model weights (layer_or_weights, layer_and_weights) and builds the skolem function based on it.
-        Input: Learned model parameters
-        Output: Skolem Functions
-        '''
-
-        layer_or_weights_1 = gcln.layer_or_weights_1.cpu().detach().numpy()  # input_size x K
-        layer_and_weights_1 = gcln.layer_and_weights_1.cpu(
-        ).detach().numpy()  # K x num_of_outputs
-        # layer_or_weights_2 = gcln.layer_or_weights_2.cpu().detach().numpy()  # input_size x K
-        # layer_and_weights_2 = gcln.layer_and_weights_2.cpu(
-        # ).detach().numpy()  # K x num_of_outputs
-
-        threshold = args.threshold
-        K = args.K
-        architecture = args.architecture
-
-        literals = []
-        neg_literals = []
-        for i in input_var_idx:
-            # literals.append(io_dict.get(i))
-            # neg_literals.append("~"+io_dict.get(i))
-            literals.append("i"+str(i))
-            neg_literals.append("~i"+str(i))
-
-        clause = np.array(literals + neg_literals)
-
+    def read_dnf(self, threshold, architecture, layer_or_weights, layer_and_weights, hidden_size, num_of_outputs, K, clause):
         clauses = []
         if architecture == 1:
             for j in range(K):
-                mask = layer_and_weights_1[:, j] > threshold
+                mask = layer_and_weights[:, j] > threshold
                 print("mask: ", mask)
                 clauses.append(clause[mask])
             clauses = np.array(clauses)
         elif architecture == 2:
             for j in range(K):
-                mask = layer_and_weights_1[:, j] > threshold
+                mask = layer_and_weights[:, j] > threshold
                 clauses.append(clause[mask])
             clauses = np.array(clauses)
         elif architecture == 3:
             for j in range(num_of_outputs * K):
-                mask = layer_and_weights_1[:, j] > threshold
+                mask = layer_and_weights[:, j] > threshold
                 clauses.append(clause[mask])
             clauses = np.array(clauses)
 
@@ -626,7 +596,7 @@ class utils():
         gated_ored_clauses = []
         if architecture == 1:
             # for i in range(num_of_outputs):
-            mask = layer_or_weights_1 > threshold
+            mask = layer_or_weights > threshold
             # print("mask size: ", mask.shape)
             ored_clause = ored_clauses.reshape((-1, 1))
             gated_ored_clauses.append(
@@ -634,23 +604,23 @@ class utils():
 
             skfs = []
             # for i in range(num_of_outputs):
-            skf = " | ".join(gated_ored_clauses[0])+"\n"
-            if " & ()" in skf:
-                skf = skf.replace(" & ()", "")
-            if "() & " in skf:
-                skf = skf.replace("() & ", "")
+            skf = " | ".join(gated_ored_clauses[0])  # +"\n"
+            if " | ()" in skf:
+                skf = skf.replace(" | ()", "")
+            if "() | " in skf:
+                skf = skf.replace("() | ", "")
             skfs.append(skf)
 
         elif architecture == 2:
             for i in range(num_of_outputs):
-                mask = layer_or_weights_1[:, i] > threshold
+                mask = layer_or_weights[:, i] > threshold
                 ored_clause = ored_clauses.reshape((-1, 1))
                 gated_ored_clauses.append(
                     np.unique(ored_clause[mask]))
 
             skfs = []
             for i in range(num_of_outputs):
-                skf = " | ".join(gated_ored_clauses[i])+"\n"
+                skf = " | ".join(gated_ored_clauses[i])  # +"\n"
                 if " | ()" in skf:
                     skf = skf.replace(" | ()", "")
                 if "() | " in skf:
@@ -659,25 +629,82 @@ class utils():
 
         elif architecture == 3:
             for i in range(num_of_outputs):
-                mask = layer_or_weights_1[i*K:(i+1)*K, :] > threshold
+                mask = layer_or_weights[i*K:(i+1)*K, :] > threshold
                 ored_clause = ored_clauses.reshape((-1, 1))[i*K:(i+1)*K, :]
                 gated_ored_clauses.append(
                     np.unique(ored_clause[mask]))
 
             skfs = []
             for i in range(num_of_outputs):
-                skf = " | ".join(gated_ored_clauses[i])+"\n"
+                skf = " | ".join(gated_ored_clauses[i])  # +"\n"
                 if " & ()" in skf:
                     skf = skf.replace(" & ()", "")
                 if "() & " in skf:
                     skf = skf.replace("() & ", "")
                 skfs.append(skf)
+        return np.array(skfs)
+
+    def get_skolem_function_dnf(self, args, gcln, no_of_input_var, input_var_idx, num_of_outputs, output_var_idx, io_dict, outidx):
+        '''
+        Reads the model weights (layer_or_weights, layer_and_weights) and builds the skolem function based on it.
+        Input: Learned model parameters
+        Output: Skolem Functions
+        '''
+
+        layer_or_weights_1 = gcln.cnf_layer_1.layer_or_weights.cpu(
+        ).detach().numpy()  # input_size x K
+        layer_and_weights_1 = gcln.cnf_layer_1.layer_and_weights.cpu(
+        ).detach().numpy()  # K x num_of_outputs
+        # layer_or_weights_2 = gcln.layer_or_weights_2.cpu().detach().numpy()  # input_size x K
+        # layer_and_weights_2 = gcln.layer_and_weights_2.cpu(
+        # ).detach().numpy()  # K x num_of_outputs
+
+        weights = [[layer_or_weights_1, layer_and_weights_1]]
+
+        threshold = args.threshold
+        K = args.K
+        architecture = args.architecture
+        hidden_size = gcln.cnf_layer_1.hidden_size
+
+        literals = []
+        neg_literals = []
+        for i in input_var_idx:
+            # literals.append(io_dict.get(i))
+            # neg_literals.append("~"+io_dict.get(i))
+            literals.append("i"+str(i))
+            neg_literals.append("~i"+str(i))
+
+        clause = np.array(literals + neg_literals)
+
+        temp_dict = {}
+        for i in range(args.layers):
+            print("layer number: ", i)
+            clause = self.read_dnf(threshold, architecture, weights[i][0],
+                                   weights[i][1], hidden_size, num_of_outputs, K, clause)
+            no_of_temp_vars = clause.shape[0]
+            temp_var_name = "temp_"+str(i)+"_"+str(outidx)+"_"
+            cl = []
+            for j in range(no_of_temp_vars):
+                temp = temp_var_name + str(j)
+                cl.append(temp)
+                if clause[j] == "(())" or clause[j] == "()" or clause[j] == "":
+                    print("Empty formula")
+                    temp_dict[temp] = "(one)"
+                else:
+                    temp_dict[temp] = clause[j]
+            clause = np.array(cl)
+            print("clauses: ", clause)
+            print("num of temp vars: ", no_of_temp_vars)
+
+        print("temp dict: ", temp_dict)
+
+        skfs = clause
 
         print("-------------------------------------------------------------------------")
         print("skolem function in getSkolemFunc.py: ", skfs)
         print("-------------------------------------------------------------------------")
 
-        return skfs
+        return skfs, temp_dict
 
     # MANTHAN MODULES FOR VERILOG INPUT FILES:
 

@@ -33,14 +33,20 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
     else:
         if args.architecture == 1:
             skf_dict = {}
-            list_of_dicts = []
+            temp_dict = {}
             for i in range(len(model)):
-                skolem_function, temp_dict = util.get_skolem_function_dnf(
-                    args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
+                print("i", i)
+                skolem_function, temp_dict_ = util.get_skolem_function_dnf(
+                    args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict, i)
                 skf_dict[Yvar[i]] = skolem_function[0]
+                temp_dict.update(temp_dict_)
             skf_list = list(skf_dict.values())
-            for d in list_of_dicts:
-                temp_dict.update(d)
+            print("skf_list: ", skf_list)
+            print("temp_dict: ", temp_dict)
+            # phi = skf_list[0]
+            # phi_new = rem_formula + " & " + \
+            #     "(~("+rem_inp_formula+") | " + phi+")"
+            # print("final skolem function: ", phi_new)
             # print("final skfs: ", skf_list)
         elif args.architecture == 2:
             skf_list = util.get_skolem_function_dnf(
