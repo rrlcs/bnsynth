@@ -211,10 +211,10 @@ def train_regressor(args, architecture, cnf,
         #     max_epochs += 1
         # last_acc = total_accuracy
         if args.ce and ce_loop < 1000:
-            if total_accuracy < 1.0:
+            if total_accuracy < 0.8:
                 max_epochs += 1
         else:
-            if total_accuracy < 1.0:
+            if total_accuracy < 0.8:
                 max_epochs += 1
 
         print('epoch {}, train loss {}'.format(
