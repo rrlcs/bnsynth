@@ -19,6 +19,8 @@ model.pth.tar
 skfs
 accuracy_list
 samples.csv
+meeting_notes.txt
+gcln_output
 
 
 
