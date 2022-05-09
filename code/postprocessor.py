@@ -1,8 +1,10 @@
 import os
 import time
 import torch
+import subprocess
 import numpy as np
 from code.utils.utils import util
+from experiments.visitors.verilog2z3 import preparez3
 
 
 def get_formula_for_uncovered_data(training_samples, disagreed_index, input_var_idx, output_var_idx, current_output=0):
@@ -88,14 +90,38 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                     args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict, i)
                 skf_dict[Yvar[i]] = skolem_function[0]
                 temp_dict.update(temp_dict_)
+            print("temp_dict: ", temp_dict)
+            print('\n'.join(temp_dict.values()))
+            skfs = '\n'.join(temp_dict.values())  # .replace('i', 'i_')
+            f = open('gcln_output', 'w')
+            f.write(skfs)
+            f.close()
             skf_list = list(skf_dict.values())
             print("skf_list: ", skf_list)
-            print("temp_dict: ", temp_dict)
-            # phi = skf_list[0]
-            # phi_new = rem_formula + " & " + \
-            #     "(~("+rem_inp_formula+") | " + phi+")"
-            # print("final skolem function: ", phi_new)
-            # print("final skfs: ", skf_list)
+            for i in range(len(skf_list)):
+                rem_formula, rem_inp_formula = get_formula_for_uncovered_data(
+                    training_samples, disagreed_indices[i], input_var_idx, output_var_idx, current_output=i)
+                phi = skf_list[i]
+                if len(rem_formula) > 0 and len(rem_inp_formula) > 0:
+                    print("remaining table added to partial formula")
+                    phi_new = rem_formula + " & " + \
+                        "(~("+rem_inp_formula+") | " + phi+")"
+                else:
+                    phi_new = phi
+                print("final skolem function: ", phi_new, "phi: ", phi)
+                skf_list[i] = phi_new
+            print("skf_list: ", skf_list)
+            path = 'data/benchmarks/custom_examples/'
+            preparez3('sample1.v',
+                      path, 2)
+            # importlib.reload()
+            # os.system("python experiments/visitors/z3ValidityChecker.py")
+            cmd = 'python experiments/visitors/z3ValidityChecker.py'
+
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+            out, err = p.communicate()
+            print(out.decode('UTF-8'))
+
         elif args.architecture == 2:
             skf_list = util.get_skolem_function_dnf(
                 args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict)
