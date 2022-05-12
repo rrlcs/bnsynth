@@ -1,23 +1,18 @@
-// Verilog
-// c17
-// Ninputs 5
-// Noutputs 2
-// NtotalGates 6
-// NAND2 6
+module formula(i0,i1,i2,i3,i4, i5, i6, out);
+	input i0,i1,i2,i3,i4, i5, i6;
+	output out;
+	wire N10,N11,N16,N19, N22_1, N22_2, N23_1, N23_2;
 
-module c17 (N1,N2,N3,N6,N7,N22,N23);
+	assign N10 = ~(i0 & i2);
+	assign N11 = ~(i2 & i3);
+	assign N16 = ~(i1 & N11);
+	assign N19 = ~(N11 & i4);
+	assign N22_1 = ~(N10 & N16);
+	assign N23_1 = ~(N16 & N19);
 
-input N1,N2,N3,N6,N7, N22,N23;
+	assign N22_2 = ~(N10 & i5);
+	assign N23_2 = ~(i5 & i6);
 
-wire N10,N11,N16,N19;
-
-nand NAND2_1 (N10, N1, N3);
-nand NAND2_2 (N11, N3, N6);
-nand NAND2_3 (N16, N2, N11);
-nand NAND2_4 (N19, N11, N7);
-nand NAND2_5 (N22, N10, N16);
-nand NAND2_6 (N23, N16, N19);
-
-assign out = NAND2_6;
+	assign out = ~(N22_1 ^ N22_2);
 
 endmodule

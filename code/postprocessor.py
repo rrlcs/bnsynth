@@ -51,8 +51,9 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
             for i in range(len(model)):
                 skolem_function, temp_dict_ = util.get_skolem_function_cnf_2(
                     args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict, i)
-                skf_dict[Yvar[i]] = skolem_function[0]
                 temp_dict.update(temp_dict_)
+                skf_dict[Yvar[i]] = temp_dict[skolem_function[0]]
+                print("aosifoinicashsiofjf", temp_dict[skolem_function[0]])
             print("temp_dict: ", temp_dict)
             print('\n'.join(temp_dict.values()))
             skfs = '\n'.join(temp_dict.values()).replace('i', 'i_')
@@ -74,6 +75,26 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 print("final skolem function: ", phi_new, "phi: ", phi)
                 skf_list[i] = phi_new
             print("skf_list: ", skf_list)
+            skfs = '\n'.join(skf_list)  # .replace('i', 'i_')
+            f = open(args.verilog_spec[:-2]+'.skf', 'w')
+            f.write(skfs)
+            f.close()
+            path = 'data/benchmarks/custom_examples/'
+            preparez3(args.verilog_spec,
+                      path, 2)
+            # importlib.reload()
+            # os.system("python experiments/visitors/z3ValidityChecker.py")
+            cmd = 'python experiments/visitors/z3ValidityChecker.py'
+
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+            out, err = p.communicate()
+            print(out.decode('UTF-8'))
+            f = open('simplified.skf', 'r')
+            simple_skf = f.read()
+            f.close()
+            f = open(args.verilog_spec[:-2]+'_simplified.skf', 'w')
+            f.write(simple_skf)
+            f.close()
         elif args.architecture == 2:
             skf_list, temp_dict = util.get_skolem_function_cnf_2(
                 args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict, 0)
@@ -88,14 +109,11 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 print("i", i)
                 skolem_function, temp_dict_ = util.get_skolem_function_dnf(
                     args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict, i)
-                skf_dict[Yvar[i]] = skolem_function[0]
                 temp_dict.update(temp_dict_)
+                skf_dict[Yvar[i]] = temp_dict[skolem_function[0]]
+                print("aosifoinicashsiofjf", temp_dict[skolem_function[0]])
             print("temp_dict: ", temp_dict)
-            print('\n'.join(temp_dict.values()))
-            skfs = '\n'.join(temp_dict.values())  # .replace('i', 'i_')
-            f = open('gcln_output', 'w')
-            f.write(skfs)
-            f.close()
+            # print('\n'.join(temp_dict.values()))
             skf_list = list(skf_dict.values())
             print("skf_list: ", skf_list)
             for i in range(len(skf_list)):
@@ -111,8 +129,12 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 print("final skolem function: ", phi_new, "phi: ", phi)
                 skf_list[i] = phi_new
             print("skf_list: ", skf_list)
+            skfs = '\n'.join(skf_list)  # .replace('i', 'i_')
+            f = open(args.verilog_spec[:-2]+'.skf', 'w')
+            f.write(skfs)
+            f.close()
             path = 'data/benchmarks/custom_examples/'
-            preparez3('sample1.v',
+            preparez3(args.verilog_spec,
                       path, 2)
             # importlib.reload()
             # os.system("python experiments/visitors/z3ValidityChecker.py")
@@ -121,6 +143,12 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
             out, err = p.communicate()
             print(out.decode('UTF-8'))
+            f = open('simplified.skf', 'r')
+            simple_skf = f.read()
+            f.close()
+            f = open(args.verilog_spec[:-2]+'_simplified.skf', 'w')
+            f.write(simple_skf)
+            f.close()
 
         elif args.architecture == 2:
             skf_list = util.get_skolem_function_dnf(

@@ -39,7 +39,7 @@ def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
         file.close()
 
     # Parse the NN output and Generate Z3Py Format
-    f = open("gcln_output", "r")
+    f = open(verilog_spec[:-2]+".skf", "r")
     data = f.read()
     data = data.split("\n")
     sys.setrecursionlimit(2000)
