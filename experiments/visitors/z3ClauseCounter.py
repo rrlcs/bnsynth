@@ -11,7 +11,7 @@ def getz3formula():
 	
 	out = Bool('out')
 	i5 = (Or((And((i2),(i3),Not(i0),)),(And(Not(i0),Not(i1),)),(And(Not(i1),Not(i2),)),))
-	i6 = (((i3)))
+	i6 = (((True)))
 	
 	N10 = Not(And((i0),(i2),))
 	N11 = Not(And((i2),(i3),))
@@ -51,7 +51,7 @@ for v in outs:
     else:
         clause += count
 
-f = open('simplified.skf', 'w')
+f = open('experiments/simplified.skf', 'w')
 f.write(ftext)
 f.close()
 print("Number of Chars: ", total_chars, "Number of Clauses: ", cl, clause)

@@ -34,7 +34,7 @@ def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
         filedata = file.read()
         file.close()
     filedata = filedata.replace('#*#', z3filecontent)
-    with open('experiments/visitors/z3ValidityChecker.py', 'w') as file:
+    with open('experiments/visitors/z3ClauseCounter.py', 'w') as file:
         file.write(filedata)
         file.close()
 
@@ -52,7 +52,7 @@ def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
         visitor = verilogVisitor(
             verilog_spec, verilog_spec_location, num_of_ouputs)
         nnOut = visitor.visit(tree)
-        with open('experiments/visitors/z3ValidityChecker.py', 'r') as file:
+        with open('experiments/visitors/z3ClauseCounter.py', 'r') as file:
             filedata = file.read()
             file.close()
         text = "$$"+str(i)
@@ -61,7 +61,7 @@ def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
         nnOut = str(nnOut).replace('zero', 'False')
         filedata = filedata.replace(text, nnOut)
         # filedata = replace_preref(filedata)
-        with open('experiments/visitors/z3ValidityChecker.py', 'w') as file:
+        with open('experiments/visitors/z3ClauseCounter.py', 'w') as file:
             file.write(filedata)
             file.close()
 

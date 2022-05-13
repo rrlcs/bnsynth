@@ -54,12 +54,6 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 temp_dict.update(temp_dict_)
                 skf_dict[Yvar[i]] = temp_dict[skolem_function[0]]
                 print("aosifoinicashsiofjf", temp_dict[skolem_function[0]])
-            print("temp_dict: ", temp_dict)
-            print('\n'.join(temp_dict.values()))
-            skfs = '\n'.join(temp_dict.values()).replace('i', 'i_')
-            f = open('gcln_output', 'w')
-            f.write(skfs)
-            f.close()
             skf_list = list(skf_dict.values())
             print("skf_list: ", skf_list)
             for i in range(len(skf_list)):
@@ -76,7 +70,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 skf_list[i] = phi_new
             print("skf_list: ", skf_list)
             skfs = '\n'.join(skf_list)  # .replace('i', 'i_')
-            f = open(args.verilog_spec[:-2]+'.skf', 'w')
+            f = open('experiments/'+args.verilog_spec[:-2]+'.skf', 'w')
             f.write(skfs)
             f.close()
             path = 'data/benchmarks/custom_examples/'
@@ -89,10 +83,11 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
             out, err = p.communicate()
             print(out.decode('UTF-8'))
-            f = open('simplified.skf', 'r')
+            f = open('experiments/simplified.skf', 'r')
             simple_skf = f.read()
             f.close()
-            f = open(args.verilog_spec[:-2]+'_simplified.skf', 'w')
+            f = open('experiments/' +
+                     args.verilog_spec[:-2]+'_simplified.skf', 'w')
             f.write(simple_skf)
             f.close()
         elif args.architecture == 2:
@@ -112,8 +107,6 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 temp_dict.update(temp_dict_)
                 skf_dict[Yvar[i]] = temp_dict[skolem_function[0]]
                 print("aosifoinicashsiofjf", temp_dict[skolem_function[0]])
-            print("temp_dict: ", temp_dict)
-            # print('\n'.join(temp_dict.values()))
             skf_list = list(skf_dict.values())
             print("skf_list: ", skf_list)
             for i in range(len(skf_list)):
@@ -129,24 +122,22 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 print("final skolem function: ", phi_new, "phi: ", phi)
                 skf_list[i] = phi_new
             print("skf_list: ", skf_list)
-            skfs = '\n'.join(skf_list)  # .replace('i', 'i_')
-            f = open(args.verilog_spec[:-2]+'.skf', 'w')
+            skfs = '\n'.join(skf_list)
+            f = open('experiments/'+args.verilog_spec[:-2]+'.skf', 'w')
             f.write(skfs)
             f.close()
             path = 'data/benchmarks/custom_examples/'
             preparez3(args.verilog_spec,
                       path, 2)
-            # importlib.reload()
-            # os.system("python experiments/visitors/z3ValidityChecker.py")
-            cmd = 'python experiments/visitors/z3ValidityChecker.py'
+            cmd = 'python experiments/visitors/z3ClauseCounter.py'
 
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
             out, err = p.communicate()
-            print(out.decode('UTF-8'))
-            f = open('simplified.skf', 'r')
+            f = open('experiments/simplified.skf', 'r')
             simple_skf = f.read()
             f.close()
-            f = open(args.verilog_spec[:-2]+'_simplified.skf', 'w')
+            f = open('experiments/' +
+                     args.verilog_spec[:-2]+'_simplified.skf', 'w')
             f.write(simple_skf)
             f.close()
 

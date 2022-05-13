@@ -29,7 +29,7 @@ def preprocess():
         result = util.check_unates(
             PosUnate, NegUnate, Xvar, Yvar, args.verilog_spec[:-2])
         print("Pos Neg unates: ", len(PosUnate), len(NegUnate))
-        # print(Xvar, Yvar, Xvar_map, Yvar_map, total_vars)
+        print(Xvar, Yvar, Xvar_map, Yvar_map, total_vars)
         # if result:
         #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar)) + \
         #         ", "+str(len(Yvar))+", "+"All Unates"+"\n"
@@ -66,7 +66,7 @@ def preprocess():
 
         # Prepare input output dictionaries
         io_dict = util.prepare_io_dicts(total_vars)
-        # print("io dict: ", io_dict)
+        print("io dict: ", io_dict)
         # Obtain variable indices
         # print("out var list: ", output_varlist)
         input_var_idx, output_var_idx = util.get_var_indices(

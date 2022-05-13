@@ -32,7 +32,7 @@ for v in outs:
     else:
         clause += count
 
-f = open('simplified.skf', 'w')
+f = open('experiments/simplified.skf', 'w')
 f.write(ftext)
 f.close()
 print("Number of Chars: ", total_chars, "Number of Clauses: ", cl, clause)
