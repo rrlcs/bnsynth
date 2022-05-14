@@ -1,5 +1,6 @@
 import os
 import time
+from matplotlib.pyplot import cla
 import torch
 import subprocess
 import numpy as np
@@ -41,8 +42,25 @@ def get_formula_for_uncovered_data(training_samples, disagreed_index, input_var_
     return final_rem_formula[:-3], final_rem_inp_formula[:-3]
 
 
-def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogformula, num_of_inputs, input_var_idx, num_of_outputs,
-                output_var_idx, io_dict, Xvar, Yvar, PosUnate, NegUnate, start_time, training_samples, disagreed_indices, num_of_ce):
+def get_phi_prime_skf_list(skf_list, training_samples, disagreed_indices, input_var_idx, output_var_idx):
+    for i in range(len(skf_list)):
+        rem_formula, rem_inp_formula = get_formula_for_uncovered_data(
+            training_samples, disagreed_indices[i], input_var_idx, output_var_idx, current_output=i)
+        phi = skf_list[i]
+        if len(rem_formula) > 0 and len(rem_inp_formula) > 0:
+            print("remaining table added to partial formula")
+            phi_new = rem_formula + " & " + \
+                "(~("+rem_inp_formula+") | " + phi+")"
+        else:
+            phi_new = phi
+        print("final skolem function: ", phi_new, "phi: ", phi)
+        skf_list[i] = phi_new
+
+    return skf_list
+
+
+def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogformula, total_varsz3, num_of_inputs, input_var_idx, num_of_outputs,
+                output_var_idx, io_dict, io_dictz3, Xvar, Yvar, PosUnate, NegUnate, start_time, training_samples, disagreed_indices, num_of_ce):
 
     if args.cnf:
         if args.architecture == 1:
@@ -101,38 +119,29 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
             skf_dict = {}
             temp_dict = {}
             for i in range(len(model)):
-                print("i", i)
                 skolem_function, temp_dict_ = util.get_skolem_function_dnf(
-                    args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict, i)
+                    args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dictz3, i)
                 temp_dict.update(temp_dict_)
                 skf_dict[Yvar[i]] = temp_dict[skolem_function[0]]
-                print("aosifoinicashsiofjf", temp_dict[skolem_function[0]])
             skf_list = list(skf_dict.values())
-            print("skf_list: ", skf_list)
-            for i in range(len(skf_list)):
-                rem_formula, rem_inp_formula = get_formula_for_uncovered_data(
-                    training_samples, disagreed_indices[i], input_var_idx, output_var_idx, current_output=i)
-                phi = skf_list[i]
-                if len(rem_formula) > 0 and len(rem_inp_formula) > 0:
-                    print("remaining table added to partial formula")
-                    phi_new = rem_formula + " & " + \
-                        "(~("+rem_inp_formula+") | " + phi+")"
-                else:
-                    phi_new = phi
-                print("final skolem function: ", phi_new, "phi: ", phi)
-                skf_list[i] = phi_new
-            print("skf_list: ", skf_list)
+            skf_list = get_phi_prime_skf_list(
+                skf_list, training_samples, disagreed_indices, input_var_idx, output_var_idx)
+
+            # print("skf_list: ", skf_list)
             skfs = '\n'.join(skf_list)
             f = open('experiments/'+args.verilog_spec[:-2]+'.skf', 'w')
             f.write(skfs)
             f.close()
             path = 'data/benchmarks/custom_examples/'
             preparez3(args.verilog_spec,
-                      path, 2)
+                      path, num_of_outputs)
             cmd = 'python experiments/visitors/z3ClauseCounter.py'
 
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
             out, err = p.communicate()
+            print("++++++++++++++++++++++", out.decode("utf-8"))
+            clause_counts = out.decode("utf-8").split('\n')[1:-1]
+            print("clause counts: ", clause_counts)
             f = open('experiments/simplified.skf', 'r')
             simple_skf = f.read()
             f.close()
@@ -159,10 +168,10 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
 
     if args.postprocessor == 1:
         inputfile_name = args.verilog_spec.split('.v')[0]
-
+        # print("verilogformula: ", verilogformula)
         # Write the error formula in verilog
         util.write_error_formula1(inputfile_name, args.verilog_spec,
-                                  verilogformula, skf_list, temp_content, Xvar, Yvar, PosUnate, NegUnate)
+                                  verilogformula, skf_list, temp_content, Xvar, Yvar, total_varsz3, PosUnate, NegUnate)
 
         # sat call to errorformula:
         check, sigma, ret = util.verify(Xvar, Yvar, args.verilog_spec)
@@ -184,7 +193,8 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 datastring = str(args.verilog_spec)+", "+str(args.architecture)+", "+str(args.cnf)+", "+str(args.layers)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx)) + \
                     ", "+str(num_of_outputs)+", "+str(num_of_ce)+", "+'; '.join(skfunc)+", "+"Valid" + \
                     ", "+str(t)+", "+str(final_loss)+", " + \
-                    str(loss_drop)+", "+str(accuracy)+"\n"
+                    str(loss_drop)+", "+str(accuracy)+", " + \
+                    clause_counts[0]+", "+clause_counts[1]+"\n"
                 print(datastring)
                 f = open(args.output_file, "a")
                 f.write(datastring)

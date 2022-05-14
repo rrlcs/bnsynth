@@ -19,4 +19,4 @@ python3 run.py \
 --cnf=0 \
 --ce=1 \
 --load_saved_model=0 \
---output_file=experiments/final_results.csv
+--output_file=experiments/clause_counts.csv

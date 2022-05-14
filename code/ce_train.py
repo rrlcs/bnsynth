@@ -11,7 +11,7 @@ import time
 def ce_train_loop(
     args, training_samples, counter_example, inp_samples, num_of_vars,
     input_size, num_of_outputs, input_var_idx, output_var_idx,
-    io_dict, Xvar, Yvar, device, is_valid, verilogformula, PosUnate,
+    io_dict, io_dictz3, Xvar, Yvar, total_varsz3, device, is_valid, verilogformula, PosUnate,
     NegUnate, start_time
 ):
 
@@ -55,9 +55,9 @@ def ce_train_loop(
         # 3. Postprocess skolem function from GCLN
         skolem_functions, is_valid, counter_example = postprocessor.postprocess(
             args, model, final_accuracy, final_epochs, train_loss[-1],
-            train_loss[0]-train_loss[-1], verilogformula,
+            train_loss[0]-train_loss[-1], verilogformula, total_varsz3,
             input_size, input_var_idx, num_of_outputs, output_var_idx,
-            io_dict, Xvar, Yvar, PosUnate, NegUnate, start_time, training_samples, disagreed_indices, num_of_ce=loop
+            io_dict, io_dictz3, Xvar, Yvar, PosUnate, NegUnate, start_time, training_samples, disagreed_indices, num_of_ce=0
         )
 
         print("counter example learned skf: ", skolem_functions)

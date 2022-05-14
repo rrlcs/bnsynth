@@ -669,10 +669,10 @@ class utils():
         literals = []
         neg_literals = []
         for i in input_var_idx:
-            # literals.append(io_dict.get(i))
-            # neg_literals.append("~"+io_dict.get(i))
-            literals.append("i"+str(i))
-            neg_literals.append("~i"+str(i))
+            literals.append(io_dict.get(i))
+            neg_literals.append("~"+io_dict.get(i))
+            # literals.append("i"+str(i))
+            # neg_literals.append("~i"+str(i))
 
         clause = np.array(literals + neg_literals)
 
@@ -889,7 +889,7 @@ class utils():
         # print("outtttttt", output_varlist)
         Xvar_tmp, Yvar_tmp, total_vars = self.get_temporary_variables(
             verilog, output_varlist)
-        total_varsz3 = total_vars
+        total_varsz3 = [e.replace("_", "") for e in total_vars]
         # print("totalllllll", total_vars)
         # total_vars = ["i"+e.split("_")[1] for e in total_vars if "_" in e]
         total_vars = ["i"+e[1:].replace("_", "") for e in total_vars]
@@ -1171,7 +1171,7 @@ class utils():
 
         return candidateskf
 
-    def create_skolem_function(self, inputfile_name, candidateskf, temp_content, Xvar, Yvar):
+    def create_skolem_function(self, inputfile_name, candidateskf, temp_content, Xvar, Yvar, total_varsz3):
         # we have candidate skolem functions for every y in Y
         # Now, lets generate Skolem formula F(X,Y') : input X and output Y'
         tempOutputFile = tempfile.gettempdir() + \
@@ -1187,19 +1187,20 @@ class utils():
         itr = 1
         wtlist = []
         for var in range(len(Xvar) + len(Yvar)):
-            inputstr += "i%s, " % (var)
+            inputstr += "%s, " % (total_varsz3[var])
             if var in Xvar:
-                declarestr += "input i%s;\n" % (var)
+                declarestr += "input %s;\n" % (total_varsz3[var])
             if var in Yvar:
                 flag = 0
-                declarestr += "input i%s;\n" % (var)
-                wirestr += "wire wi%s;\n" % (var)
-                assignstr += 'assign wi%s = (' % (var)
+                declarestr += "input %s;\n" % (total_varsz3[var])
+                wirestr += "wire w%s;\n" % (total_varsz3[var])
+                assignstr += 'assign w%s = (' % (total_varsz3[var])
                 if var in candidateskf:
                     temp = candidateskf[var].replace(
                         " 1 ", " one ").replace(" 0 ", " zero ")
                 assignstr += temp + ");\n"
-                outstr += "(~(wi%s ^ i%s)) & " % (var, var)
+                outstr += "(~(w%s ^ %s)) & " % (
+                    total_varsz3[var], total_varsz3[var])
                 if itr % 10 == 0:
                     flag = 1
                     outstr = outstr.strip("& ")
@@ -1384,11 +1385,11 @@ class utils():
         error_content += verilog_formula
         return error_content
 
-    def write_error_formula1(self, inputfile_name, verilog, verilog_formula, skfunc, temp_content, Xvar, Yvar, pos_unate, neg_unate):
+    def write_error_formula1(self, inputfile_name, verilog, verilog_formula, skfunc, temp_content, Xvar, Yvar, total_varsz3, pos_unate, neg_unate):
         candidateskf = self.prepare_candidateskf(
             skfunc, Yvar, pos_unate, neg_unate)
         self.create_skolem_function(
-            inputfile_name, candidateskf, temp_content, Xvar, Yvar)
+            inputfile_name, candidateskf, temp_content, Xvar, Yvar, total_varsz3)
         # self.createSkolem(candidateskf, Xvar, Yvar, [], [], inputfile_name)
         error_content, refine_var_log = self.create_error_formula(
             Xvar, Yvar, verilog_formula)
