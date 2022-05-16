@@ -71,33 +71,20 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                     args, model[i], num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dict, i)
                 temp_dict.update(temp_dict_)
                 skf_dict[Yvar[i]] = temp_dict[skolem_function[0]]
-                print("aosifoinicashsiofjf", temp_dict[skolem_function[0]])
             skf_list = list(skf_dict.values())
-            print("skf_list: ", skf_list)
-            for i in range(len(skf_list)):
-                rem_formula, rem_inp_formula = get_formula_for_uncovered_data(
-                    training_samples, disagreed_indices[i], input_var_idx, output_var_idx, current_output=i)
-                phi = skf_list[i]
-                if len(rem_formula) > 0 and len(rem_inp_formula) > 0:
-                    print("remaining table added to partial formula")
-                    phi_new = rem_formula + " & " + \
-                        "(~("+rem_inp_formula+") | " + phi+")"
-                else:
-                    phi_new = phi
-                print("final skolem function: ", phi_new, "phi: ", phi)
-                skf_list[i] = phi_new
-            print("skf_list: ", skf_list)
-            skfs = '\n'.join(skf_list)  # .replace('i', 'i_')
-            f = open('experiments/'+args.verilog_spec[:-2]+'.skf', 'w')
+            skf_list = get_phi_prime_skf_list(
+                skf_list, training_samples, disagreed_indices, input_var_idx, output_var_idx)
+
+            skfs = '\n'.join(skf_list)
+            f = open('experiments/bnsynth_skfs/' +
+                     args.verilog_spec[:-2]+'.skf', 'w')
             f.write(skfs)
             f.close()
             path = 'data/benchmarks/custom_examples/'
             preparez3(args.verilog_spec,
                       path, 2)
-            # importlib.reload()
-            # os.system("python experiments/visitors/z3ValidityChecker.py")
-            cmd = 'python experiments/visitors/z3ValidityChecker.py'
 
+            cmd = 'python experiments/visitors/z3ClauseCounter.py'
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
             out, err = p.communicate()
             print(out.decode('UTF-8'))
@@ -127,9 +114,10 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
             skf_list = get_phi_prime_skf_list(
                 skf_list, training_samples, disagreed_indices, input_var_idx, output_var_idx)
 
-            # print("skf_list: ", skf_list)
             skfs = '\n'.join(skf_list)
-            f = open('experiments/'+args.verilog_spec[:-2]+'.skf', 'w')
+            bnsynth_time = time.time() - start_time
+            f = open('experiments/bnsynth_skfs/' +
+                     args.verilog_spec[:-2]+'.skf', 'w')
             f.write(skfs)
             f.close()
             path = 'data/benchmarks/custom_examples/'
@@ -140,8 +128,15 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
             out, err = p.communicate()
             print("++++++++++++++++++++++", out.decode("utf-8"))
-            clause_counts = out.decode("utf-8").split('\n')[1:-1]
-            print("clause counts: ", clause_counts)
+            inp_vars = [total_varsz3[i].replace('_', '') for i in Xvar]
+            print("inp_vars: ", inp_vars)
+            ftext = out.decode("utf-8").split('\n')[1]
+            num_inputs_bnsynth = 0
+            for v in inp_vars:
+                if v in ftext:
+                    num_inputs_bnsynth += 1
+            bnsynth_clause_counts = out.decode("utf-8").split('\n')[2:-1]
+            print("BNSynth clause counts: ", bnsynth_clause_counts)
             f = open('experiments/simplified.skf', 'r')
             simple_skf = f.read()
             f.close()
@@ -176,6 +171,30 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
         # sat call to errorformula:
         check, sigma, ret = util.verify(Xvar, Yvar, args.verilog_spec)
         print(check, ret)
+        manthan_start_time = time.time()
+        cmd1 = 'python manthan.py --seed 1 --varlist data/benchmarks/custom_examples/Yvarlist/' + \
+            args.verilog_spec[:-2]+'_varstoelim.txt ' + \
+            '--verilog data/benchmarks/custom_examples/'+args.verilog_spec
+
+        p = subprocess.Popen(cmd1, stdout=subprocess.PIPE, shell=True)
+        out, err = p.communicate()
+        manthan_end_time = time.time()
+        manthan_time = manthan_end_time - manthan_start_time
+        print("Manthan outputs: ", out.decode('UTF-8'))
+
+        cmd2 = 'python experiments/visitors/z3ClauseCounter.py'
+
+        p = subprocess.Popen(cmd2, stdout=subprocess.PIPE, shell=True)
+        out, err = p.communicate()
+        print("++++++++++++++++++++++", out.decode("utf-8"))
+        ftext = out.decode("utf-8").split('\n')[1]
+        num_inputs_manthan = 0
+        for v in inp_vars:
+            if v in ftext:
+                num_inputs_manthan += 1
+        manthan_clause_counts = out.decode("utf-8").split('\n')[2:-1]
+        print("Manthan clause counts: ", manthan_clause_counts)
+
         is_valid = 0
         counter_examples = []
         if check == 0:
@@ -192,9 +211,13 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 t = time.time() - start_time
                 datastring = str(args.verilog_spec)+", "+str(args.architecture)+", "+str(args.cnf)+", "+str(args.layers)+", "+str(epochs)+", "+str(args.batch_size)+", "+str(args.learning_rate)+", "+str(args.K)+", "+str(len(input_var_idx)) + \
                     ", "+str(num_of_outputs)+", "+str(num_of_ce)+", "+'; '.join(skfunc)+", "+"Valid" + \
-                    ", "+str(t)+", "+str(final_loss)+", " + \
+                    ", "+str(bnsynth_time)+", "+str(manthan_time)+", "+str(final_loss)+", " + \
                     str(loss_drop)+", "+str(accuracy)+", " + \
-                    clause_counts[0]+", "+clause_counts[1]+"\n"
+                    bnsynth_clause_counts[0]+", "+bnsynth_clause_counts[1]+", " + \
+                    bnsynth_clause_counts[2]+", "+bnsynth_clause_counts[3]+", "+str(num_inputs_bnsynth)+", " + \
+                    manthan_clause_counts[0]+", "+manthan_clause_counts[1]+", " + \
+                    manthan_clause_counts[2]+", " + \
+                    manthan_clause_counts[3]+", "+str(num_inputs_manthan)+"\n"
                 print(datastring)
                 f = open(args.output_file, "a")
                 f.write(datastring)

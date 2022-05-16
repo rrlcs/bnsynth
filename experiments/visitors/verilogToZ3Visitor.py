@@ -21,9 +21,7 @@ class verilogVisitor(Verilog2001Visitor):
         filename = self.verilog_spec_location+"Yvarlist/"+filename
         f = open(filename, "r")
         output = f.read()
-        print("output")
         output_vars = output.split("\n")[:-1]
-        print("************** output vars **********", output_vars)
         self.visit(ctx.module_identifier())
         self.visit(ctx.list_of_ports())
         z3filecontent = ""
@@ -44,9 +42,13 @@ class verilogVisitor(Verilog2001Visitor):
                     aux += self.visit(ctx.module_item()[i]) + "\n	"
             if inp and var_out:
                 rinp = inp.split(",")
+                num_inps = len(rinp)
                 rinp = " ".join(rinp)
                 rinp = rinp.replace("  ", " ")
-                input_dec = inp[:-2] + " = Bools('" + (rinp[:-1]) + "')"
+                if num_inps > 2:
+                    input_dec = inp[:-2] + " = Bools('" + (rinp[:-1]) + "')"
+                else:
+                    input_dec = inp[:-2] + " = Bool('" + (rinp[:-1]) + "')"
                 var_dec = "	"+input_dec+"\n	"+aux+"\n	"+var_out
             if ctx.module_item()[i].module_or_generate_item():
                 if ctx.module_item()[i].module_or_generate_item().continuous_assign():
@@ -65,30 +67,13 @@ class verilogVisitor(Verilog2001Visitor):
             assign += output_vars[i]+" = nn_out"+str(i)+"\n	"
             out_list += output_vars[i] + ", "
         out_list = out_list[:-2]+"]"
-        print(out_list)
         z3constraint2 = "	"+eq
-        # ov = " ".join(output_vars)
-        exists_constraint = ""
-        zi = ""
-        for i in range(len(output_vars)):
-            zi += "z"+str(i)+", "
-        exists_constraint = ""
-        # exists_constraint2 = "z2 = Exists("+output_vars[1]+", out)"
-        # exists_constraint = exists_constraint1 + "\n	" + exists_constraint2
 
-        quant_free_constraint = "	z" + \
-            str(len(output_vars))+" = "+self.output_var
         func_def = "def get_z3formula():\n"
         z3filecontent = func_def+var_dec+"\n"+z3constraint1+"\n"+z3constraint2 + \
-            "\n	"+out_list+"\n	return outs\n"  # +"\n	"+exists_constraint+"\n"
-        # z3filecontent += assign+"\n"+z3constraint2+"\n"+quant_free_constraint
-        # if len(output_vars) > 1:
-        # 	anded = "And("+zi[:-2]+")"
-        # else:
-        # 	anded = "And("+zi[:-2]+", True)"
-        # formula = "	formula = z==z"+str(len(output_vars))
-        # z3filecontent += "\n"+formula+"\n	all_counterexamples = generate_all_counterexamples(formula)"+"\n	print('all_counterexamples', all_counterexamples)\n	if len(all_counterexamples) == 0:\n		return True, all_counterexamples\n	else:\n		return False, all_counterexamples"
+            "\n	"+out_list+"\n	return outs\n"
         z3filecontent = z3filecontent.replace("_", "")
+
         return z3filecontent
 
     def visitModule_identifier(self, ctx: Verilog2001Parser.Module_identifierContext):
@@ -210,7 +195,10 @@ class verilogVisitor(Verilog2001Visitor):
             lv += i
             if i == " ":
                 lv += ","
-        return lv[:-2]+"" + " = " + "Bool('" + outs[:-1]+"')"
+        if len(outs[:-1]) > 1:
+            return lv[:-2]+"" + " = " + "Bools('" + outs[:-1]+"')"
+        else:
+            return lv[:-2]+"" + " = " + "Bool('" + outs[:-1]+"')"
 
     def visitList_of_port_identifiers(self, ctx: Verilog2001Parser.List_of_port_identifiersContext):
         ids = ""

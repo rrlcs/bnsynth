@@ -1,1 +1,1 @@
-Or(And(i0,i1),And(i0,Not(i0),Not(i1)),And(i0,Not(i1)),And(i1,Not(i0),Not(i1)),And(Not(i0),Not(i1)))
+Or(And(i0,i1),And(i0,Not(i1)))

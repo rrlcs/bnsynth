@@ -7,7 +7,7 @@ from experiments.visitors.Verilog2001Parser import Verilog2001Parser
 from experiments.visitors.verilogToZ3Visitor import verilogVisitor
 
 
-def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
+def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs, manthan=0):
     '''
     Input: verilog file
     Output: z3py equivalent of verilog file
@@ -27,9 +27,7 @@ def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
     tree = parser.module_declaration()
     visitor = verilogVisitor(
         verilog_spec, verilog_spec_location, num_of_ouputs)
-    print("hello1")
     z3filecontent = visitor.visit(tree)
-    print("hello")
     with open('experiments/visitors/templateZ3Checker.py', 'r') as file:
         filedata = file.read()
         file.close()
@@ -39,7 +37,10 @@ def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
         file.close()
 
     # Parse the NN output and Generate Z3Py Format
-    f = open('experiments/'+verilog_spec[:-2]+".skf", "r")
+    if manthan:
+        f = open("experiments/bnsynth_skfs/"+verilog_spec[:-9]+".skf", "r")
+    else:
+        f = open('experiments/bnsynth_skfs/'+verilog_spec[:-2]+".skf", "r")
     data = f.read()
     data = data.split("\n")
     sys.setrecursionlimit(2000)
@@ -55,18 +56,21 @@ def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs):
         with open('experiments/visitors/z3ClauseCounter.py', 'r') as file:
             filedata = file.read()
             file.close()
-        text = "$$"+str(i)
-        # print("text {}, nnout {} ".format(text, nnOut))
+        text = "($$"+str(i)+")"
         nnOut = str(nnOut).replace('one', 'True')
         nnOut = str(nnOut).replace('zero', 'False')
-        filedata = filedata.replace(text, nnOut)
-        # filedata = replace_preref(filedata)
+
+        if manthan:
+            filedata = filedata.replace(text, '()')
+        else:
+            filedata = filedata.replace(text, nnOut)
+
         with open('experiments/visitors/z3ClauseCounter.py', 'w') as file:
             file.write(filedata)
             file.close()
 
 
 if __name__ == "__main__":
-    path = '../../data/benchmarks/custom_examples/'
-    preparez3('sample1.v',
-              path, 2)
+    path = 'data/benchmarks/custom_examples/'
+    preparez3('mirror_20_20.v',
+              path, 20)
