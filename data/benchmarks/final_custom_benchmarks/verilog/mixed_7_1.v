@@ -1,0 +1,21 @@
+module formula(i_0,i_1,i_2,i_3,i_4,i_5,i_6,out);
+	input i_0;
+	input i_1;
+	input i_2;
+	input i_3;
+	input i_4;
+	input i_5;
+	input i_6;
+	wire w1;
+	wire w2;
+	wire w3;
+	wire w4;
+	wire w5;
+	output out;
+	assign w1 = i_0 ^ i_1;
+	assign w2 = w1 ^ i_2;
+	assign w3 = w2 & i_3;
+	assign w4 = w3 & i_4;
+	assign w5 = w4 | i_5;
+	assign out = w5 ^ i_6;
+endmodule
