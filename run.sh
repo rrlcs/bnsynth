@@ -6,7 +6,7 @@ python3 run.py \
 --tnorm_name=product \
 --learning_rate=.01 \
 --run_for_all_outputs=1 \
---verilog_spec_location=custom_examples \
+--verilog_spec_location=final_custom_benchmarks/verilog \
 --verilog_spec=$2 \
 --training_size=10000 \
 --epochs=$3 \

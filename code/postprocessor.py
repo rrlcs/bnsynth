@@ -120,7 +120,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                      args.verilog_spec[:-2]+'.skf', 'w')
             f.write(skfs)
             f.close()
-            path = 'data/benchmarks/custom_examples/'
+            path = 'data/benchmarks/'+args.verilog_spec_location+"/"
             preparez3(args.verilog_spec,
                       path, num_of_outputs)
             cmd = 'python experiments/visitors/z3ClauseCounter.py'

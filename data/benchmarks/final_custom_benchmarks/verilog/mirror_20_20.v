@@ -22,5 +22,5 @@ module formula(i_0,i_1,i_2,i_3, i_4, i_5, i_6, i_7, i_8, i_9, i_10,i_11,i_12,i_1
 	assign w18 = (~i_17 | i_37) & (i_17 | ~i_37);
 	assign w19 = (~i_18 | i_38) & (i_18 | ~i_38);
 	assign w20 = (~i_19 | i_39) & (i_19 | ~i_39);
-	assign out = w1 & w2 & w3 & w4 & w5 & w6 & w7 & w8 & w9 & w10 & w11 & w12 & w13 & w14 & w15 & w16 & w17 & w18 & w19 & w20;
+	assign out = (((((((((((((((((((w1 & w2) & w3) & w4) & w5) & w6) & w7) & w8) & w9) & w10) & w11) & w12) & w13) & w14) & w15) & w16) & w17) & w18) & w19) & w20);
 endmodule
