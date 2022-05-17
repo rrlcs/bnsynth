@@ -172,9 +172,9 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
         check, sigma, ret = util.verify(Xvar, Yvar, args.verilog_spec)
         print(check, ret)
         manthan_start_time = time.time()
-        cmd1 = 'python manthan.py --seed 1 --varlist data/benchmarks/custom_examples/Yvarlist/' + \
+        cmd1 = 'python manthan.py --seed 1 --varlist data/benchmarks/final_custom_benchmarks/verilog/Yvarlist/' + \
             args.verilog_spec[:-2]+'_varstoelim.txt ' + \
-            '--verilog data/benchmarks/custom_examples/'+args.verilog_spec
+            '--verilog data/benchmarks/final_custom_benchmarks/verilog/'+args.verilog_spec
 
         p = subprocess.Popen(cmd1, stdout=subprocess.PIPE, shell=True)
         out, err = p.communicate()

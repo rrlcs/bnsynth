@@ -11,16 +11,19 @@ dnf = Repeat(OrElse(Tactic('split-clause'),
 cnf = Tactic('tseitin-cnf')
 
 def getz3formula():
-	i0 ,i1 ,i2 ,i3 ,i4 ,i5 = Bools('i0 i1 i2 i3 i4 i5')
+	i0 ,i1 ,i2 ,i3 ,i4 = Bools('i0 i1 i2 i3 i4')
+	w1,w2,w3 = Bools('w1 w2 w3')
 	
 	out = Bools('out')
-	i2 = Or((And((i0),(i1),Not(i0),Not(i1),)),(And((i0),(i1),Not(i1),)),)
-	i3 = Or((And((i0),(i1),Not(i0),)),(And((i0),Not(i0),)),)
-	i4 = Or((And((i0),Not(i0),Not(i1),)),(And((i1),Not(i1),)),)
-	i5 = Or((And((i0),(i1),)),(And(Not(i0),Not(i1),)),)
+	i2 = Or((And((i0),(i1),Not(i0),Not(i1),)),(And((i0),Not(i0),Not(i1),)),)
+	i3 = Or((And((i0),(i1),Not(i0),Not(i1),)),(And((i0),(i1),Not(i1),)),(And((i0),Not(i0),Not(i1),)),)
+	i4 = Or((And((i0),(i1),Not(i0),Not(i1),)),(And((i1),Not(i0),Not(i1),)),(And(Not(i0),Not(i1),)),)
 	
-	out = (Xor((Xor((Xor((Xor((Xor((i0),(i1),)),(i2),)),(i3),)),(i4),)),(i5),))
-	outs = [i2, i3, i4, i5]
+	w1 = (Or((i0),(i1),))
+	w2 = (And((i2),(i3),))
+	w3 = (Or((w1),(w2),))
+	out = (Xor((w3),(i4),))
+	outs = [i2, i3, i4]
 	return outs
 
 

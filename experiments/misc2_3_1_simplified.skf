@@ -1,0 +1,1 @@
+Or(Not(i2),And(Not(i0),Not(i2)),And(Not(i1),Not(i2)))

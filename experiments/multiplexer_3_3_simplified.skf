@@ -1,0 +1,1 @@
+And(i0,Not(i1),Not(i2))And(i1,Not(i2))Or(i2,And(i1,i2),And(i2,Not(i0)))
