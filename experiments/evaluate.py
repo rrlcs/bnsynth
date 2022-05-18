@@ -43,8 +43,9 @@ data = pd.read_csv("experiments/raw_char_comparison_results.csv")
 files_done = list(data['Spec'])
 verilog_files = [vfile for vfile in verilog_files if vfile not in files_done]
 
-print("Num of files: ", len(verilog_files))
+print("Num of files: ", len(verilog_files), verilog_files)
+exit()
 for name in verilog_files:
     print("Current File: ", name)
-    subprocess.run(["timeout", "200", "./run.sh", "0",
+    subprocess.run(["timeout", "400", "./run.sh", "0",
                     name, "1", "50"])

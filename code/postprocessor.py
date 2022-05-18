@@ -80,7 +80,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                      args.verilog_spec[:-2]+'.skf', 'w')
             f.write(skfs)
             f.close()
-            path = 'data/benchmarks/custom_examples/'
+            path = 'data/benchmarks/'+args.verilog_spec_location+"/"
             preparez3(args.verilog_spec,
                       path, 2)
 
@@ -160,7 +160,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
     temp_content = var_def + assigns
     # print(var_def+assigns)
     # print(assigns)
-
+    # exit()
     if args.postprocessor == 1:
         inputfile_name = args.verilog_spec.split('.v')[0]
         # print("verilogformula: ", verilogformula)
@@ -182,6 +182,10 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
         manthan_time = manthan_end_time - manthan_start_time
         print("Manthan outputs: ", out.decode('UTF-8'))
 
+        path = 'experiments/manthan_skfs/'
+        preparez3(args.verilog_spec[:-2]+'_skolem.v',
+                  path, num_of_outputs, manthan=1)
+        # exit()
         cmd2 = 'python experiments/visitors/z3ClauseCounter.py'
 
         p = subprocess.Popen(cmd2, stdout=subprocess.PIPE, shell=True)
