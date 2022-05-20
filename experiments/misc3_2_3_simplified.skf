@@ -1,1 +1,1 @@
-FalseFalseOr(Not(i1),And(Not(i1),Not(i2)))
+FalseFalseNot(i1)

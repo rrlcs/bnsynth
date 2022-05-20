@@ -1,1 +1,1 @@
-FalseFalseOr(And(i0,i1),And(Not(i0),Not(i1)))
+i1i1And(Or(i0,Not(i1)),Or(i1,Not(i0)))

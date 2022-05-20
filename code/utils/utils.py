@@ -533,8 +533,10 @@ class utils():
         literals = []
         neg_literals = []
         for i in input_var_idx:
-            literals.append("i"+str(i))
-            neg_literals.append("~i"+str(i))
+            literals.append(io_dict.get(i))
+            neg_literals.append("~"+io_dict.get(i))
+            # literals.append("i"+str(i))
+            # neg_literals.append("~i"+str(i))
 
         clause = np.array(literals + neg_literals)
 

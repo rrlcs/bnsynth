@@ -71,6 +71,6 @@ def preparez3(verilog_spec, verilog_spec_location, num_of_ouputs, manthan=0):
 
 
 if __name__ == "__main__":
-    path = 'experiments/manthan_skfs/'
-    preparez3('adder_4_9_skolem.v',
-              path, 9, 1)
+    path = 'data/benchmarks/final_custom_benchmarks/verilog/'
+    preparez3('mirror_10_10.v',
+              path, 10)

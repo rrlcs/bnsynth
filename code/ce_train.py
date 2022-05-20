@@ -57,7 +57,7 @@ def ce_train_loop(
             args, model, final_accuracy, final_epochs, train_loss[-1],
             train_loss[0]-train_loss[-1], verilogformula, total_varsz3,
             input_size, input_var_idx, num_of_outputs, output_var_idx,
-            io_dict, io_dictz3, Xvar, Yvar, PosUnate, NegUnate, start_time, training_samples, disagreed_indices, num_of_ce=0
+            io_dict, io_dictz3, Xvar, Yvar, PosUnate, NegUnate, start_time, training_samples, disagreed_indices, num_of_ce=loop
         )
 
         print("counter example learned skf: ", skolem_functions)

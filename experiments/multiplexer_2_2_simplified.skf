@@ -1,1 +1,1 @@
-Not(i1)i1
+Not(i1)Or(i1,Not(i0))
