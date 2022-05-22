@@ -1,1 +1,1 @@
-FalseNot(i0)And(Not(i0),Not(i1))
+Not(i0)i0And(Not(i0),Not(i1))

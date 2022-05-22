@@ -41,12 +41,12 @@ verilog_files = [files for files in verilog_files if files.count(".v") > 0]
 # print((verilog_files))
 
 # exit()
-data = pd.read_csv("experiments/results_new_cnf.csv")
+data = pd.read_csv("experiments/results_with_reg_cnf.csv")
 files_done = list(data['Spec'])
 verilog_files = [vfile for vfile in verilog_files if vfile not in files_done]
 
 print("Num of files: ", len(verilog_files), verilog_files)
-# exit()
+exit()
 
 
 choices = [(1, 60), (5, 120), (20, 120), (50, 180), (500, 300), (1000, 600)]

@@ -19,4 +19,4 @@ python3 run.py \
 --cnf=1 \
 --ce=1 \
 --load_saved_model=0 \
---output_file=experiments/results_new_cnf.csv
+--output_file=experiments/results_with_reg_cnf.csv
