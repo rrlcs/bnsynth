@@ -11,25 +11,15 @@ dnf = Repeat(OrElse(Tactic('split-clause'),
 cnf = Tactic('tseitin-cnf')
 
 def getz3formula():
-	i0 ,i1 ,i2 ,i3 ,i4 = Bools('i0 i1 i2 i3 i4')
-	n9,n10,n11,n12,n13,n14,n15,n16,n17 = Bools('n9 n10 n11 n12 n13 n14 n15 n16 n17')
+	i0 ,i1 = Bools('i0 i1')
 	
-	i5 ,i6 = Bools('i5 i6')
-	i5 = ()
-	i6 = ()
+	i2 ,i3 = Bools('i2 i3')
+	i2 = ()
+	i3 = ()
 	
-	n9 = And(Not(i1),(i2),)
-	n10 = And((i0),(n9),)
-	n11 = And((i1),Not(i3),)
-	n12 = And(Not(n10),Not(n11),)
-	n13 = And((i1),(i3),)
-	n14 = And(Not(i2),(n13),)
-	n15 = And((n12),Not(n14),)
-	n16 = And((i2),(n13),)
-	n17 = And((i0),(n16),)
-	i5 = Or(Not(n15),(n17),)
-	i6 = (True)
-	outs = [i5, i6]
+	i3 = (True)
+	i2 = (i0)
+	outs = [i2, i3]
 	return outs
 
 

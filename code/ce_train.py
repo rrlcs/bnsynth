@@ -1,7 +1,6 @@
 import torch
 import numpy as np
 from code.utils.utils import util
-from data.dataLoader import dataLoader
 import code.postprocessor as postprocessor
 import code.preprocessor as preprocessor
 import code.training as training
@@ -42,10 +41,10 @@ def ce_train_loop(
 
         training_set, validation_set = util.get_train_test_split(
             training_samples)
-        train_loader = dataLoader(training_set, args.training_size, args.P, input_var_idx,
-                                  output_var_idx, num_of_outputs, args.threshold, args.batch_size)
-        validation_loader = dataLoader(validation_set, args.training_size, args.P, input_var_idx,
+        train_loader = util.dataLoader(training_set, args.training_size, args.P, input_var_idx,
                                        output_var_idx, num_of_outputs, args.threshold, args.batch_size)
+        validation_loader = util.dataLoader(validation_set, args.training_size, args.P, input_var_idx,
+                                            output_var_idx, num_of_outputs, args.threshold, args.batch_size)
 
         # 2. Feed samples into GCLN
         model, train_loss, valid_loss, final_accuracy, final_epochs, disagreed_indices = training.trainer(

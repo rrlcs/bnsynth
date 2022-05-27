@@ -30,23 +30,25 @@ verilog_files = [
     "xnor_implies_8_1.v"
 ]
 
-verilog_path = "data/benchmarks/final_custom_benchmarks/verilog"
-# varstoelim_path = "./verilog/Yvarlist"
+# verilog_path = "data/benchmarks/final_custom_benchmarks/verilog"
+# # varstoelim_path = "./verilog/Yvarlist"
 
-verilog_files = [f for f in listdir(
-    verilog_path) if isfile(join(verilog_path, f))]
-verilog_files = [files for files in verilog_files if files.count(".v") > 0]
+# verilog_files = [f for f in listdir(
+#     verilog_path) if isfile(join(verilog_path, f))]
+# verilog_files = [files for files in verilog_files if files.count(".v") > 0]
 # verilog_files = ['xor_2_4.v', 'misc4_2_3.v', 'xor_5_3.v', 'xor_6_10.v', 'multiplexer_1_1.v', 'xor_1_3.v', 'xor_4_2.v', 'xnor_7_1.v', 'misc2_3_1.v', 'misc1_2_1.v', 'xor_2_2.v', 'xor_8_8.v', 'xor_3_1.v', 'xor_5_1.v', 'xor_3_2.v', 'xor_2_3.v', 'xor_8_1.v', 'xor_4_1.v', 'mirror_20_20.v', 'misc5_6_1.v', 'xor_5_2.v',
 #                  'misc3_2_3.v', 'xor_1_2.v', 'xnor_6_2.v', 'xor_3_3.v', 'xor_6_26.v', 'xor-implies_8_8.v', 'xor_7_1.v', 'xor_6_2.v', 'mirror_10_10.v', 'multiplexer_3_3.v', 'xor_6_1.v', 'mirror_5_5.v', 'xor-implies_7_1.v', 'xor_1_4.v', 'adder_4_9.v', 'xor_4_3.v', 'multiplexer_2_2.v', 'xor-implies_1_1.v', 'xor_1_5.v', 'xnor-implies_7_1.v']
 # print((verilog_files))
 
+verilog_files = ['LUT1_2_2.v', 'LUT2_5_2.v', 'LUT3_5_2.v', 'LUT4_5_2.v', 'LUT5_5_2.v', 'LUT6_32_1.v', 'LUT7_32_1.v', 'LUT8_2_2.v']
+
 # exit()
-data = pd.read_csv("experiments/results_dnf_arch1.csv")
+data = pd.read_csv("experiments/output_files/lut.csv")
 files_done = list(data['Spec'])
 verilog_files = [vfile for vfile in verilog_files if vfile not in files_done]
 
 print("Num of files: ", len(verilog_files), verilog_files)
-exit()
+# exit()
 
 
 choices = [(1, 60), (5, 120), (20, 120), (50, 180), (500, 300), (1000, 600)]
@@ -60,8 +62,7 @@ for name in verilog_files:
         print("choice: ", i)
         max_time = choices[i][1]
         K = choices[i][0]
-        cmd = "timeout "+str(max_time)+" ./run.sh 0 " + name + \
-            " 1 "+str(K)+" 1 "+" experiments/results_dnf_arch1.csv"
+        cmd = "timeout "+str(max_time)+" ./bnsynth.sh " + name + " " + str(K)+" cnf "+"1"
         try:
             output = subprocess.check_output(
                 cmd, stderr=subprocess.STDOUT, shell=True,

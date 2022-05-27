@@ -4,7 +4,6 @@ from code.utils.utils import util
 
 import numpy as np
 import torch
-from data.dataLoader import dataLoader
 from art import *
 
 
@@ -15,13 +14,18 @@ def preprocess():
     Further obtains required information from the specification F(X, Y)
     '''
 
-    a = text2art("BNSYNTH")
-    print(a)
-    print('____A Bounded Boolean Functional Synthesis Tool using GCLN____\n')
-
     # Get Argument Parser
     parser = util.make_arg_parser()
     args = parser.parse_args()
+
+    a = text2art("BNSYNTH")
+    print(a)
+    print('____A Bounded Boolean Functional Synthesis Tool using GCLN____\n')
+    print('Benchmark: ', args.verilog_spec)
+    print('Bound on Clauses (K): ', args.K)
+    print('Format: ', args.cnf.upper())
+    print('Architecture: ', args.architecture)
+    # input()
 
     # Set device
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -138,14 +142,14 @@ def preprocess():
             num_of_outputs = 1
 
         # load data
-        train_loader = dataLoader(training_set, args.training_size, args.P, input_var_idx,
-                                  output_var_idx, num_of_outputs, args.threshold, args.batch_size)
-        validation_loader = dataLoader(validation_set, args.training_size, args.P, input_var_idx,
+        train_loader = util.dataLoader(training_set, args.training_size, args.P, input_var_idx,
                                        output_var_idx, num_of_outputs, args.threshold, args.batch_size)
+        validation_loader = util.dataLoader(validation_set, args.training_size, args.P, input_var_idx,
+                                            output_var_idx, num_of_outputs, args.threshold, args.batch_size)
     else:
         # Manthan 2 code
         Xvar, Yvar, qdimacs_list = util.parse(
-            "data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
+            "benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
 
         all_var = Xvar + Yvar
         total_vars = ["i"+str(v) for v in all_var]
@@ -155,7 +159,7 @@ def preprocess():
         cnffile_name = tempfile.gettempdir()+"/"+inputfile_name+".cnf"
 
         cnfcontent = util.convertcnf(
-            "data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, cnffile_name)
+            "benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, cnffile_name)
         cnfcontent = cnfcontent.strip("\n")+"\n"
 
         start_t = time.time()
@@ -201,8 +205,8 @@ def preprocess():
         # f.close()
 
         verilogformula = util.convert_verilog(
-            "data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, 0)
-        inputfile_name = ("data/benchmarks/"+args.verilog_spec_location +
+            "benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, 0)
+        inputfile_name = ("benchmarks/"+args.verilog_spec_location +
                           "/"+args.verilog_spec).split('/')[-1][:-8]
         verilog = inputfile_name+".v"
 
@@ -274,10 +278,10 @@ def preprocess():
         else:
             num_of_outputs = 1
 
-        train_loader = dataLoader(training_set, args.training_size, args.P, input_var_idx,
-                                  output_var_idx, num_of_outputs, args.threshold, args.batch_size)
-        validation_loader = dataLoader(validation_set, args.training_size, args.P, input_var_idx,
+        train_loader = util.dataLoader(training_set, args.training_size, args.P, input_var_idx,
                                        output_var_idx, num_of_outputs, args.threshold, args.batch_size)
+        validation_loader = util.dataLoader(validation_set, args.training_size, args.P, input_var_idx,
+                                            output_var_idx, num_of_outputs, args.threshold, args.batch_size)
 
     return args, training_samples, train_loader, validation_loader, input_size, num_of_outputs,\
         num_of_vars, input_var_idx, output_var_idx, io_dict, io_dictz3, Xvar,\

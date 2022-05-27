@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import torch
 from numpy import count_nonzero
+from torch.utils.data import DataLoader, TensorDataset
 
 
 class cexmodels:
@@ -649,6 +650,15 @@ class utils():
 
         return skfs, temp_dict
 
+    def dataLoader(self, training_samples, training_size, P, input_var_idx, output_var_idx, num_of_outputs, threshold, batch_size):
+        # Define training data loader
+        inps = training_samples[:, input_var_idx]
+        tgts = training_samples[:, output_var_idx]
+        dataset = TensorDataset(inps, tgts)
+        train_loader = DataLoader(
+            dataset, batch_size=batch_size, shuffle=False)
+        return train_loader
+
     # MANTHAN MODULES FOR VERILOG INPUT FILES:
 
     def prepare_file_names(self, verilog_spec, verilog_spec_location):
@@ -657,9 +667,9 @@ class utils():
         '''
 
         filename = verilog_spec.split(".v")[0]+"_varstoelim.txt"
-        varlistfile = "data/benchmarks/" +\
+        varlistfile = "benchmarks/" +\
             verilog_spec_location+"/Yvarlist/"+filename
-        verilog = "data/benchmarks/" +\
+        verilog = "benchmarks/" +\
             verilog_spec_location+"/"+verilog_spec
 
         return verilog, varlistfile

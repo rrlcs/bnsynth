@@ -65,7 +65,7 @@ def get_phi_prime_skf_list(skf_list, training_samples, disagreed_indices, input_
 
 
 def print_skolem_function(args):
-    path = 'data/benchmarks/'+args.verilog_spec_location+"/"
+    path = 'benchmarks/'+args.verilog_spec_location+"/"
     f = open('experiments/simplified.skf', 'r')
     simple_skf = f.read()
     f.close()
@@ -84,7 +84,7 @@ def print_skolem_function(args):
 
 
 def get_bnsynth_counts(args, num_of_outputs, total_varsz3, Xvar, ):
-    path = 'data/benchmarks/'+args.verilog_spec_location+"/"
+    path = 'benchmarks/'+args.verilog_spec_location+"/"
     preparez3(args.verilog_spec,
               path, num_of_outputs)
 
@@ -102,9 +102,9 @@ def get_bnsynth_counts(args, num_of_outputs, total_varsz3, Xvar, ):
 
 
 def run_manthan(args):
-    cmd1 = 'python manthan.py --seed 1 --varlist data/benchmarks/final_custom_benchmarks/verilog/Yvarlist/' + \
+    cmd1 = 'python manthan.py --seed 1 --varlist benchmarks/final_custom_benchmarks/verilog/Yvarlist/' + \
         args.verilog_spec[:-2]+'_varstoelim.txt ' + \
-        '--verilog data/benchmarks/final_custom_benchmarks/verilog/' + \
+        '--verilog benchmarks/final_custom_benchmarks/verilog/' + \
         args.verilog_spec+' > /dev/null 2>&1'
     os.system(cmd1)
 
@@ -302,6 +302,8 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
             if ret == 0:
                 print('\n\nError Formula UNSAT... Skolem functions generated')
 
+                # input()
+
                 # ============================================================
                 bnsynth_clause_counts, num_inputs_bnsynth = get_bnsynth_counts(
                     args, num_of_outputs, total_varsz3, Xvar)
@@ -317,7 +319,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 manthan_clause_counts, num_inputs_manthan = get_manthan_counts(
                     args, num_of_outputs, io_dict, Xvar)
                 # ============================================================
-
+                # input()
                 is_valid = 1
                 skfunc = [sk.replace('\n', '') for sk in skf_list]
                 t = time.time() - start_time
@@ -334,10 +336,9 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                     manthan_clause_counts[4]+", "+manthan_clause_counts[5]+"\n"
                 if args.cnf == 'cnf':
                     print("\nComparing CNF formulae for BNSynth with Manthan")
-                    print(bnsynth_clause_counts)
                     print(tabulate([['Manthan', manthan_time, manthan_clause_counts[1], manthan_clause_counts[5], num_inputs_manthan],
                                     ['BNSynth', bnsynth_time, bnsynth_clause_counts[1], bnsynth_clause_counts[5], num_inputs_bnsynth], [
-                        'Improvement factor', int(manthan_time)/int(bnsynth_time), int(manthan_clause_counts[1])/int(bnsynth_clause_counts[1]), int(manthan_clause_counts[5])/int(bnsynth_clause_counts[5]), int(num_inputs_manthan)/int(num_inputs_bnsynth)]], headers=['', 'T', 'C', 'L', 'I'], tablefmt='psql'))
+                        'Improvement factor', float(manthan_time)/float(bnsynth_time), float(manthan_clause_counts[1])/float(bnsynth_clause_counts[1]), float(manthan_clause_counts[5])/float(bnsynth_clause_counts[5]), float(num_inputs_manthan)/float(num_inputs_bnsynth)]], headers=['', 'T', 'C', 'L', 'I'], tablefmt='psql'))
                 else:
                     print(
                         "At this point we don't compare BNSynth and Manthan for DNF formulae")
@@ -348,7 +349,7 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 f.write("OK")
                 f.close()
                 # os.system(
-                #     'rm data/benchmarks/cav20_manthan_dataset/verilog/*.cnf')
+                #     'rm benchmarks/cav20_manthan_dataset/verilog/*.cnf')
                 os.unlink('experiments/simplified.skf')
             else:
                 counter_examples = torch.from_numpy(
@@ -364,8 +365,8 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
 
         print("skolem functions: ", skf_list)
         verilogformula = util.convert_verilog(
-            "data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, 0)
-        inputfile_name = ("data/benchmarks/"+args.verilog_spec_location +
+            "benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, 0)
+        inputfile_name = ("benchmarks/"+args.verilog_spec_location +
                           "/"+args.verilog_spec).split('/')[-1][:-8]
         verilog = inputfile_name+".v"
 
@@ -406,5 +407,12 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 ).reshape((1, len(Xvar)+len(Yvar)))
             )
             print("counter examples: ", counter_examples)
+    os.system('rm experiments/*.skf')
+    os.unlink('experiments/check')
+    os.unlink('accuracy_list')
+    os.unlink('cnf')
+    os.unlink('train_loss')
+    os.unlink('valid_loss')
+    os.unlink('train_valid_loss_plot.png')
 
     return skf_list, is_valid, counter_examples
