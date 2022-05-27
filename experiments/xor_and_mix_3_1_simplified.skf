@@ -1,1 +1,0 @@
-Or(And(i0,i1),And(i0,Not(i1)))

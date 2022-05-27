@@ -1,0 +1,22 @@
+#!/bin/sh
+python3 run.py \
+--th=0.5 \
+--P=0 \
+--train=1 \
+--tnorm_name=product \
+--learning_rate=.01 \
+--run_for_all_outputs=1 \
+--verilog_spec_location=final_custom_benchmarks/verilog \
+--verilog_spec=$1 \
+--training_size=10000 \
+--epochs=1 \
+--batch_size=1 \
+--K=$2 \
+--preprocessor=1 \
+--postprocessor=1 \
+--architecture=$4 \
+--layers=1 \
+--cnf=$3 \
+--ce=1 \
+--load_saved_model=0 \
+--output_file=$5

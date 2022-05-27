@@ -42,10 +42,8 @@ if __name__ == "__main__":
     if args.ce:
         if not is_valid:
             # Counter Example Loop
-            print("Starting Counter Example Loop")
-            ce_train.ce_train_loop(args, training_samples, counter_example, inp_samples, num_of_vars,
-                                   input_size, num_of_outputs, input_var_idx, output_var_idx,
-                                   io_dict, io_dictz3, Xvar, Yvar, total_varsz3, device, is_valid, verilogformula,
-                                   PosUnate, NegUnate, start_time)
-
-    print("Skolem Functions: ", skolem_functions)
+            print("\n\nEntering Counter Example Guided Training Loop")
+            skolem_functions = ce_train.ce_train_loop(args, training_samples, counter_example, inp_samples, num_of_vars,
+                                                      input_size, num_of_outputs, input_var_idx, output_var_idx,
+                                                      io_dict, io_dictz3, Xvar, Yvar, total_varsz3, device, is_valid, verilogformula,
+                                                      PosUnate, NegUnate, start_time)

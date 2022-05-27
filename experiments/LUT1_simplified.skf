@@ -1,1 +1,0 @@
-FalseAnd(Not(i1),Or(Not(i0),Not(i1)))

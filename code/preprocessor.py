@@ -5,9 +5,20 @@ from code.utils.utils import util
 import numpy as np
 import torch
 from data.dataLoader import dataLoader
+from art import *
 
 
 def preprocess():
+    '''
+    Generates samples using Manthan's sampler.
+    Removes don't cares, if any.
+    Further obtains required information from the specification F(X, Y)
+    '''
+
+    a = text2art("BNSYNTH")
+    print(a)
+    print('____A Bounded Boolean Functional Synthesis Tool using GCLN____\n')
+
     # Get Argument Parser
     parser = util.make_arg_parser()
     args = parser.parse_args()
@@ -15,11 +26,14 @@ def preprocess():
     # Set device
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     device = 'cpu'
-    # print(args.preprocessor)
+
+    f = open("cnf", "w")
+    f.write(str(args.cnf))
+    f.close()
 
     if args.preprocessor == 1:
         # Manthan 1 code
-        print("Starting Manthan1 Preprocessor")
+        # print("Starting Manthan1 Preprocessor")
         verilog, output_varlist, total_vars, total_varsz3,\
             verilogformula, PosUnate, NegUnate, Xvar,\
             Yvar, Xvar_map, Yvar_map = util.preprocess_wrapper(
@@ -28,8 +42,6 @@ def preprocess():
 
         result = util.check_unates(
             PosUnate, NegUnate, Xvar, Yvar, args.verilog_spec[:-2])
-        print("Pos Neg unates: ", len(PosUnate), len(NegUnate))
-        print(Xvar, Yvar, Xvar_map, Yvar_map, total_vars, total_varsz3)
         # if result:
         #     unate_data = str(args.verilog_spec)+", "+str(len(Xvar)) + \
         #         ", "+str(len(Yvar))+", "+"All Unates"+"\n"
@@ -49,34 +61,26 @@ def preprocess():
         cnf_content, allvar_map = util.prepare_cnf_content(
             verilog, Xvar, Yvar, Xvar_map, Yvar_map, PosUnate, NegUnate
         )
-        print("cnf content")
         # exit()
         # generate sample
         samples = util.generate_samples(
             cnf_content, Xvar, Yvar, Xvar_map, Yvar_map, allvar_map, verilog,
             max_samples=args.training_size
         )
-        print("samples: ", samples.shape)
-        # exit()
 
         num_of_vars, num_out_vars, num_of_eqns = util.get_var_counts(
             Xvar, Yvar, verilog)
-        print("No. of vars: {}, No. of output vars: {}, No. of eqns: {}".format(
-            num_of_vars, num_out_vars, num_of_eqns))
+        # print("No. of vars: {}, No. of output vars: {}, No. of eqns: {}".format(
+        #     num_of_vars, num_out_vars, num_of_eqns))
 
         # Prepare input output dictionaries
         io_dict = util.prepare_io_dicts(total_vars)
         io_dictz3 = util.prepare_io_dicts(total_varsz3)
-        print("io dict: ", io_dict)
+
         # Obtain variable indices
-        # print("out var list: ", output_varlist)
         input_var_idx, output_var_idx = util.get_var_indices(
             num_of_vars, output_varlist, io_dict)
         input_size = 2*len(input_var_idx)
-        # print("Input Indices: ", input_var_idx)
-        # print("Output Indices: ", output_var_idx)
-        # print("Input size: ", input_size)
-        # print("Output size: ", len(output_var_idx))
         inp_samples_list = samples[:, input_var_idx]
         inp_samples_list = [tuple(x) for x in inp_samples_list]
         inp_samples = list(set(inp_samples_list))
@@ -106,29 +110,27 @@ def preprocess():
         # Find indices of samples to keep
         remainder_indices = list(set(total_indices) - set(inds))
 
-        # Filter data
+        # Filtered don't cares from the data
         samples = samples[remainder_indices, :]
         x_data, indices = np.unique(
             samples[:, Xvar], axis=0, return_index=True)
         samples = samples[indices, :]
-        print("filtered don't cares from samples: ", samples)
         np.random.RandomState(42)
         # if samples.shape[0] > 100:
         #     samples = samples[np.random.choice(
         #         samples.shape[0], 100, replace=False), :]
         # samples = np.random.rand(samples.shape[0], samples.shape[1])
         # samples = samples[:1, :]
-        print("data \n", samples)
+
         # np.savetxt("samples.csv", samples, delimiter=",")
         # training_samples = util.make_dataset_larger(samples)
         training_samples = torch.from_numpy(samples).to(torch.double)
-        print(training_samples.shape)
 
         # Get train test split
         training_set, validation_set = util.get_train_test_split(
             training_samples)
-        print("Total, Train, and Valid shapes", training_samples.shape,
-              training_set.shape, validation_set.shape)
+        # print("Total, Train, and Valid shapes", training_samples.shape,
+        #       training_set.shape, validation_set.shape)
 
         if args.run_for_all_outputs == 1:
             num_of_outputs = len(output_var_idx)
@@ -142,11 +144,8 @@ def preprocess():
                                        output_var_idx, num_of_outputs, args.threshold, args.batch_size)
     else:
         # Manthan 2 code
-        print("Starting Manthan2 Preprocessor")
         Xvar, Yvar, qdimacs_list = util.parse(
             "data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec)
-        print("count X variables", len(Xvar))
-        print("count Y variables", len(Yvar))
 
         all_var = Xvar + Yvar
         total_vars = ["i"+str(v) for v in all_var]
@@ -159,8 +158,6 @@ def preprocess():
             "data/benchmarks/"+args.verilog_spec_location+"/"+args.verilog_spec, cnffile_name)
         cnfcontent = cnfcontent.strip("\n")+"\n"
 
-        # finding unates:
-        print("preprocessing: finding unates (constant functions)")
         start_t = time.time()
         if len(Yvar) > 0:
             PosUnate, NegUnate = util.preprocess(cnffile_name)
@@ -169,12 +166,6 @@ def preprocess():
             PosUnate = []
             NegUnate = []
         end_t = time.time()
-        print("preprocessing time:", str(end_t-start_t))
-
-        print("count of positive unates", len(PosUnate))
-        print("count of negative unates", len(NegUnate))
-        print("positive unates", PosUnate)
-        print("negative unates", NegUnate)
 
         Unates = PosUnate + NegUnate
 
@@ -251,12 +242,9 @@ def preprocess():
                     Xvar, Yvar, sampling_cnf, sampling_weights_y_1, sampling_weights_y_0, inputfile_name, Unates, args)
             else:
                 weighted_sampling_cnf = sampling_cnf + sampling_weights_y_1
-            # print(weighted_sampling_cnf)
-            print("generating weighted samples")
             samples = util.generatesample(
                 args, num_samples, weighted_sampling_cnf, inputfile_name, weighted)
         else:
-            print("generating uniform samples")
             samples = util.generatesample(
                 args, num_samples, sampling_cnf, inputfile_name, weighted)
 
@@ -265,16 +253,11 @@ def preprocess():
         Xvar_tmp = [i-1 for i in Xvar]
         _, indices = np.unique(samples[:, Xvar_tmp], axis=0, return_index=True)
         samples = samples[indices, :]
-        print("samples on unique inputs: ", samples.shape)
-        print(samples)
 
         training_samples = torch.from_numpy(samples[:100, :]).to(torch.double)
-        print(training_samples.shape)
 
         training_set, validation_set = util.get_train_test_split(
             training_samples)
-        print("Total, Train, and Valid shapes", training_samples.shape,
-              training_set.shape, validation_set.shape)
 
         num_of_vars, num_out_vars = len(Xvar)+len(Yvar), len(Yvar)
 
@@ -285,9 +268,6 @@ def preprocess():
         input_var_idx, output_var_idx = util.get_var_indices(
             num_of_vars, output_varlist, io_dict)
         input_size = 2*len(input_var_idx)
-        print("Input size: ", input_size)
-        print("Output size: ", len(output_var_idx))
-        print("indices: ", input_var_idx, output_var_idx)
 
         if args.run_for_all_outputs == 1:
             num_of_outputs = len(output_var_idx)

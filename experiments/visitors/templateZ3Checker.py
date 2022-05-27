@@ -27,6 +27,9 @@ def get_child_count(formula):
         return 1, childs
 
 
+f = open("cnf", "r")
+is_cnf = (f.read()) == 'cnf'
+
 outs = getz3formula()
 char_count_pre_simplification = 0
 char_count_post_simplification = 0
@@ -40,7 +43,8 @@ for formula in outs:
     char_count_pre_simplification += len(fstr)
     g = Goal()
     g.add(formula)
-    formula = cnf(g).as_expr()
+    if is_cnf:
+        formula = cnf(g).as_expr()
     cl, childs = get_child_count(formula)
     clause_count_pre_simplification += cl
     if len(childs) > 0:
@@ -55,7 +59,7 @@ for formula in outs:
     g.add(formula)
     wp = tactic_simplify(g).as_expr()
     text = str(wp).replace("\n", "").replace(" ", "")
-    ftext += text
+    ftext += (text+"\n").replace(",", ", ")
     char_count_post_simplification += len(text)
     cl, childs = get_child_count(wp)
     clause_count_post_simplification += cl
@@ -69,6 +73,7 @@ for formula in outs:
 f = open('experiments/simplified.skf', 'w')
 f.write(ftext)
 f.close()
+ftext = ftext.replace(" ", "").replace("\n", "")
 print("Counts: ")
 print(ftext)
 print(clause_count_pre_simplification)

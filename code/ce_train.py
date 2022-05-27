@@ -17,16 +17,16 @@ def ce_train_loop(
 
     loop = 0
     while not is_valid:
-        print("Counter Example Loop: ", loop)
+        print("\nCounter Example Loop: ", loop)
         loop += 1
         counter_example = counter_example.numpy()
         ce_inp_sample = tuple(counter_example[:, input_var_idx][0])
         counter_example = torch.tensor(counter_example)
-        print("ce inp smaple", ce_inp_sample)
+
         if ce_inp_sample in inp_samples:
             training_samples = training_samples
         else:
-            print("Counter Example Added to Training Data")
+            # print("Counter Example Added to Training Data")
             # counter_example = util.make_dataset_larger(
             #     counter_example.numpy(), 100)
             training_samples = torch.cat(
@@ -39,7 +39,7 @@ def ce_train_loop(
         # x_data, indices = np.unique(
         #     samples[:, Xvar], axis=0, return_index=True)
         # samples = samples[indices, :]
-        print(training_samples.shape)
+
         training_set, validation_set = util.get_train_test_split(
             training_samples)
         train_loader = dataLoader(training_set, args.training_size, args.P, input_var_idx,
@@ -60,8 +60,9 @@ def ce_train_loop(
             io_dict, io_dictz3, Xvar, Yvar, PosUnate, NegUnate, start_time, training_samples, disagreed_indices, num_of_ce=loop
         )
 
-        print("counter example learned skf: ", skolem_functions)
+        # print("counter example learned skf: ", skolem_functions)
 
-        if is_valid:
-            print("skolem function generated succesflly")
-            print("Time: ", time.time() - start_time)
+        # if is_valid:
+        #     print("skolem function generated succesflly")
+        # print("Time: ", time.time() - start_time)
+    return skolem_functions

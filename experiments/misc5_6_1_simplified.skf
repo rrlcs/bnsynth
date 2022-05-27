@@ -1,1 +1,0 @@
-And(Or(i0,i1,i5,Not(i2),Not(i3),Not(i4)),Or(i0,i2,Not(i1),Not(i3),Not(i4),Not(i5)),Or(i0,i2,Not(i1),Not(i3),Not(i4)),Or(i0,i2,Not(i5)),Or(i1,i2,Not(i0),Not(i3),Not(i4),Not(i5)),Or(i1,i2,Not(i0),Not(i3),Not(i4)),Or(i2,i3,i4,Not(i5)),Or(Not(i0),Not(i1),Not(i2),Not(i3),Not(i4)),Not(i5))

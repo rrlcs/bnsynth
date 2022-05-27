@@ -41,7 +41,7 @@ verilog_files = [files for files in verilog_files if files.count(".v") > 0]
 # print((verilog_files))
 
 # exit()
-data = pd.read_csv("experiments/results_with_reg_cnf.csv")
+data = pd.read_csv("experiments/results_dnf_arch1.csv")
 files_done = list(data['Spec'])
 verilog_files = [vfile for vfile in verilog_files if vfile not in files_done]
 
@@ -50,6 +50,7 @@ exit()
 
 
 choices = [(1, 60), (5, 120), (20, 120), (50, 180), (500, 300), (1000, 600)]
+choices = [(50, 600)]
 rev_choices = (choices[::-1])
 # print(rev_choices)
 # exit()
@@ -59,7 +60,8 @@ for name in verilog_files:
         print("choice: ", i)
         max_time = choices[i][1]
         K = choices[i][0]
-        cmd = "timeout "+str(max_time)+" ./run.sh 0 " + name+" 1 "+str(K)
+        cmd = "timeout "+str(max_time)+" ./run.sh 0 " + name + \
+            " 1 "+str(K)+" 1 "+" experiments/results_dnf_arch1.csv"
         try:
             output = subprocess.check_output(
                 cmd, stderr=subprocess.STDOUT, shell=True,
@@ -69,14 +71,50 @@ for name in verilog_files:
             continue
         else:
             print("Output: \n{}\n".format(output))
-        # p = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True)
-        # out, err = p.communicate()
-        # p.wait()
         f = open("experiments/check", "r")
         check = f.read()
         print("OK")
         if check == "OK":
             break
 
-# subprocess.run(["timeout", "400", "./run.sh", "0",
-#                 name, "1", "50"])
+    # for i in range(len(choices)):
+    #     print("choice: ", i)
+    #     max_time = choices[i][1]
+    #     K = choices[i][0]
+    #     cmd = "timeout "+str(max_time)+" ./run.sh 0 " + name + \
+    #         " 1 "+str(K)+" 2 "+" experiments/results_dnf_arch2.csv"
+    #     try:
+    #         output = subprocess.check_output(
+    #             cmd, stderr=subprocess.STDOUT, shell=True,
+    #             universal_newlines=True)
+    #     except subprocess.CalledProcessError as exc:
+    #         print("Status : FAIL", exc.returncode, exc.output)
+    #         continue
+    #     else:
+    #         print("Output: \n{}\n".format(output))
+    #     f = open("experiments/check", "r")
+    #     check = f.read()
+    #     print("OK")
+    #     if check == "OK":
+    #         break
+
+    # for i in range(len(choices)):
+    #     print("choice: ", i)
+    #     max_time = choices[i][1]
+    #     K = choices[i][0]
+    #     cmd = "timeout "+str(max_time)+" ./run.sh 0 " + name + \
+    #         " 1 "+str(K)+" 3 "+" experiments/results_dnf_arch3.csv"
+    #     try:
+    #         output = subprocess.check_output(
+    #             cmd, stderr=subprocess.STDOUT, shell=True,
+    #             universal_newlines=True)
+    #     except subprocess.CalledProcessError as exc:
+    #         print("Status : FAIL", exc.returncode, exc.output)
+    #         continue
+    #     else:
+    #         print("Output: \n{}\n".format(output))
+    #     f = open("experiments/check", "r")
+    #     check = f.read()
+    #     print("OK")
+    #     if check == "OK":
+    #         break
