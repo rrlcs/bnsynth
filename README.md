@@ -41,6 +41,9 @@ pip install antlr4-python3-runtime
 - Arg3: Formula format (CNF/DNF)
 - Arg4: Architecture (1/2/3)
 
+## Terminal output
+[experiments/ss_terminal.png]
+
 ## Run for all benchmarks in benchmarks/custom_and_lut/
 ```python experiments/evaluate.py```
 
