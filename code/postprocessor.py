@@ -342,9 +342,16 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 else:
                     print(
                         "At this point we don't compare BNSynth and Manthan for DNF formulae")
-                f = open(args.output_file, "a")
-                f.write(datastring)
-                f.close()
+                exists = os.path.isfile('out.csv')
+                if exists:
+                    f = open(args.output_file, "a")
+                    f.write(datastring)
+                    f.close()
+                else:
+                    f = open(args.output_file, "a")
+                    f.write("Spec, Architecture, CNF, #Layers, Epochs, Batch Size, Learning Rate, K, No. of Inputs, No. of Outputs, No. of Counter Example Loops, Result, BNSynth Time, Manthan Time, Final Loss, Loss Drop, Accuracy, No. of Clauses pre simplification (BNSynth), No. of Clauses post simplification (BNSynth), No. of Chars pre simplification (BNSynth), No. of Chars post simplification (BNSynth), No. Input vars in SKF (BNSynth), No. of Literals pre simplification (BNSynth), No. of Literals post simplification (BNSynth), No. of Clauses pre simplification (Manthan), No. of Clauses post simplification (Manthan), No. of Chars pre simplification (Manthan), No. of Chars post simplification (Manthan), No. Input vars in SKF (Manthan), No. of Literals pre simplification (Manthan), No. of Literals post simplification (Manthan)\n")
+                    f.write(datastring)
+                    f.close()
                 f = open("experiments/check", "w")
                 f.write("OK")
                 f.close()
@@ -408,11 +415,12 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
             )
             print("counter examples: ", counter_examples)
     os.system('rm experiments/*.skf')
-    os.unlink('experiments/check')
+    # os.unlink('experiments/check')
     os.unlink('accuracy_list')
-    os.unlink('cnf')
+    # os.unlink('cnf')
     os.unlink('train_loss')
     os.unlink('valid_loss')
     os.unlink('train_valid_loss_plot.png')
+    os.unlink('variable_mapping.txt')
 
     return skf_list, is_valid, counter_examples

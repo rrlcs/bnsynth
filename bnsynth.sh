@@ -19,4 +19,4 @@ python3 bnsynth.py \
 --cnf=$3 \
 --ce=1 \
 --load_saved_model=0 \
---output_file=experiments/output_files/lut.csv
+--output_file=out.csv

@@ -1,45 +1,52 @@
-# Boolean Function Synthesis using GCLN
+# BNSynth: Bounded Boolean Functional Synthesis
 
 ## Boolean Function Synthesis:
 
-Given an existentially quantified Boolean formula ∃Y F(X, Y ) over the set of variables X and Y , the problem of Boolean functional synthesis is to compute a vector of Boolean functions, denoted by Ψ(X) = <ψ1(X), ψ2(X), . . . , ψ|Y |(X)>,
-and referred to as Skolem function vector, such that
-∃Y F(X, Y) ≡ F(X, Ψ(X)).
-In the context of applications, the sets
-X and Y are viewed as inputs and outputs, and the formula
-F(X, Y ) is viewed as a functional specification capturing the
-relationship between X and Y , while the Skolem function vector Ψ(X) allows
-one to determine the value of Y for the given X by evaluating Ψ (https://arxiv.org/pdf/2005.06922.pdf)
+BNSynth synthesizes Boolean functions under a specified bound (K) on formula size in terms of number of clauses. BNSynth uses a
+counter-example guided, neural approach to solve the bounded BFS problem.
+
+To know more about BNSynth, refer to the talk [video](https://youtu.be/xaaopov3eZc).
+
+## Environment
+Python 3
 
 ## Requirements
 - PyTorch 
 ```
-pip3 install torch==1.8.1+cu102 torchvision==0.9.1+cu102 torchaudio===0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
+pip install torch==1.8.1+cu102 torchvision==0.9.1+cu102 torchaudio===0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
 ```
 - NumPy
 ```
-pip3 install numpy
+pip install numpy
 ```
 - ArgParse
 ```
-pip3 install argparse
+pip install argparse
+```
+- z3py
+```
+pip install z3-solver
+```
+- Antlr4
+```
+pip install antlr4-python3-runtime
 ```
 
-## Run individual examples
+## Run individual benchmark
 ```
-./run.sh 0 sample1.v 1 10 &> log.txt
+./bnsynth.sh lut1_2_2.v 10 cnf 1
 ```
-- Arg1: 0 for regression and 1 for classification
-- Arg2: Specify file name for verilog specification
-- Arg3: Epochs
-- Arg4: Number of Clauses
+- Arg1: Benchmark name (see benchmarks/custom_and_lut/)
+- Arg2: Bound on number of clauses (K)
+- Arg3: Formula format (CNF/DNF)
+- Arg4: Architecture (1/2/3)
 
-## Run autotest on 6 samples
-```python3 scripts/script.py```
+## Run for all benchmarks in benchmarks/custom_and_lut/
+```python experiments/evaluate.py```
 
 ## More information on options:
 ```
-python run.py --help
+python bnsynth.py --help
 ```
 
 ## References:
@@ -47,8 +54,8 @@ python run.py --help
 - GCLN: https://arxiv.org/pdf/2003.07959.pdf
 
 ## Collaborators:
-- Aditya Kanade
-- Chiranjib Bhattacharyya
-- Deepak D'Souza
 - Ravi Raja
 - Stanly Samuel
+- Chiranjib Bhattacharyya
+- Deepak D'Souza
+- Aditya Kanade
