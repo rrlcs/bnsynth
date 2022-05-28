@@ -42,7 +42,7 @@ pip install antlr4-python3-runtime
 - Arg4: Architecture (1/2/3)
 
 ## Terminal output
-!(experiments/ss_terminal.png)
+![ss](experiments/ss_terminal.png)
 
 ## Run for all benchmarks in benchmarks/custom_and_lut/
 ```python experiments/evaluate.py```
