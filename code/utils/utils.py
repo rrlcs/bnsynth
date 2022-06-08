@@ -71,12 +71,8 @@ class utils():
         parser = argparse.ArgumentParser()
         parser.add_argument("--threshold", metavar="--th", type=float,
                             default=0.8, help="Enter value between 0.5 <= th <= 1")
-        parser.add_argument("--training_size", metavar="--n",
-                            type=int, default=50000, help="Enter n >= 50000")
         parser.add_argument("--no_of_input_var", metavar="--noiv",
                             type=int, default=1, help="Enter value >= 1")
-        parser.add_argument("--run_for_all_outputs", type=int, default=1,
-                            help="0: Runs for only one output var, 1: Runs for all ouputs")
         parser.add_argument("--K", type=int, default=10,
                             help="No. of Clauses >= 1")
         parser.add_argument("--epochs", type=int, default=50,
@@ -88,11 +84,9 @@ class utils():
         parser.add_argument("--tnorm_name", type=str,
                             default="product", help="godel/product")
         parser.add_argument("--P", type=int, default=0,
-                            help="0: Regression, 1: Classification with y as labels, 2: Classification with F out as labels")
+                            help="0: Regression, 1: Classification")
         parser.add_argument("--train", type=int, default=0,
                             help="1/0; 0 loads the saved model")
-        parser.add_argument("--correlated_sampling",
-                            type=int, default=0, help="1/0")
         parser.add_argument("--preprocessor",
                             type=int, default=1, help="1 for manthan1 2 for manthan2")
         parser.add_argument("--postprocessor",
@@ -417,13 +411,13 @@ class utils():
         elif architecture == 2:
             for j in range(hidden_size):
                 mask = layer_or_weights[:, j] > threshold
-                clauses.append(clause[mask].tolist())
-            clauses = np.array(clauses)
+                clauses.append(list(clause[mask]))
+            clauses = np.array(clauses, dtype=list)
         elif architecture == 3:
             for j in range(num_of_outputs * K):
                 mask = layer_or_weights[:, j] > threshold
-                clauses.append(clause[mask])
-            clauses = np.array(clauses)
+                clauses.append(list(clause[mask]))
+            clauses = np.array(clauses, dtype=list)
 
         ored_clauses = []
         for j in range(len(clauses)):
@@ -540,13 +534,13 @@ class utils():
         elif architecture == 2:
             for j in range(K):
                 mask = layer_and_weights[:, j] > threshold
-                clauses.append(clause[mask])
-            clauses = np.array(clauses)
+                clauses.append(list(clause[mask]))
+            clauses = np.array(clauses, dtype=list)
         elif architecture == 3:
             for j in range(num_of_outputs * K):
                 mask = layer_and_weights[:, j] > threshold
-                clauses.append(clause[mask])
-            clauses = np.array(clauses)
+                clauses.append(list(clause[mask]))
+            clauses = np.array(clauses, dtype=list)
 
         ored_clauses = []
         for j in range(len(clauses)):
@@ -650,7 +644,7 @@ class utils():
 
         return skfs, temp_dict
 
-    def dataLoader(self, training_samples, training_size, P, input_var_idx, output_var_idx, num_of_outputs, threshold, batch_size):
+    def dataLoader(self, training_samples, input_var_idx, output_var_idx, batch_size):
         # Define training data loader
         inps = training_samples[:, input_var_idx]
         tgts = training_samples[:, output_var_idx]
@@ -1323,7 +1317,15 @@ class utils():
         error_content += verilog_formula
         return error_content
 
-    def write_error_formula1(self, inputfile_name, verilog, verilog_formula, skfunc, temp_content, Xvar, Yvar, total_varsz3, pos_unate, neg_unate):
+    def write_error_formula1(self, inputfile_name, verilog, verilog_formula, skfunc, temp_dict, Xvar, Yvar, total_varsz3, pos_unate, neg_unate):
+
+        var_def = ""
+        assigns = ""
+        for i, (k, v) in enumerate(temp_dict.items()):
+            var_def += "wire " + k + ";\n"
+            assigns += "assign " + k + " = " + v + ";\n"
+        temp_content = var_def + assigns
+
         candidateskf = self.prepare_candidateskf(
             skfunc, Yvar, pos_unate, neg_unate)
         self.create_skolem_function(

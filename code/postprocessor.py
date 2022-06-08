@@ -182,8 +182,6 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                      args.verilog_spec[:-2]+'.skf', 'w')
             f.write(skfs)
             f.close()
-            bnsynth_clause_counts, num_inputs_bnsynth = get_bnsynth_counts(
-                args, num_of_outputs, total_varsz3, Xvar)
         else:
             skolem_function, temp_dict = util.get_skolem_function_cnf_2(
                 args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dictz3, 0)
@@ -206,8 +204,6 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                      args.verilog_spec[:-2]+'.skf', 'w')
             f.write(skfs)
             f.close()
-            bnsynth_clause_counts, num_inputs_bnsynth = get_bnsynth_counts(
-                args, num_of_outputs, total_varsz3, Xvar)
     else:
         if args.architecture == 1:
             skf_dict = {}
@@ -227,14 +223,10 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                      args.verilog_spec[:-2]+'.skf', 'w')
             f.write(skfs)
             f.close()
-            bnsynth_clause_counts, num_inputs_bnsynth = get_bnsynth_counts(
-                args, num_of_outputs, total_varsz3, Xvar)
-
         elif args.architecture == 2:
             skolem_function, temp_dict = util.get_skolem_function_dnf(
                 args, model, num_of_inputs, input_var_idx, num_of_outputs, output_var_idx, io_dictz3, 0)
             skf_dict = {}
-            print("skolem function: ", skolem_function)
             for i in range(num_of_outputs):
                 skf_dict[Yvar[i]] = temp_dict[skolem_function[i]]
             skf_list = list(skf_dict.values())
@@ -275,20 +267,12 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                      args.verilog_spec[:-2]+'.skf', 'w')
             f.write(skfs)
             f.close()
-            bnsynth_clause_counts, num_inputs_bnsynth = get_bnsynth_counts(
-                args, num_of_outputs, total_varsz3, Xvar)
 
-    var_def = ""
-    assigns = ""
-    for i, (k, v) in enumerate(temp_dict.items()):
-        var_def += "wire " + k + ";\n"
-        assigns += "assign " + k + " = " + v + ";\n"
-    temp_content = var_def + assigns
     if args.postprocessor == 1:
         inputfile_name = args.verilog_spec.split('.v')[0]
         # Write the error formula in verilog
         util.write_error_formula1(inputfile_name, args.verilog_spec,
-                                  verilogformula, skf_list, temp_content, Xvar, Yvar, total_varsz3, PosUnate, NegUnate)
+                                  verilogformula, skf_list, temp_dict, Xvar, Yvar, total_varsz3, PosUnate, NegUnate)
 
         # sat call to errorformula:
         check, sigma, ret = util.verify(Xvar, Yvar, args.verilog_spec)
@@ -414,13 +398,15 @@ def postprocess(args, model, accuracy, epochs, final_loss, loss_drop, verilogfor
                 ).reshape((1, len(Xvar)+len(Yvar)))
             )
             print("counter examples: ", counter_examples)
-    os.system('rm experiments/*.skf')
+    # os.system('rm experiments/*.skf')
     # os.unlink('experiments/check')
     os.unlink('accuracy_list')
     # os.unlink('cnf')
     os.unlink('train_loss')
     os.unlink('valid_loss')
     os.unlink('train_valid_loss_plot.png')
-    os.unlink('variable_mapping.txt')
+    exists = os.path.isfile('variable_mapping.txt')
+    if exists:
+        os.unlink('variable_mapping.txt')
 
     return skf_list, is_valid, counter_examples

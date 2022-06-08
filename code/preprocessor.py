@@ -69,7 +69,7 @@ def preprocess():
         # generate sample
         samples = util.generate_samples(
             cnf_content, Xvar, Yvar, Xvar_map, Yvar_map, allvar_map, verilog,
-            max_samples=args.training_size
+            max_samples=1000
         )
 
         num_of_vars, num_out_vars, num_of_eqns = util.get_var_counts(
@@ -136,16 +136,13 @@ def preprocess():
         # print("Total, Train, and Valid shapes", training_samples.shape,
         #       training_set.shape, validation_set.shape)
 
-        if args.run_for_all_outputs == 1:
-            num_of_outputs = len(output_var_idx)
-        else:
-            num_of_outputs = 1
+        num_of_outputs = len(output_var_idx)
 
         # load data
-        train_loader = util.dataLoader(training_set, args.training_size, args.P, input_var_idx,
-                                       output_var_idx, num_of_outputs, args.threshold, args.batch_size)
-        validation_loader = util.dataLoader(validation_set, args.training_size, args.P, input_var_idx,
-                                            output_var_idx, num_of_outputs, args.threshold, args.batch_size)
+        train_loader = util.dataLoader(training_set, input_var_idx,
+                                       output_var_idx, args.batch_size)
+        validation_loader = util.dataLoader(validation_set, input_var_idx,
+                                            output_var_idx, args.batch_size)
     else:
         # Manthan 2 code
         Xvar, Yvar, qdimacs_list = util.parse(
@@ -273,15 +270,12 @@ def preprocess():
             num_of_vars, output_varlist, io_dict)
         input_size = 2*len(input_var_idx)
 
-        if args.run_for_all_outputs == 1:
-            num_of_outputs = len(output_var_idx)
-        else:
-            num_of_outputs = 1
+        num_of_outputs = len(output_var_idx)
 
-        train_loader = util.dataLoader(training_set, args.training_size, args.P, input_var_idx,
-                                       output_var_idx, num_of_outputs, args.threshold, args.batch_size)
-        validation_loader = util.dataLoader(validation_set, args.training_size, args.P, input_var_idx,
-                                            output_var_idx, num_of_outputs, args.threshold, args.batch_size)
+        train_loader = util.dataLoader(training_set, input_var_idx,
+                                       output_var_idx, args.batch_size)
+        validation_loader = util.dataLoader(validation_set, input_var_idx,
+                                            output_var_idx, args.batch_size)
 
     return args, training_samples, train_loader, validation_loader, input_size, num_of_outputs,\
         num_of_vars, input_var_idx, output_var_idx, io_dict, io_dictz3, Xvar,\
